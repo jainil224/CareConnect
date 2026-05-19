@@ -22,7 +22,7 @@ export default function Login() {
       setLoading(true);
       await login(email, password);
       toast.success("Authentication successful");
-      navigate("/"); // Redirect to dashboard
+      navigate("/dashboard"); // Redirect to dashboard
     } catch (error) {
       toast.error(error.message.replace("Firebase: ", ""));
     } finally {
@@ -35,7 +35,7 @@ export default function Login() {
       setLoading(true);
       await signInWithGoogle();
       toast.success("Welcome to CareConnect");
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       toast.error("Google sign-in failed");
     } finally {

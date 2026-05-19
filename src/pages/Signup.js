@@ -36,7 +36,7 @@ export default function Signup() {
       setLoading(true);
       await signup(formData.email, formData.password);
       toast.success("Account created securely");
-      navigate("/"); // Redirect to dashboard
+      navigate("/dashboard"); // Redirect to dashboard
     } catch (error) {
       toast.error(error.message.replace("Firebase: ", ""));
     } finally {

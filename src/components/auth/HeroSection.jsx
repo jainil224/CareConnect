@@ -2,12 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity } from 'lucide-react';
 import ECGAnimation from './ECGAnimation';
-import FloatingHealthCards from './FloatingHealthCards';
 
 export default function HeroSection() {
   return (
     <div className="relative z-10 w-full h-full flex flex-col justify-center">
-      <FloatingHealthCards />
       
       <motion.div 
         initial={{ opacity: 0, x: -30 }}

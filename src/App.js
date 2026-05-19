@@ -16,6 +16,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProtectedRoute from './routes/ProtectedRoute';
 import ECGPrediction from './pages/ECGPrediction';
+import LandingPage from './pages/LandingPage';
 
 function App() {
   return (
@@ -41,9 +42,12 @@ function App() {
             />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
               <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 
+                {/* Protected Dashboard Routes */}
                 <Route
                   path="/*"
                   element={
@@ -52,7 +56,7 @@ function App() {
                         <Header />
                         <main className="pt-16">
                           <Routes>
-                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/upload" element={<ReportUpload />} />
                             <Route path="/ecg" element={<ECGPrediction />} />
                             <Route path="/chat" element={<AIAssistant />} />
@@ -60,6 +64,9 @@ function App() {
                             <Route path="/facilities" element={<FacilitySearchDark />} />
                             <Route path="/drug-checker" element={<DrugInteractionChecker />} />
                             <Route path="/appointment-confirmation" element={<AppointmentConfirmation />} />
+                            
+                            {/* Fallback to dashboard if a logged-in user hits a non-existent protected route */}
+                            <Route path="*" element={<Dashboard />} />
                           </Routes>
                         </main>
                       </>
