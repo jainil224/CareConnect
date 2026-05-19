@@ -83,8 +83,8 @@ export default function LandingPage() {
         >
           {/* Huge Typography */}
           <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[110px] font-bold leading-[1.05] tracking-tight mb-8">
-            <span className="text-gray-500 hover:text-gray-400 transition-colors duration-500">The vision</span> <br />
-            <span className="text-gray-500 hover:text-gray-400 transition-colors duration-500">of engineering</span> <br />
+            <span className="text-gray-500 hover:text-gray-400 transition-colors duration-500">The future</span> <br />
+            <span className="text-gray-500 hover:text-gray-400 transition-colors duration-500">of healthcare</span> <br />
             <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2 mt-2">
               <span className="text-gray-600">is</span>
               <div className="flex items-center space-x-3 mx-2">
@@ -122,7 +122,7 @@ export default function LandingPage() {
             transition={{ duration: 1, delay: 0.8 }}
             className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed"
           >
-            We help you map the talent you need, track the talent you have, and close your gaps to thrive in a GenAI world.
+            We empower medical professionals with real-time ECG analysis, predictive AI insights, and instant hospital-grade reporting.
           </motion.p>
 
           {/* Glowing CTA Button */}
