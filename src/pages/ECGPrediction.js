@@ -302,7 +302,7 @@ export default function ECGPrediction() {
         {/* ── Main Grid ─────────────────────────────────────────── */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
-          {/* ── LEFT COLUMN (Upload, Prediction, Metrics) ─── col 1-4 */}
+          {/* ── LEFT COLUMN (Upload, Prediction) ─── col 1-4 */}
           <div className="xl:col-span-4 space-y-6">
             
             {/* Upload Card */}
@@ -327,14 +327,9 @@ export default function ECGPrediction() {
               )}
             </div>
 
-            {/* Clinical Metrics & Demographics */}
-            <div className="ecg-fade-3">
-              <HeartAnalytics patientInfo={patientInfo} />
-            </div>
-
           </div>
 
-          {/* ── RIGHT COLUMN (Monitor, AI Medical Summary) ─── col 5-12 */}
+          {/* ── RIGHT COLUMN (Monitor, AI Medical Summary, Metrics) ─── col 5-12 */}
           <div className="xl:col-span-8 space-y-6">
 
             {/* ECG Live Monitor */}
@@ -356,6 +351,11 @@ export default function ECGPrediction() {
                 result={result}
                 features={getUnifiedFeatures()}
               />
+            </div>
+
+            {/* Clinical Metrics & Demographics */}
+            <div className="ecg-fade-3">
+              <HeartAnalytics patientInfo={patientInfo} />
             </div>
 
           </div>
