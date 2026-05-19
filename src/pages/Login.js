@@ -189,9 +189,12 @@ export default function Login() {
           </form>
 
           <div className="text-center">
-            <Link to="/signup" className="text-sm text-white/60 hover:text-white transition-colors">
-              Don't have a profile? Sign up
-            </Link>
+            <span className="text-sm text-white/60">
+              Don't have a profile?{' '}
+              <Link to="/signup" className="text-white hover:text-gray-300 font-medium transition-colors">
+                Sign up
+              </Link>
+            </span>
           </div>
         </motion.div>
       </div>
