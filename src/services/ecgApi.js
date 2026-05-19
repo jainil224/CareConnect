@@ -37,26 +37,30 @@ const extractPDFText = async (file) => {
   
   console.log("Offline Extracted PDF select text content:", fullText);
 
-  // If PDF has no extractable text, we return generated physiological ranges
+  // If PDF has no extractable text, we return empty strings
   if (!fullText || fullText.trim().length === 0) {
-    console.warn("PDF contains no selectable text. Generating physiological patient profile as fallback.");
-    return generatePhysiologicalDefaults(file);
+    console.warn("PDF contains no selectable text. Returning empty clinical profile.");
+    return {
+      age: "", sex: "", cp: "", trestbps: "",
+      chol: "", fbs: "", restecg: "", thalach: "",
+      exang: "", oldpeak: "", slope: "", ca: "", thal: ""
+    };
   }
 
   // Exact clinical feature extraction matching scikit-learn model
-  let age = 0;
-  let sex = 0;
-  let cp = 0;
-  let trestbps = 0;
-  let chol = 0;
-  let fbs = 0;
-  let restecg = 0;
-  let thalach = 0;
-  let exang = 0;
-  let oldpeak = 0.0;
-  let slope = 0;
-  let ca = 0;
-  let thal = 0;
+  let age = "";
+  let sex = "";
+  let cp = "";
+  let trestbps = "";
+  let chol = "";
+  let fbs = "";
+  let restecg = "";
+  let thalach = "";
+  let exang = "";
+  let oldpeak = "";
+  let slope = "";
+  let ca = "";
+  let thal = "";
 
   // Regex selectors
   const ageMatch = fullText.match(/(?:age|yrs|years):\s*(\d+)/i) || fullText.match(/(\d+)\s*(?:years\s*old|yo)/i);
@@ -189,14 +193,21 @@ const runLocalPredictFallback = (features) => {
 
 // Request prediction from localhost Flask API using scikit-learn model
 export const predictECGLocal = async (features) => {
+  // Map any empty strings or null/undefined values to 0 to prevent ML model failure
+  const sanitizedFeatures = {};
+  Object.keys(features).forEach(key => {
+    const val = features[key];
+    sanitizedFeatures[key] = (val === "" || val === null || val === undefined) ? 0 : parseFloat(val);
+  });
+
   try {
-    const response = await axios.post('http://127.0.0.1:5000/predict', features, {
+    const response = await axios.post('http://127.0.0.1:5000/predict', sanitizedFeatures, {
       timeout: 3000
     });
     return response.data;
   } catch (err) {
     console.warn("Flask ML Predictor server not active on localhost:5000. Running matching client risk algorithm...", err);
-    return runLocalPredictFallback(features);
+    return runLocalPredictFallback(sanitizedFeatures);
   }
 };
 

@@ -75,8 +75,8 @@ export default function ECGWaveChart({ isProcessing, heartRate = 0, rhythmType =
       const elapsed = timestamp - lastTime;
       lastTime = timestamp;
 
-      // Render a perfectly flat straight line if liveBpm is 0 and not processing
-      if (liveBpm === 0 && !isProcessing) {
+      // Render a perfectly flat straight line if liveBpm is 0, empty or falsy and not processing
+      if ((!liveBpm || liveBpm === 0) && !isProcessing) {
         const steps = Math.ceil(scanSpeed);
         for (let i = 0; i < steps; i++) {
           const targetIdx = Math.floor(scanX);
@@ -154,16 +154,16 @@ export default function ECGWaveChart({ isProcessing, heartRate = 0, rhythmType =
 
       // 3. Draw standard Clinical ECG Grid Background
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#050d1a'; // Deep navy black primary
+      ctx.fillStyle = '#09090b'; // True site black
       ctx.fillRect(0, 0, width, height);
 
       // Grid line configurations
       ctx.lineWidth = 0.5;
       const gridSpacing = 20;
 
-      // Small vertical & horizontal grid lines
+      // Small vertical & horizontal grid lines (blue-tinted, matching site palette)
       for (let x = 0; x < width; x += gridSpacing) {
-        ctx.strokeStyle = (x % (gridSpacing * 5) === 0) ? 'rgba(0, 229, 255, 0.15)' : 'rgba(0, 229, 255, 0.04)';
+        ctx.strokeStyle = (x % (gridSpacing * 5) === 0) ? 'rgba(59,130,246,0.18)' : 'rgba(59,130,246,0.05)';
         ctx.lineWidth = (x % (gridSpacing * 5) === 0) ? 1.0 : 0.5;
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -172,7 +172,7 @@ export default function ECGWaveChart({ isProcessing, heartRate = 0, rhythmType =
       }
 
       for (let y = 0; y < height; y += gridSpacing) {
-        ctx.strokeStyle = (y % (gridSpacing * 5) === 0) ? 'rgba(0, 229, 255, 0.15)' : 'rgba(0, 229, 255, 0.04)';
+        ctx.strokeStyle = (y % (gridSpacing * 5) === 0) ? 'rgba(59,130,246,0.18)' : 'rgba(59,130,246,0.05)';
         ctx.lineWidth = (y % (gridSpacing * 5) === 0) ? 1.0 : 0.5;
         ctx.beginPath();
         ctx.moveTo(0, y);
@@ -180,11 +180,11 @@ export default function ECGWaveChart({ isProcessing, heartRate = 0, rhythmType =
         ctx.stroke();
       }
 
-      // 4. Draw Animated Neon ECG line with high-intensity glow
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#00e5ff';
-      ctx.strokeStyle = '#00e5ff';
-      ctx.lineWidth = 2.2;
+      // 4. Draw Animated blue ECG line with soft glow
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'rgba(96,165,250,0.8)';
+      ctx.strokeStyle = '#60a5fa';
+      ctx.lineWidth = 2.0;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
@@ -209,11 +209,11 @@ export default function ECGWaveChart({ isProcessing, heartRate = 0, rhythmType =
       // Reset shadows for scan line sweeps
       ctx.shadowBlur = 0;
 
-      // 5. Draw bright neon scanning line
+      // 5. Draw scanning sweep bar
       const grad = ctx.createLinearGradient(scanX - gap, 0, scanX, 0);
-      grad.addColorStop(0, 'rgba(0, 229, 255, 0)');
-      grad.addColorStop(0.8, 'rgba(0, 229, 255, 0.25)');
-      grad.addColorStop(1, '#00e5ff');
+      grad.addColorStop(0, 'rgba(59,130,246,0)');
+      grad.addColorStop(0.8, 'rgba(59,130,246,0.18)');
+      grad.addColorStop(1, 'rgba(96,165,250,0.7)');
 
       ctx.fillStyle = grad;
       ctx.fillRect(Math.max(0, scanX - gap), 0, Math.min(gap, scanX), height);
@@ -229,62 +229,63 @@ export default function ECGWaveChart({ isProcessing, heartRate = 0, rhythmType =
     };
   }, [liveBpm, isProcessing, waveformPattern]);
 
-  // Determine rhythm colors
-  const flashColor = flash ? 'text-[#00e5ff] scale-110' : 'text-zinc-600 scale-100';
+  const flashColor = flash ? 'text-blue-400 scale-110' : 'text-zinc-700 scale-100';
 
   return (
-    <div className="bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl w-full">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Activity className="text-cyan-400 w-5 h-5 animate-pulse" />
-          <h3 className="text-lg font-semibold text-blue-100">Live ECG Monitor</h3>
+    <div className="bg-zinc-950 border border-zinc-800/60 rounded-2xl overflow-hidden">
+
+      {/* Card Header */}
+      <div className="px-5 py-4 border-b border-zinc-800/60 bg-zinc-900/40 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-blue-400" />
+          <h3 className="text-sm font-bold text-white">Live ECG Monitor</h3>
         </div>
-        <div className="flex space-x-4">
-          <span className="flex items-center text-xs text-blue-200/50">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 animate-pulse"></span>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
             Lead II
           </span>
-          <span className="flex items-center text-xs text-blue-200/50">
-            <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-            25mm/s
+          <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+            25 mm/s
           </span>
         </div>
       </div>
 
-      <div className="h-64 w-full relative rounded-xl overflow-hidden border border-zinc-800/60 shadow-[inset_0_0_20px_rgba(0,0,0,0.6)]">
-        {/* HTML5 ECG Drawing Canvas */}
-        <canvas 
-          ref={canvasRef} 
-          className="w-full h-full block"
-        />
+      {/* Canvas Area */}
+      <div className="relative" style={{ height: '220px' }}>
+        <canvas ref={canvasRef} className="w-full h-full block" />
 
-        {/* Live Floating BPM display */}
-        <div className="absolute top-4 left-4 z-10 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-zinc-800/60 transition-all duration-300">
-          <Heart className={`w-5 h-5 transition-all duration-100 ${flashColor}`} fill={flash ? '#00e5ff' : 'none'} />
-          <div>
-            <span className="text-2xl font-black text-white tracking-tight leading-none">
-              {isProcessing ? '--' : liveBpm}
+        {/* Floating BPM */}
+        <div className="absolute top-3 left-4 z-10 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-zinc-800/70">
+          <Heart className={`w-4 h-4 transition-all duration-100 ${flashColor}`} fill={flash ? '#60a5fa' : 'none'} />
+          <div className="flex items-baseline gap-1">
+            <span className="text-xl font-black text-white leading-none">
+              {isProcessing ? '--' : (liveBpm || '--')}
             </span>
-            <span className="text-[10px] font-bold text-zinc-500 ml-1 uppercase">BPM</span>
+            <span className="text-[10px] font-bold text-zinc-500 uppercase">BPM</span>
           </div>
         </div>
 
-        {/* Live Condition badge */}
+        {/* Rhythm badge */}
         {!isProcessing && (
-          <div className="absolute bottom-4 left-4 z-10 bg-black/60 backdrop-blur-md px-3.5 py-1 rounded-lg border border-zinc-800/60">
-            <span className="text-xs text-zinc-400 font-medium mr-2">RHYTHM:</span>
-            <span className={`text-xs font-bold uppercase ${
-              rhythmType.toLowerCase().includes('normal') ? 'text-green-400' : 'text-rose-400 animate-pulse'
+          <div className="absolute bottom-3 left-4 z-10 bg-black/70 backdrop-blur-md px-3 py-1 rounded-lg border border-zinc-800/70 flex items-center gap-2">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Rhythm:</span>
+            <span className={`text-[11px] font-bold uppercase tracking-wide ${
+              rhythmType.toLowerCase().includes('normal')
+                ? 'text-green-400'
+                : 'text-rose-400 animate-pulse'
             }`}>
               {rhythmType}
             </span>
           </div>
         )}
-        
+
+        {/* Processing overlay */}
         {isProcessing && (
-          <div className="absolute inset-0 bg-[#050d1a]/85 backdrop-blur-sm flex flex-col items-center justify-center z-10 animate-fade-in">
-            <div className="w-14 h-14 border-4 border-cyan-400/20 border-t-cyan-400 rounded-full animate-spin mb-4 shadow-[0_0_15px_rgba(34,211,238,0.2)]"></div>
-            <p className="text-cyan-400 font-medium tracking-wide animate-pulse">Extracting Waveform Data...</p>
+          <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+            <div className="w-12 h-12 border-[3px] border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-3" />
+            <p className="text-sm font-medium text-blue-400 animate-pulse">Analyzing waveform…</p>
           </div>
         )}
       </div>
