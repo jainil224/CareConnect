@@ -327,26 +327,30 @@ function Dashboard() {
           const Icon = stat.icon;
           const glowColor = stat.title === 'Health Score' ? '#ef4444' : stat.title === 'Active Reports' ? '#3b82f6' : '#10b981';
           return (
-            <GlowingCard 
-              key={index} 
-              className="p-5 cursor-pointer hover:-translate-y-0.5"
-              glowColor={glowColor}
-              borderRadius="28px"
+            <div 
+              key={index}
+              className="relative"
               onMouseEnter={() => setHoveredStat(index)}
               onMouseLeave={() => setHoveredStat(null)}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-800 mt-1 transition-all duration-300 group-hover:scale-105 origin-left">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-green-600 font-medium mt-1">{stat.change} from last week</p>
+              <GlowingCard 
+                className="p-5 cursor-pointer hover:-translate-y-0.5"
+                glowColor={glowColor}
+                borderRadius="28px"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-1 transition-all duration-300 group-hover:scale-105 origin-left">
+                      {stat.value}
+                    </p>
+                    <p className="text-xs text-green-600 font-medium mt-1">{stat.change} from last week</p>
+                  </div>
+                  <div className={`p-3 rounded-full ${stat.bgColor} transition-transform duration-300 group-hover:scale-110`}>
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
                 </div>
-                <div className={`p-3 rounded-full ${stat.bgColor} transition-transform duration-300 group-hover:scale-110`}>
-                  <Icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </div>
+              </GlowingCard>
               
               {hoveredStat === index && (
                 <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-gray-900 text-white rounded-xl shadow-xl z-30 transform transition-all duration-200 opacity-100">
@@ -367,7 +371,7 @@ function Dashboard() {
                   </div>
                 </div>
               )}
-            </GlowingCard>
+            </div>
           );
         })}
       </div>
