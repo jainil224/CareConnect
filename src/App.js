@@ -28,19 +28,19 @@ function App() {
               position="top-right" 
               toastOptions={{
                 style: {
-                  background: '#0a1526',
+                  background: '#09090b',
                   color: '#e2e8f0',
                   border: '1px solid rgba(59,130,246,0.3)',
                 },
                 success: {
                   iconTheme: {
                     primary: '#22d3ee',
-                    secondary: '#0a1526',
+                    secondary: '#09090b',
                   },
                 },
               }} 
             />
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300">
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<LandingPage />} />

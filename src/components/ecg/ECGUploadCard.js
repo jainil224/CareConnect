@@ -43,7 +43,7 @@ export default function ECGUploadCard({ onUpload }) {
   };
 
   return (
-    <div className="bg-[#0a1526]/60 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-6 shadow-[0_0_40px_rgba(14,165,233,0.1)] relative overflow-hidden transition-all duration-300 hover:shadow-[0_0_50px_rgba(14,165,233,0.2)]">
+    <div className="bg-[#0c0c0e]/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-[0_0_40px_rgba(14,165,233,0.05)] relative overflow-hidden transition-all duration-300 hover:shadow-[0_0_50px_rgba(14,165,233,0.1)]">
       {/* Decorative Glow */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-[50px] pointer-events-none"></div>
 
@@ -58,7 +58,7 @@ export default function ECGUploadCard({ onUpload }) {
 
       <div 
         className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 
-          ${dragActive ? 'border-cyan-400 bg-cyan-400/5 shadow-[0_0_20px_rgba(34,211,238,0.2)]' : 'border-blue-500/30 bg-[#030b14]/30 hover:border-blue-400/60 hover:bg-blue-500/5'}`}
+          ${dragActive ? 'border-cyan-400 bg-cyan-400/5 shadow-[0_0_20px_rgba(34,211,238,0.2)]' : 'border-zinc-800/50 bg-zinc-900/30 hover:border-cyan-400/60 hover:bg-cyan-500/5'}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}

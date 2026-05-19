@@ -55,7 +55,7 @@ export default function ECGPrediction() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030b14] font-sans pb-12 pt-8">
+    <div className="min-h-screen bg-black font-sans pb-12 pt-8">
       {/* Abstract Background Glows */}
       <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none"></div>

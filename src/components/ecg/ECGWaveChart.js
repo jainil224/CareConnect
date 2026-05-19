@@ -46,7 +46,7 @@ export default function ECGWaveChart({ isProcessing }) {
   }, [isProcessing]);
 
   return (
-    <div className="bg-[#0a1526]/80 backdrop-blur-xl border border-blue-500/20 rounded-2xl p-6 shadow-xl w-full">
+    <div className="bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl w-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <Activity className="text-cyan-400 w-5 h-5 animate-pulse" />
@@ -64,7 +64,7 @@ export default function ECGWaveChart({ isProcessing }) {
         </div>
       </div>
 
-      <div className="h-64 w-full relative bg-[#030b14]/50 rounded-xl overflow-hidden border border-blue-500/10">
+      <div className="h-64 w-full relative bg-zinc-900/50 rounded-xl overflow-hidden border border-zinc-800/40">
         {/* Grid Background */}
         <div 
           className="absolute inset-0 opacity-20 pointer-events-none"
@@ -96,7 +96,7 @@ export default function ECGWaveChart({ isProcessing }) {
         </ResponsiveContainer>
         
         {isProcessing && (
-          <div className="absolute inset-0 bg-[#0a1526]/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
             <div className="w-16 h-16 border-4 border-cyan-400/20 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
             <p className="text-cyan-400 font-medium">Extracting Waveform Data...</p>
           </div>

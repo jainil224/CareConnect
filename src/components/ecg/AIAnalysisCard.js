@@ -81,7 +81,7 @@ export default function AIAnalysisCard({ summary, isProcessing, result, features
   };
 
   return (
-    <div className="bg-[#0a1526]/80 backdrop-blur-xl border border-blue-500/20 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+    <div className="bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
       <div className="flex items-center space-x-3 mb-4">
         <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
           <Brain className={`w-6 h-6 text-cyan-400 ${isProcessing ? 'animate-pulse' : ''}`} />
@@ -89,7 +89,7 @@ export default function AIAnalysisCard({ summary, isProcessing, result, features
         <h3 className="text-lg font-semibold text-blue-100">AI Medical Summary</h3>
       </div>
 
-      <div className="min-h-[120px] bg-[#030b14]/50 border border-blue-500/10 rounded-xl p-5 relative">
+      <div className="min-h-[120px] bg-zinc-900/50 border border-zinc-800/40 rounded-xl p-5 relative">
         {isProcessing ? (
           <div className="flex items-center space-x-3 text-blue-200/50">
             <span className="flex space-x-1">

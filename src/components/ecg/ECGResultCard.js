@@ -24,7 +24,7 @@ export default function ECGResultCard({ result, probability }) {
   }
 
   return (
-    <div className="bg-[#0a1526]/80 backdrop-blur-xl border border-blue-500/20 rounded-2xl p-6 shadow-xl relative overflow-hidden h-full">
+    <div className="bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden h-full">
       <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[60px] pointer-events-none" style={{ background: glowColor }}></div>
 
       <div className="flex items-center space-x-3 mb-6 relative z-10">
@@ -46,12 +46,12 @@ export default function ECGResultCard({ result, probability }) {
           </p>
         </div>
 
-        <div className="w-full mt-6 bg-[#030b14]/50 rounded-xl p-4 border border-blue-500/10">
+        <div className="w-full mt-6 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/40">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-blue-200/70">AI Confidence Score</span>
             <span className="font-bold text-blue-100">{probability}</span>
           </div>
-          <div className="w-full h-2 bg-[#0a1526] rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden">
             <div 
               className={`h-full bg-gradient-to-r ${statusColor} transition-all duration-1000 ease-out`} 
               style={{ width: probability }}

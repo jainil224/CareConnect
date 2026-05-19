@@ -40,7 +40,7 @@ const GlowingCard = ({ children, className = '', contentClassName = '', glowColo
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setOpacity(1)}
       onMouseLeave={() => setOpacity(0)}
-      className={`relative overflow-hidden bg-white border border-gray-100/50 shadow-sm transition-shadow duration-300 hover:shadow-md ${className}`}
+      className={`relative overflow-hidden bg-white dark:bg-[#121214] border border-gray-100/50 dark:border-zinc-800/80 shadow-sm transition-shadow duration-300 hover:shadow-md dark:shadow-none ${className}`}
       style={{
         borderRadius,
         '--glow-color': glowColor,
@@ -358,7 +358,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 space-y-6 text-[#111827] bg-[#f5f7fa] p-4 sm:p-6 lg:p-8 rounded-3xl shadow-inner transition-colors duration-300">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 space-y-6 text-[#111827] dark:text-[#f3f4f6] bg-[#f5f7fa] dark:bg-[#0c0c0e] p-4 sm:p-6 lg:p-8 rounded-3xl shadow-inner transition-colors duration-300 border border-transparent dark:border-zinc-800/50">
       
       {/* Inline animations styling */}
       <style>{`
@@ -397,7 +397,7 @@ function Dashboard() {
       `}</style>
 
       {/* 1. HERO SECTION (100% UNCHANGED) */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <div className="relative bg-white dark:bg-[#121214] border border-transparent dark:border-zinc-800/80 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 overflow-hidden">
         <img 
           src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=1200&h=300&fit=crop&crop=center" 
           alt="Medical Background" 
@@ -448,12 +448,12 @@ function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-1 transition-all duration-300 group-hover:scale-105 origin-left">
+                    <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100 mt-1 transition-all duration-300 group-hover:scale-105 origin-left">
                       {stat.value}
                     </p>
                     <p className="text-xs text-green-600 font-medium mt-1">{stat.change} from last week</p>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor} transition-transform duration-300 group-hover:scale-110`}>
+                  <div className={`p-3 rounded-full ${stat.bgColor} ${stat.bgColor === 'bg-red-50' ? 'dark:bg-red-950/20' : stat.bgColor === 'bg-blue-50' ? 'dark:bg-blue-950/20' : 'dark:bg-green-950/20'} transition-transform duration-300 group-hover:scale-110`}>
                     <Icon className={`h-6 w-6 ${stat.color}`} />
                   </div>
                 </div>
@@ -485,12 +485,12 @@ function Dashboard() {
 
       {/* 4. HEALTH OVERVIEW TITLE & PERIOD SELECTORS */}
       <div className="flex items-center justify-between pt-2">
-        <h2 className="text-2xl font-extrabold text-gray-800 tracking-tight">Health Overview</h2>
+        <h2 className="text-2xl font-extrabold text-gray-800 dark:text-zinc-100 tracking-tight">Health Overview</h2>
         <div className="flex space-x-2">
           <select 
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
-            className="bg-white border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50"
+            className="bg-white dark:bg-zinc-800 border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 dark:text-zinc-300 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-zinc-700"
           >
             <option>24 Hrs</option>
             <option>12 Hrs</option>
@@ -499,7 +499,7 @@ function Dashboard() {
           <select 
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            className="bg-white border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50"
+            className="bg-white dark:bg-zinc-800 border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 dark:text-zinc-300 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-zinc-700"
           >
             <option>Weekly</option>
             <option>Monthly</option>
@@ -516,12 +516,12 @@ function Dashboard() {
           {/* Heartbeat Card */}
           <GlowingCard className="p-6 flex-1" glowColor="#10B981" borderRadius="28px" style={{ '--ecg-duration': metrics.ecgDuration }}>
             <div>
-              <span className="absolute top-5 right-5 bg-green-50 text-green-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+              <span className="absolute top-5 right-5 bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 {metrics.heartbeatStatus}
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Heartbeat</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 tracking-tight">{metrics.heartbeat}</span>
+                <span className="text-4xl font-black text-gray-800 dark:text-zinc-150 tracking-tight">{metrics.heartbeat}</span>
                 <span className="text-sm font-semibold text-gray-500">bpm</span>
               </div>
             </div>
@@ -548,7 +548,7 @@ function Dashboard() {
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">R-R Interval</p>
                 <div className="flex items-baseline space-x-1 mt-1.5">
-                  <span className="text-2xl font-black text-gray-800">{metrics.rr}</span>
+                  <span className="text-2xl font-black text-gray-800 dark:text-zinc-150">{metrics.rr}</span>
                   <span className="text-xs font-semibold text-gray-500">sec</span>
                 </div>
               </div>
@@ -566,16 +566,16 @@ function Dashboard() {
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Blood Status</p>
                 <div className="flex items-baseline space-x-0.5 mt-1.5">
-                  <span className="text-2xl font-black text-gray-800">{metrics.bp}</span>
+                  <span className="text-2xl font-black text-gray-800 dark:text-zinc-150">{metrics.bp}</span>
                   <span className="text-[10px] font-semibold text-gray-500">mmHg</span>
                 </div>
               </div>
               <div>
                 <div className="flex items-center justify-between text-[9px] font-bold text-gray-400 mb-1">
                   <span>Vitals</span>
-                  <span className="text-green-600">{metrics.bpLevel}</span>
+                  <span className="text-green-600 dark:text-green-400">{metrics.bpLevel}</span>
                 </div>
-                <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
+                <div className="w-full bg-gray-100 dark:bg-zinc-800 h-2.5 rounded-full overflow-hidden">
                   <div className="bg-red-500 h-full rounded-full" style={{ width: metrics.bpPct }}></div>
                 </div>
               </div>
@@ -602,7 +602,7 @@ function Dashboard() {
 
           <div className="w-full text-center">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Visualizer</span>
-            <h3 className="text-lg font-bold text-gray-800 mt-1">{organMap[activeOrgan].label} Health</h3>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-150 mt-1">{organMap[activeOrgan].label} Health</h3>
           </div>
 
           {/* Centered Organ Component with Switcher Animation */}
@@ -622,8 +622,8 @@ function Dashboard() {
                 onClick={() => setActiveOrgan(key)}
                 className={`flex flex-col items-center justify-center py-2.5 rounded-xl border text-[10px] font-extrabold transition-all duration-300 ${
                   activeOrgan === key 
-                    ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-sm scale-[1.03]' 
-                    : 'bg-gray-55 hover:bg-gray-50 text-gray-400 border-gray-100'
+                    ? 'bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-zinc-200 border-blue-200 dark:border-zinc-700 shadow-sm scale-[1.03]' 
+                    : 'bg-gray-50 dark:bg-zinc-900 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-400 dark:text-zinc-400 border-gray-100 dark:border-zinc-800'
                 }`}
                 style={activeOrgan === key ? { borderColor: val.color, color: val.color } : {}}
               >
@@ -637,12 +637,12 @@ function Dashboard() {
         <div className="space-y-6 flex flex-col justify-between">
           <GlowingCard className="p-6 flex-1" glowColor="#F59E0B" borderRadius="28px" style={{ '--glucose-duration': metrics.glucoseDuration }}>
             <div>
-              <span className="absolute top-5 right-5 bg-amber-50 text-amber-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+              <span className="absolute top-5 right-5 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 {metrics.glucoseStatus}
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Glucose Level</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 tracking-tight">{metrics.glucose}</span>
+                <span className="text-4xl font-black text-gray-800 dark:text-zinc-150 tracking-tight">{metrics.glucose}</span>
                 <span className="text-sm font-semibold text-gray-500">/ml</span>
               </div>
             </div>
@@ -664,12 +664,12 @@ function Dashboard() {
           {/* Blood Count Card */}
           <GlowingCard className="p-6 flex-1 mt-6 lg:mt-0" glowColor="#3B82F6" borderRadius="28px" style={{ '--blood-duration': metrics.bloodDuration }}>
             <div>
-              <span className="absolute top-5 right-5 bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+              <span className="absolute top-5 right-5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 {metrics.bloodCountStatus}
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Blood Count</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 tracking-tight">{metrics.bloodCount}</span>
+                <span className="text-4xl font-black text-gray-800 dark:text-zinc-150 tracking-tight">{metrics.bloodCount}</span>
                 <span className="text-xs font-bold text-gray-400">k/µL</span>
               </div>
             </div>
@@ -710,12 +710,12 @@ function Dashboard() {
             <div 
               key={idx}
               onClick={() => navigate(action.path)}
-              className="group relative bg-white p-5 rounded-2xl shadow-sm border border-gray-50 cursor-pointer hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+              className="group relative bg-white dark:bg-[#121214] p-5 rounded-2xl shadow-sm border border-gray-50 dark:border-zinc-800/80 cursor-pointer hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden"
             >
               <div className={`absolute top-0 left-0 w-1.5 h-full ${action.accent}`} />
               <div className="relative z-10 pl-1.5">
-                <ActionIcon className="h-6 w-6 mb-3 text-gray-600 group-hover:text-blue-600 transition-colors group-hover:scale-110 duration-300" />
-                <h4 className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors">{action.title}</h4>
+                <ActionIcon className="h-6 w-6 mb-3 text-gray-600 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors group-hover:scale-110 duration-300" />
+                <h4 className="text-sm font-bold text-gray-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">{action.title}</h4>
                 <p className="text-xs text-gray-400 mt-0.5">{action.subtitle}</p>
               </div>
             </div>
@@ -730,38 +730,38 @@ function Dashboard() {
       {/* CHART DETAILS MODAL */}
       {selectedChart && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-all duration-300">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-800 tracking-tight">Chart Details</h3>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-zinc-150 tracking-tight">Chart Details</h3>
               <button 
                 onClick={() => setSelectedChart(null)}
-                className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 flex items-center justify-center font-bold text-sm transition-all"
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 flex items-center justify-center font-bold text-sm transition-all"
               >
                 ✕
               </button>
             </div>
             
             <div className="space-y-5">
-              <div className="p-4.5 bg-blue-50 rounded-2xl border border-blue-100">
+              <div className="p-4.5 bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/30">
                 <div className="flex items-center space-x-2 mb-2">
                   <TrendingUp className="h-5 w-5 text-blue-600" />
-                  <span className="font-bold text-blue-900 text-sm">Data Insight</span>
+                  <span className="font-bold text-blue-900 dark:text-blue-200 text-sm">Data Insight</span>
                 </div>
-                <p className="text-blue-800 text-xs leading-relaxed">
+                <p className="text-blue-800 dark:text-blue-300 text-xs leading-relaxed">
                   {getChartInsight(selectedChart.data, selectedChart.chartType)}
                 </p>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <p className="text-2xl font-black text-gray-800">
+                <div className="text-center p-4 bg-gray-50 dark:bg-zinc-900/50 rounded-2xl border border-gray-100 dark:border-zinc-800/80">
+                  <p className="text-2xl font-black text-gray-800 dark:text-zinc-100">
                     {selectedChart.chartType === 'health' ? `${selectedChart.data.value}%` : selectedChart.data.appointments}
                   </p>
                   <p className="text-xs font-semibold text-gray-400 mt-1">
                     {selectedChart.chartType === 'health' ? 'Health Score' : 'Appointments'}
                   </p>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="text-center p-4 bg-gray-50 dark:bg-zinc-900/50 rounded-2xl border border-gray-100 dark:border-zinc-800/80">
                   <p className="text-2xl font-bold text-green-600">
                     {selectedChart.chartType === 'health' ? '↗' : selectedChart.data.appointments > 5 ? '⚠' : '✓'}
                   </p>
@@ -771,9 +771,9 @@ function Dashboard() {
                 </div>
               </div>
               
-              <div className="pt-4 border-t border-gray-100">
-                <h4 className="font-bold text-gray-800 text-sm mb-2.5">Recommendations:</h4>
-                <ul className="text-xs text-gray-500 space-y-2">
+              <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
+                <h4 className="font-bold text-gray-800 dark:text-zinc-150 text-sm mb-2.5">Recommendations:</h4>
+                <ul className="text-xs text-gray-500 dark:text-zinc-400 space-y-2">
                   {selectedChart.chartType === 'health' ? (
                     selectedChart.data.value > 85 ? [
                       '• Continue current health routine',

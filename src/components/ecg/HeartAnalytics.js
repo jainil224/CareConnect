@@ -10,7 +10,7 @@ export default function HeartAnalytics({ features }) {
   ];
 
   return (
-    <div className="bg-[#0a1526]/80 backdrop-blur-xl border border-blue-500/20 rounded-2xl p-6 shadow-xl">
+    <div className="bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl">
       <h3 className="text-lg font-semibold text-blue-100 mb-6 flex items-center">
         <Heart className="w-5 h-5 mr-2 text-rose-500" />
         Clinical Metrics
@@ -18,7 +18,7 @@ export default function HeartAnalytics({ features }) {
 
       <div className="grid grid-cols-2 gap-4">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-[#030b14]/50 border border-blue-500/10 rounded-xl p-4 flex items-center space-x-4 hover:bg-blue-500/5 transition-colors">
+          <div key={i} className="bg-zinc-900/50 border border-zinc-800/40 rounded-xl p-4 flex items-center space-x-4 hover:bg-blue-500/5 transition-colors">
             <div className={`p-3 rounded-lg ${stat.bg}`}>
               <stat.icon className={`w-6 h-6 ${stat.color}`} />
             </div>

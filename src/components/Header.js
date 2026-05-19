@@ -29,7 +29,7 @@ function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-lg transition-colors absolute w-full z-10">
+    <header className="bg-white dark:bg-[#09090b] border-b border-transparent dark:border-zinc-800/80 shadow-lg transition-colors absolute w-full z-10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-2">
@@ -45,8 +45,8 @@ function Header() {
                   to={path}
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     location.pathname === path
-                      ? 'text-primary bg-blue-50 dark:bg-blue-900/50'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'text-primary bg-blue-50 dark:bg-zinc-800/50'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-zinc-800/60'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -55,20 +55,20 @@ function Header() {
               ))}
             </nav>
             
-            <div className="flex items-center space-x-2 border-l border-gray-200 dark:border-gray-700 pl-4 ml-4">
+            <div className="flex items-center space-x-2 border-l border-gray-200 dark:border-zinc-800 pl-4 ml-4">
               <span className="text-sm font-medium text-gray-600 dark:text-gray-300 mr-2 hidden sm:block">
                 {currentUser?.email}
               </span>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
                 title="Logout"
               >
                 <LogOut className="h-5 w-5" />
               </button>
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
                 aria-label="Toggle theme"
               >
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
