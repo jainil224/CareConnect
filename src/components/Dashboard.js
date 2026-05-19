@@ -535,47 +535,7 @@ function Dashboard() {
 
 
 
-      {/* 9. RECENT ACTIVITY PANEL (Restyled) */}
-      <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
-        <h3 className="text-lg font-bold text-gray-800 tracking-tight mb-4">Recent Activity</h3>
-        <div className="space-y-3">
-          {state.reports.length > 0 ? (
-            state.reports.slice(-3).reverse().map((report) => {
-              const timeAgo = new Date(report.uploadDate).toLocaleDateString();
-              return (
-                <div key={report.id} className="flex items-center space-x-4 p-3 rounded-2xl hover:bg-gray-50 transition-colors duration-250 border border-transparent hover:border-gray-100">
-                  <div className="w-2.5 h-2.5 bg-blue-500 rounded-full flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-800 truncate">
-                      {report.filename} uploaded
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">{timeAgo}</p>
-                    {report.analysis?.summary && (
-                      <p className="text-xs text-gray-500 mt-1 leading-relaxed truncate">
-                        {report.analysis.summary}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            [
-              { color: 'bg-gray-400', title: 'No reports uploaded yet', time: 'Upload your first report' },
-              { color: 'bg-blue-500', title: 'Welcome to CareConnect', time: 'Start by uploading a health report' },
-              { color: 'bg-green-500', title: 'AI analysis ready', time: 'Get insights from your medical data' }
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center space-x-4 p-3 rounded-2xl hover:bg-gray-50 transition-colors duration-250 border border-transparent hover:border-gray-100">
-                <div className={`w-2.5 h-2.5 ${activity.color} rounded-full flex-shrink-0`}></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-800 truncate">{activity.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{activity.time}</p>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+
 
       {/* CHART DETAILS MODAL */}
       {selectedChart && (
