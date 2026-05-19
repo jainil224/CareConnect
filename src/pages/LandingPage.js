@@ -7,11 +7,20 @@ import FeaturesSection from '../components/features/FeaturesSection';
 export default function LandingPage() {
   const navigate = useNavigate();
 
+  // Smooth scroll helper
+  const scrollToFeatures = (e) => {
+    e.preventDefault();
+    const element = document.getElementById('features');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   // Floating particles generator
   const particles = Array.from({ length: 40 });
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white font-sans overflow-hidden relative selection:bg-[#00E5FF]/30">
+    <div className="min-h-screen bg-[#000000] text-white font-sans overflow-x-hidden relative selection:bg-[#00E5FF]/30">
       
       {/* BACKGROUND EFFECTS */}
       {/* Noise Texture Overlay */}
@@ -67,7 +76,7 @@ export default function LandingPage() {
         
         {/* Menu Links */}
         <div className="flex items-center space-x-6 sm:space-x-8 text-sm font-medium text-gray-300">
-          <a href="#" className="hover:text-white transition-colors duration-300">Features</a>
+          <a href="#features" onClick={scrollToFeatures} className="hover:text-white transition-colors duration-300">Features</a>
           <a href="#" className="hover:text-white transition-colors duration-300">How It Works</a>
           <Link to="/login" className="hover:text-white transition-colors duration-300">Login</Link>
         </div>
