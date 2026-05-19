@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import FeaturesSection from '../components/features/FeaturesSection';
+import HowItWorks from '../components/features/HowItWorks';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -11,6 +12,14 @@ export default function LandingPage() {
   const scrollToFeatures = (e) => {
     e.preventDefault();
     const element = document.getElementById('features');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToHowItWorks = (e) => {
+    e.preventDefault();
+    const element = document.getElementById('how-it-works');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
@@ -77,7 +86,7 @@ export default function LandingPage() {
         {/* Menu Links */}
         <div className="flex items-center space-x-6 sm:space-x-8 text-sm font-medium text-gray-300">
           <a href="#features" onClick={scrollToFeatures} className="hover:text-white transition-colors duration-300">Features</a>
-          <a href="#" className="hover:text-white transition-colors duration-300">How It Works</a>
+          <a href="#how-it-works" onClick={scrollToHowItWorks} className="hover:text-white transition-colors duration-300">How It Works</a>
           <Link to="/login" className="hover:text-white transition-colors duration-300">Login</Link>
         </div>
       </nav>
@@ -187,6 +196,9 @@ export default function LandingPage() {
 
       {/* Modern Core Features Section */}
       <FeaturesSection />
+
+      {/* How It Works Section */}
+      <HowItWorks />
     </div>
   );
 }
