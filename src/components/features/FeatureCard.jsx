@@ -6,15 +6,15 @@ export default function FeatureCard({ icon: Icon, title, description, points = [
   // in dark mode, 'isBeige' represents the charcoal `#121212` background card
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, margin: "-20px" }}
       whileHover={{ 
         y: -8,
         scale: 1.01,
         boxShadow: "0 20px 40px -15px rgba(255, 255, 255, 0.03)"
       }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       className={`relative p-8 md:p-10 rounded-[32px] transition-all duration-300 border ${
         isBeige 
           ? 'bg-[#121212] border-transparent text-white' 

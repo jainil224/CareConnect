@@ -13,20 +13,20 @@ export default function FeaturesSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.35 }}
             className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-5"
           >
             Core Features
           </motion.h2>
           
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.15 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.35, delay: 0.1 }}
             className="text-zinc-400 text-base sm:text-lg md:text-xl font-medium leading-relaxed"
           >
             Advanced AI-powered healthcare tools designed for smart ECG analysis, medical insights, and intelligent health monitoring.

@@ -60,10 +60,10 @@ export default function HowItWorks() {
 
         {/* Heading */}
         <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.35 }}
           className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-5"
         >
           Seamless Health Orchestration
@@ -71,10 +71,10 @@ export default function HowItWorks() {
 
         {/* Subtitle */}
         <motion.p 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.15 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.35, delay: 0.1 }}
           className="text-zinc-400 text-base sm:text-lg max-w-2xl mx-auto mb-16 leading-relaxed"
         >
           Analyze vitals, predict health risks, and generate clinical reports in 5 simple steps.
@@ -87,10 +87,10 @@ export default function HowItWorks() {
             return (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{ duration: 0.3, delay: idx * 0.04, ease: "easeOut" }}
                 whileHover={{ y: -8, borderColor: 'rgb(82 82 91)' }}
                 className="bg-[#121212] border border-zinc-800/80 p-6 rounded-[24px] flex flex-col items-center transition-all duration-300"
               >

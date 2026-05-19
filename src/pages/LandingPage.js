@@ -25,8 +25,13 @@ export default function LandingPage() {
     }
   };
 
-  // Floating particles generator
-  const particles = Array.from({ length: 40 });
+  // Floating particles generator (memoized to prevent coordinates changes on render)
+  const particles = React.useMemo(() => Array.from({ length: 25 }, (_, i) => ({
+    top: `${(i * 17) % 100}%`,
+    left: `${(i * 23) % 100}%`,
+    delay: `${i * 0.4}s`,
+    duration: `${8 + (i % 4) * 3}s`
+  })), []);
 
   return (
     <div className="min-h-screen bg-[#000000] text-white font-sans overflow-x-hidden relative selection:bg-[#00E5FF]/30">
@@ -45,23 +50,15 @@ export default function LandingPage() {
 
       {/* Floating Particles */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {particles.map((_, i) => (
-          <motion.div
+        {particles.map((p, i) => (
+          <div
             key={i}
-            className="absolute w-1 h-1 bg-white rounded-full opacity-20 shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+            className="particle"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              scale: Math.random() * 1.5 + 0.5,
-            }}
-            animate={{
-              y: [0, -Math.random() * 100 - 50],
-              opacity: [0, Math.random() * 0.5 + 0.2, 0],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              ease: "linear",
+              top: p.top,
+              left: p.left,
+              animationDelay: p.delay,
+              animationDuration: p.duration
             }}
           />
         ))}
