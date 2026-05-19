@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import FeaturesSection from '../components/features/FeaturesSection';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -175,6 +176,8 @@ export default function LandingPage() {
         </motion.div>
       </main>
 
+      {/* Modern Core Features Section */}
+      <FeaturesSection />
     </div>
   );
 }
