@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { Circle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Circle, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -98,7 +98,17 @@ export default function Login() {
       </div>
 
       {/* RIGHT COLUMN: FORM */}
-      <div className="flex-1 flex flex-col items-center justify-center py-12 lg:py-6 px-4 sm:px-12 lg:px-16 xl:px-24 overflow-y-auto lg:overflow-hidden bg-black">
+      <div className="flex-1 flex flex-col items-center justify-center py-12 lg:py-6 px-4 sm:px-12 lg:px-16 xl:px-24 overflow-y-auto lg:overflow-hidden bg-black relative">
+        
+        {/* Back Button */}
+        <Link 
+          to="/" 
+          className="absolute top-6 left-6 sm:top-8 sm:left-8 flex items-center space-x-2 text-white/60 hover:text-white transition-colors z-20"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-medium">Back to Home</span>
+        </Link>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
