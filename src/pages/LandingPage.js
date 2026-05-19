@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Fingerprint } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function LandingPage() {
@@ -95,7 +95,36 @@ export default function LandingPage() {
                   animate={{ filter: ["drop-shadow(0 0 10px rgba(57,255,136,0.4))", "drop-shadow(0 0 25px rgba(57,255,136,0.8))", "drop-shadow(0 0 10px rgba(57,255,136,0.4))"] }}
                   transition={{ duration: 3, repeat: Infinity }}
                 >
-                  <Fingerprint className="w-12 h-12 md:w-16 md:h-16 text-[#39FF88]" strokeWidth={1.5} />
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    strokeWidth={1.5} 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="w-12 h-12 md:w-16 md:h-16"
+                  >
+                    <defs>
+                      <radialGradient id="fingerprintGrad" cx="12" cy="12" r="11" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#39FF88" />
+                        <stop offset="0%" stopColor="#39FF88">
+                          <animate attributeName="offset" values="0;1;1;0;0" keyTimes="0;0.55;0.8;0.9;1" dur="2.8s" repeatCount="indefinite" />
+                        </stop>
+                        <stop offset="10%" stopColor="rgba(57, 255, 136, 0.15)">
+                          <animate attributeName="offset" values="0.05;1;1;0;0.05" keyTimes="0;0.55;0.8;0.9;1" dur="2.8s" repeatCount="indefinite" />
+                        </stop>
+                      </radialGradient>
+                    </defs>
+                    <path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M5 19.5C5.5 18 6 15 6 12c0-.7.12-1.37.34-2" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M8.65 22c.21-.66.45-1.32.57-2" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M14 13.12c0 2.38 0 6.38-1 8.88" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M2 16h.01" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M21.8 16c.2-2 .131-5.354 0-6" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                    <path d="M9 6.8a6 6 0 0 1 9 5.2c0 .47 0 1.17-.02 2" stroke="url(#fingerprintGrad)" strokeWidth={2} />
+                  </svg>
                 </motion.div>
                 <span className="text-white">human</span>
               </div>

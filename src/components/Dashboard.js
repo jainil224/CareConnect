@@ -126,6 +126,39 @@ const appointmentData = [
   { name: 'Sun', appointments: 2 }
 ];
 
+const ecgPaths = {
+  '24 Hrs': 'M0,40 L60,40 L70,30 L80,50 L90,20 L100,60 L110,38 L120,42 L130,40 L190,40 L200,25 L210,55 L220,10 L230,70 L240,35 L250,45 L260,40 L300,40 L360,40 L370,30 L380,50 L390,20 L400,60 L410,38 L420,42 L430,40 L490,40 L500,25 L510,55 L520,10 L530,70 L540,35 L550,45 L560,40 L600,40',
+  '12 Hrs': 'M0,40 L40,40 L50,25 L60,55 L70,15 L80,65 L90,38 L100,42 L110,40 L150,40 L160,25 L170,55 L180,15 L190,65 L200,38 L210,42 L220,40 L260,40 L270,25 L280,55 L290,15 L300,65 L310,38 L320,42 L330,40 L370,40 L380,25 L390,55 L400,15 L410,65 L420,38 L430,42 L440,40 L480,40 L490,25 L500,55 L510,15 L520,65 L530,38 L540,42 L550,40 L590,40',
+  '1 Hr': 'M0,40 L80,40 L90,35 L100,45 L110,25 L120,55 L130,39 L140,41 L150,40 L230,40 L240,35 L250,45 L260,25 L270,55 L280,39 L290,41 L300,40 L380,40 L390,35 L400,45 L410,25 L420,55 L430,39 L440,41 L450,40 L530,40 L540,35 L550,45 L560,25 L570,55 L580,39 L590,41 L600,40'
+};
+
+const rrPaths = {
+  '24 Hrs': 'M0,25 Q15,5 30,25 T60,25 T90,25 T120,25 T150,25 T180,25 T210,25',
+  '12 Hrs': 'M0,25 Q10,10 20,25 T40,25 T60,25 T80,25 T100,25 T120,25 T140,25 T160,25 T180,25 T200,25 T220,25',
+  '1 Hr': 'M0,25 Q25,-5 50,25 T100,25 T150,25 T200,25 T250,25 T300,25'
+};
+
+const glucosePaths = {
+  '24 Hrs': 'M0,60 L50,55 L100,68 L150,45 L200,35 L250,28 L300,20 L350,28 L400,35 L450,45 L500,68 L550,55 L600,60 L650,55 L700,68 L750,45 L800,35 L850,28 L900,20 L950,28 L1000,35 L1050,45 L1100,68 L1150,55 L1200,60',
+  '12 Hrs': 'M0,50 L40,70 L80,30 L120,40 L160,75 L200,25 L240,65 L280,35 L320,50 L360,70 L400,30 L440,40 L480,75 L520,25 L560,65 L600,35 L640,50 L680,70 L720,30 L760,40 L800,75 L840,25 L880,65 L920,35 L960,50 L1000,70 L1040,30 L1080,40 L1120,75 L1160,25 L1200,35',
+  '1 Hr': 'M0,45 L50,44 L100,46 L150,45 L200,43 L250,45 L300,44 L350,45 L400,44 L450,46 L500,45 L550,43 L600,45 L650,44 L700,46 L750,45 L800,43 L850,45 L900,44 L950,45 L1000,44 L1050,46 L1100,45 L1150,43 L1200,45'
+};
+
+const bloodPaths = {
+  '24 Hrs': {
+    area: 'M0,80 L0,50 C50,42 100,60 150,38 C200,45 250,28 300,20 C350,28 400,45 450,38 C500,60 550,42 600,50 C650,42 700,60 750,38 C800,45 850,28 900,20 C950,28 1000,45 1050,38 C1100,60 1150,42 1200,50 L1200,80 Z',
+    stroke: 'M0,50 C50,42 100,60 150,38 C200,45 250,28 300,20 C350,28 400,45 450,38 C500,60 550,42 600,50 C650,42 700,60 750,38 C800,45 850,28 900,20 C950,28 1000,45 1050,38 C1100,60 1150,42 1200,50'
+  },
+  '12 Hrs': {
+    area: 'M0,80 L0,55 C40,65 80,45 120,58 C160,35 200,62 240,40 C280,45 320,55 360,55 C400,65 440,45 480,58 C520,35 560,62 600,40 C640,45 680,55 720,55 C760,65 800,45 840,58 C880,35 920,62 960,40 C1000,45 1040,55 1080,55 C1120,65 1160,45 1200,58 L1200,80 Z',
+    stroke: 'M0,55 C40,65 80,45 120,58 C160,35 200,62 240,40 C280,45 320,55 360,55 C400,65 440,45 480,58 C520,35 560,62 600,40 C640,45 680,55 720,55 C760,65 800,45 840,58 C880,35 920,62 960,40 C1000,45 1040,55 1080,55 C1120,65 1160,45 1200,58'
+  },
+  '1 Hr': {
+    area: 'M0,80 L0,48 C60,52 120,44 180,48 C240,50 300,46 360,48 C420,52 480,44 540,48 C600,50 660,46 720,48 C780,52 840,44 900,48 C960,50 1020,46 1080,48 C1140,52 1200,44 1200,48 L1200,80 Z',
+    stroke: 'M0,48 C60,52 120,44 180,48 C240,50 300,46 360,48 C420,52 480,44 540,48 C600,50 660,46 720,48 C780,52 840,44 900,48 C960,50 1020,46 1080,48 C1140,52 1200,44 1200,48'
+  }
+};
+
 function Dashboard() {
   const { state } = useHealth();
   const { isDark } = useTheme();
@@ -137,6 +170,80 @@ function Dashboard() {
   const [healthData, setHealthData] = useState(getHealthTrendData(state.reports, state.healthMetrics));
   const [hoveredStat, setHoveredStat] = useState(null);
   const [activeOrgan, setActiveOrgan] = useState('heart');
+  const [timeRange, setTimeRange] = useState('24 Hrs');
+  const [period, setPeriod] = useState('Weekly');
+
+  const getMetricsForSelection = (range, per) => {
+    const key = `${range}-${per}`;
+    const dataMap = {
+      '24 Hrs-Weekly': {
+        heartbeat: 83, heartbeatStatus: 'GOOD', ecgDuration: '6s',
+        rr: 0.8, rrDuration: '4s',
+        bp: '115/70', bpLevel: 'Normal', bpPct: '68%',
+        glucose: 230, glucoseStatus: '250ml', glucoseDuration: '8s',
+        bloodCount: '80-90', bloodCountStatus: 'Normal', bloodDuration: '10s'
+      },
+      '24 Hrs-Monthly': {
+        heartbeat: 79, heartbeatStatus: 'NORMAL', ecgDuration: '7s',
+        rr: 0.82, rrDuration: '4.5s',
+        bp: '118/74', bpLevel: 'Optimal', bpPct: '70%',
+        glucose: 210, glucoseStatus: '240ml', glucoseDuration: '9s',
+        bloodCount: '82-92', bloodCountStatus: 'Good', bloodDuration: '11s'
+      },
+      '24 Hrs-Yearly': {
+        heartbeat: 81, heartbeatStatus: 'ACTIVE', ecgDuration: '6.5s',
+        rr: 0.81, rrDuration: '4.2s',
+        bp: '121/76', bpLevel: 'Normal', bpPct: '72%',
+        glucose: 245, glucoseStatus: '260ml', glucoseDuration: '7.5s',
+        bloodCount: '84-94', bloodCountStatus: 'Optimal', bloodDuration: '9.5s'
+      },
+      '12 Hrs-Weekly': {
+        heartbeat: 76, heartbeatStatus: 'EXCELLENT', ecgDuration: '5s',
+        rr: 0.84, rrDuration: '3s',
+        bp: '112/68', bpLevel: 'Optimal', bpPct: '64%',
+        glucose: 180, glucoseStatus: '200ml', glucoseDuration: '7s',
+        bloodCount: '85-95', bloodCountStatus: 'Excellent', bloodDuration: '9s'
+      },
+      '12 Hrs-Monthly': {
+        heartbeat: 78, heartbeatStatus: 'NORMAL', ecgDuration: '5.5s',
+        rr: 0.83, rrDuration: '3.5s',
+        bp: '116/72', bpLevel: 'Normal', bpPct: '66%',
+        glucose: 195, glucoseStatus: '210ml', glucoseDuration: '7.5s',
+        bloodCount: '83-93', bloodCountStatus: 'Normal', bloodDuration: '10s'
+      },
+      '12 Hrs-Yearly': {
+        heartbeat: 74, heartbeatStatus: 'EXCELLENT', ecgDuration: '4.8s',
+        rr: 0.85, rrDuration: '3.2s',
+        bp: '114/70', bpLevel: 'Optimal', bpPct: '65%',
+        glucose: 220, glucoseStatus: '235ml', glucoseDuration: '8.2s',
+        bloodCount: '81-91', bloodCountStatus: 'Normal', bloodDuration: '10.5s'
+      },
+      '1 Hr-Weekly': {
+        heartbeat: 72, heartbeatStatus: 'RESTING', ecgDuration: '4s',
+        rr: 0.88, rrDuration: '2.5s',
+        bp: '110/65', bpLevel: 'Optimal', bpPct: '60%',
+        glucose: 95, glucoseStatus: '110ml', glucoseDuration: '5s',
+        bloodCount: '87-97', bloodCountStatus: 'Optimal', bloodDuration: '8s'
+      },
+      '1 Hr-Monthly': {
+        heartbeat: 73, heartbeatStatus: 'RESTING', ecgDuration: '4.2s',
+        rr: 0.87, rrDuration: '2.7s',
+        bp: '111/66', bpLevel: 'Optimal', bpPct: '61%',
+        glucose: 105, glucoseStatus: '120ml', glucoseDuration: '5.5s',
+        bloodCount: '86-96', bloodCountStatus: 'Good', bloodDuration: '8.5s'
+      },
+      '1 Hr-Yearly': {
+        heartbeat: 71, heartbeatStatus: 'RESTING', ecgDuration: '3.8s',
+        rr: 0.89, rrDuration: '2.4s',
+        bp: '109/64', bpLevel: 'Optimal', bpPct: '59%',
+        glucose: 90, glucoseStatus: '100ml', glucoseDuration: '4.8s',
+        bloodCount: '88-98', bloodCountStatus: 'Excellent', bloodDuration: '7.5s'
+      }
+    };
+    return dataMap[key] || dataMap['24 Hrs-Weekly'];
+  };
+
+  const metrics = getMetricsForSelection(timeRange, period);
   
   useEffect(() => {
     setHealthData(getHealthTrendData(state.reports, state.healthMetrics));
@@ -264,28 +371,28 @@ function Dashboard() {
           100% { transform: translate3d(-300px, 0, 0); }
         }
         .animate-ecg-scroll {
-          animation: ecgScroll 3s linear infinite;
+          animation: ecgScroll var(--ecg-duration, 3s) linear infinite;
         }
         @keyframes rrScroll {
           0% { transform: translate3d(0, 0, 0); }
           100% { transform: translate3d(-60px, 0, 0); }
         }
         .animate-rr-scroll {
-          animation: rrScroll 2s linear infinite;
+          animation: rrScroll var(--rr-duration, 2s) linear infinite;
         }
         @keyframes glucoseScroll {
           0% { transform: translate3d(0, 0, 0); }
           100% { transform: translate3d(-600px, 0, 0); }
         }
         .animate-glucose-scroll {
-          animation: glucoseScroll 8s linear infinite;
+          animation: glucoseScroll var(--glucose-duration, 8s) linear infinite;
         }
         @keyframes bloodScroll {
           0% { transform: translate3d(0, 0, 0); }
           100% { transform: translate3d(-600px, 0, 0); }
         }
         .animate-blood-scroll {
-          animation: bloodScroll 8s linear infinite;
+          animation: bloodScroll var(--blood-duration, 8s) linear infinite;
         }
       `}</style>
 
@@ -380,12 +487,20 @@ function Dashboard() {
       <div className="flex items-center justify-between pt-2">
         <h2 className="text-2xl font-extrabold text-gray-800 tracking-tight">Health Overview</h2>
         <div className="flex space-x-2">
-          <select className="bg-white border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50">
+          <select 
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="bg-white border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50"
+          >
             <option>24 Hrs</option>
             <option>12 Hrs</option>
             <option>1 Hr</option>
           </select>
-          <select className="bg-white border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50">
+          <select 
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            className="bg-white border-none shadow-sm rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-blue-500 cursor-pointer transition-all hover:bg-gray-50"
+          >
             <option>Weekly</option>
             <option>Monthly</option>
             <option>Yearly</option>
@@ -399,14 +514,14 @@ function Dashboard() {
         {/* LEFT COLUMN: Vitals Charts */}
         <div className="space-y-6 flex flex-col justify-between">
           {/* Heartbeat Card */}
-          <GlowingCard className="p-6 flex-1" glowColor="#10B981" borderRadius="28px">
+          <GlowingCard className="p-6 flex-1" glowColor="#10B981" borderRadius="28px" style={{ '--ecg-duration': metrics.ecgDuration }}>
             <div>
               <span className="absolute top-5 right-5 bg-green-50 text-green-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-                GOOD
+                {metrics.heartbeatStatus}
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Heartbeat</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 tracking-tight">83</span>
+                <span className="text-4xl font-black text-gray-800 tracking-tight">{metrics.heartbeat}</span>
                 <span className="text-sm font-semibold text-gray-500">bpm</span>
               </div>
             </div>
@@ -415,7 +530,7 @@ function Dashboard() {
               <svg className="w-full h-full text-green-500 overflow-hidden" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
                 <g className="animate-ecg-scroll">
                   <path 
-                    d="M0,40 L60,40 L70,30 L80,50 L90,20 L100,60 L110,38 L120,42 L130,40 L190,40 L200,25 L210,55 L220,10 L230,70 L240,35 L250,45 L260,40 L300,40 L360,40 L370,30 L380,50 L390,20 L400,60 L410,38 L420,42 L430,40 L490,40 L500,25 L510,55 L520,10 L530,70 L540,35 L550,45 L560,40 L600,40" 
+                    d={ecgPaths[timeRange] || ecgPaths['24 Hrs']} 
                     stroke="currentColor" 
                     strokeWidth="3" 
                     strokeLinecap="round" 
@@ -429,18 +544,18 @@ function Dashboard() {
           {/* R-R Interval & Blood Status Row */}
           <div className="grid grid-cols-2 gap-4 mt-4 lg:mt-0">
             {/* R-R Interval Card */}
-            <GlowingCard className="p-5 h-40" glowColor="#3b82f6" borderRadius="28px">
+            <GlowingCard className="p-5 h-40" glowColor="#3b82f6" borderRadius="28px" style={{ '--rr-duration': metrics.rrDuration }}>
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">R-R Interval</p>
                 <div className="flex items-baseline space-x-1 mt-1.5">
-                  <span className="text-2xl font-black text-gray-800">0.8</span>
+                  <span className="text-2xl font-black text-gray-800">{metrics.rr}</span>
                   <span className="text-xs font-semibold text-gray-500">sec</span>
                 </div>
               </div>
               <div className="h-12">
                 <svg className="w-full h-full text-blue-500 overflow-hidden" viewBox="0 0 150 40" fill="none" preserveAspectRatio="none">
                   <g className="animate-rr-scroll">
-                    <path d="M0,25 Q15,5 30,25 T60,25 T90,25 T120,25 T150,25 T180,25 T210,25" stroke="currentColor" strokeWidth="2.5" fill="none" />
+                    <path d={rrPaths[timeRange] || rrPaths['24 Hrs']} stroke="currentColor" strokeWidth="2.5" fill="none" />
                   </g>
                 </svg>
               </div>
@@ -451,17 +566,17 @@ function Dashboard() {
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Blood Status</p>
                 <div className="flex items-baseline space-x-0.5 mt-1.5">
-                  <span className="text-2xl font-black text-gray-800">115/70</span>
+                  <span className="text-2xl font-black text-gray-800">{metrics.bp}</span>
                   <span className="text-[10px] font-semibold text-gray-500">mmHg</span>
                 </div>
               </div>
               <div>
                 <div className="flex items-center justify-between text-[9px] font-bold text-gray-400 mb-1">
                   <span>Vitals</span>
-                  <span className="text-green-600">Normal</span>
+                  <span className="text-green-600">{metrics.bpLevel}</span>
                 </div>
                 <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-red-500 h-full rounded-full" style={{ width: '68%' }}></div>
+                  <div className="bg-red-500 h-full rounded-full" style={{ width: metrics.bpPct }}></div>
                 </div>
               </div>
             </GlowingCard>
@@ -519,17 +634,15 @@ function Dashboard() {
           </div>
         </GlowingCard>
 
-        {/* RIGHT COLUMN: Vitals Cards */}
         <div className="space-y-6 flex flex-col justify-between">
-          {/* Glucose Level Card */}
-          <GlowingCard className="p-6 flex-1" glowColor="#F59E0B" borderRadius="28px">
+          <GlowingCard className="p-6 flex-1" glowColor="#F59E0B" borderRadius="28px" style={{ '--glucose-duration': metrics.glucoseDuration }}>
             <div>
               <span className="absolute top-5 right-5 bg-amber-50 text-amber-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-                250ml
+                {metrics.glucoseStatus}
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Glucose Level</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 tracking-tight">230</span>
+                <span className="text-4xl font-black text-gray-800 tracking-tight">{metrics.glucose}</span>
                 <span className="text-sm font-semibold text-gray-500">/ml</span>
               </div>
             </div>
@@ -538,7 +651,7 @@ function Dashboard() {
               <svg className="w-full h-full text-amber-500 overflow-hidden" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
                 <g className="animate-glucose-scroll">
                   <path 
-                    d="M0,60 L50,55 L100,68 L150,45 L200,35 L250,28 L300,20 L350,28 L400,35 L450,45 L500,68 L550,55 L600,60 L650,55 L700,68 L750,45 L800,35 L850,28 L900,20 L950,28 L1000,35 L1050,45 L1100,68 L1150,55 L1200,60" 
+                    d={glucosePaths[timeRange] || glucosePaths['24 Hrs']} 
                     stroke="currentColor" 
                     strokeWidth="3.5" 
                     strokeLinecap="round" 
@@ -549,14 +662,14 @@ function Dashboard() {
           </GlowingCard>
 
           {/* Blood Count Card */}
-          <GlowingCard className="p-6 flex-1 mt-6 lg:mt-0" glowColor="#3B82F6" borderRadius="28px">
+          <GlowingCard className="p-6 flex-1 mt-6 lg:mt-0" glowColor="#3B82F6" borderRadius="28px" style={{ '--blood-duration': metrics.bloodDuration }}>
             <div>
               <span className="absolute top-5 right-5 bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-                Normal
+                {metrics.bloodCountStatus}
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Blood Count</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 tracking-tight">80-90</span>
+                <span className="text-4xl font-black text-gray-800 tracking-tight">{metrics.bloodCount}</span>
                 <span className="text-xs font-bold text-gray-400">k/µL</span>
               </div>
             </div>
@@ -565,11 +678,11 @@ function Dashboard() {
               <svg className="w-full h-full text-blue-500 overflow-hidden" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
                 <g className="animate-blood-scroll">
                   <path 
-                    d="M0,80 L0,50 C50,42 100,60 150,38 C200,45 250,28 300,20 C350,28 400,45 450,38 C500,60 550,42 600,50 C650,42 700,60 750,38 C800,45 850,28 900,20 C950,28 1000,45 1050,38 C1100,60 1150,42 1200,50 L1200,80 Z" 
+                    d={(bloodPaths[timeRange] || bloodPaths['24 Hrs']).area} 
                     fill="rgba(59, 130, 246, 0.08)" 
                   />
                   <path 
-                    d="M0,50 C50,42 100,60 150,38 C200,45 250,28 300,20 C350,28 400,45 450,38 C500,60 550,42 600,50 C650,42 700,60 750,38 C800,45 850,28 900,20 C950,28 1000,45 1050,38 C1100,60 1150,42 1200,50" 
+                    d={(bloodPaths[timeRange] || bloodPaths['24 Hrs']).stroke} 
                     stroke="currentColor" 
                     strokeWidth="3" 
                     strokeLinecap="round" 
