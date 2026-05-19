@@ -7,16 +7,13 @@ import HeartAnalytics from '../components/ecg/HeartAnalytics';
 import AIAnalysisCard from '../components/ecg/AIAnalysisCard';
 import EmergencyAlert from '../components/ecg/EmergencyAlert';
 import {
-  parseCSVFile,
   parsePDFFileContent,
-  generatePhysiologicalDefaults,
   predictECGLocal,
   generateLocalCardiologyReport
 } from '../services/ecgApi';
 import toast from 'react-hot-toast';
 import {
-  Shield, Sparkles, RefreshCw, UserCircle, Heart,
-  Activity, Zap, ChevronRight, AlertCircle
+  Shield, Sparkles, Activity, ChevronRight
 } from 'lucide-react';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -28,42 +25,6 @@ const LoaderIcon = (props) => (
   </svg>
 );
 
-const FieldInput = ({ label, helpText, ...props }) => (
-  <div className="space-y-1">
-    <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest">{label}</label>
-    {helpText && <p className="text-[10px] text-zinc-600 leading-tight">{helpText}</p>}
-    <input
-      {...props}
-      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white
-        placeholder-zinc-600 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 focus:outline-none
-        transition-colors duration-200"
-    />
-  </div>
-);
-
-const FieldSelect = ({ label, helpText, children, ...props }) => (
-  <div className="space-y-1">
-    <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest">{label}</label>
-    {helpText && <p className="text-[10px] text-zinc-600 leading-tight">{helpText}</p>}
-    <select
-      {...props}
-      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white
-        focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/20 focus:outline-none
-        transition-colors duration-200 appearance-none cursor-pointer"
-    >
-      {children}
-    </select>
-  </div>
-);
-
-const SectionLabel = ({ icon: Icon, label, color = 'text-blue-400' }) => (
-  <div className="flex items-center space-x-2 mb-4">
-    <Icon className={`w-4 h-4 ${color}`} />
-    <span className={`text-xs font-bold uppercase tracking-widest ${color}`}>{label}</span>
-    <div className="flex-1 h-px bg-zinc-800/80 ml-1" />
-  </div>
-);
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ECGPrediction() {
   const location = useLocation();
@@ -71,10 +32,26 @@ export default function ECGPrediction() {
   const [currentStage, setCurrentStage] = useState('');
   const [result, setResult] = useState(null);
 
-  const [features, setFeatures] = useState({
-    age: '', sex: '', cp: '', trestbps: '',
-    chol: '', fbs: '', restecg: '', thalach: '',
-    exang: '', oldpeak: '', slope: '', ca: '', thal: ''
+  const [patientInfo, setPatientInfo] = useState({
+    name: '',
+    gender: '', // '0' for Female, '1' for Male
+    dob: '', // 'YYYY-MM-DD'
+    height: '', // cm
+    weight: '', // kg
+    heartRate: '', // BPM
+    bloodPressure: '' // mmHg
+  });
+
+  const [backgroundFeatures, setBackgroundFeatures] = useState({
+    cp: '',
+    chol: '',
+    fbs: '',
+    restecg: '',
+    exang: '',
+    oldpeak: '',
+    slope: '',
+    ca: '',
+    thal: ''
   });
 
   const [summary, setSummary] = useState('');
@@ -83,6 +60,49 @@ export default function ECGPrediction() {
   const [rhythmType, setRhythmType] = useState('Normal');
   const [heartRate, setHeartRate] = useState(0);
   const [showEmergency, setShowEmergency] = useState(false);
+
+  const getCalculatedAge = (dobString) => {
+    if (!dobString) return '';
+    try {
+      const dobDate = new Date(dobString);
+      if (isNaN(dobDate.getTime())) return '';
+      const today = new Date();
+      let calculatedAge = today.getFullYear() - dobDate.getFullYear();
+      const monthDiff = today.getMonth() - dobDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+        calculatedAge--;
+      }
+      return calculatedAge >= 0 ? calculatedAge : '';
+    } catch (e) {
+      return '';
+    }
+  };
+
+  const mapExtractedToStates = (extracted) => {
+    const info = {
+      name: extracted.name || '',
+      gender: extracted.sex !== undefined && extracted.sex !== "" ? String(extracted.sex) : '',
+      dob: extracted.dob || '',
+      height: extracted.height || '',
+      weight: extracted.weight || '',
+      heartRate: extracted.thalach !== undefined && extracted.thalach !== "" ? String(extracted.thalach) : '',
+      bloodPressure: extracted.trestbps !== undefined && extracted.trestbps !== "" ? String(extracted.trestbps) : ''
+    };
+    const bg = {
+      cp: extracted.cp !== undefined && extracted.cp !== "" ? String(extracted.cp) : '',
+      chol: extracted.chol !== undefined && extracted.chol !== "" ? String(extracted.chol) : '',
+      fbs: extracted.fbs !== undefined && extracted.fbs !== "" ? String(extracted.fbs) : '',
+      restecg: extracted.restecg !== undefined && extracted.restecg !== "" ? String(extracted.restecg) : '',
+      exang: extracted.exang !== undefined && extracted.exang !== "" ? String(extracted.exang) : '',
+      oldpeak: extracted.oldpeak !== undefined && extracted.oldpeak !== "" ? String(extracted.oldpeak) : '',
+      slope: extracted.slope !== undefined && extracted.slope !== "" ? String(extracted.slope) : '',
+      ca: extracted.ca !== undefined && extracted.ca !== "" ? String(extracted.ca) : '',
+      thal: extracted.thal !== undefined && extracted.thal !== "" ? String(extracted.thal) : ''
+    };
+    setPatientInfo(info);
+    setBackgroundFeatures(bg);
+    return { info, bg };
+  };
 
   const handleECGUpload = async (file) => {
     setIsProcessing(true);
@@ -107,8 +127,8 @@ export default function ECGPrediction() {
       }
 
       if (extractedFeatures) {
-        setFeatures(extractedFeatures);
-        await executeOfflinePrediction(extractedFeatures);
+        const { info, bg } = mapExtractedToStates(extractedFeatures);
+        await executeOfflinePrediction(info, bg);
       } else {
         throw new Error('Unable to parse features from document.');
       }
@@ -120,14 +140,31 @@ export default function ECGPrediction() {
     }
   };
 
-  const executeOfflinePrediction = async (currentFeatures) => {
+  const executeOfflinePrediction = async (info, bg) => {
     setIsProcessing(true);
     setCurrentStage('Analyzing');
     await new Promise((r) => setTimeout(r, 600));
 
     try {
-      const mlResponse = await predictECGLocal(currentFeatures);
-      const cardiologyReport = generateLocalCardiologyReport(mlResponse, currentFeatures);
+      const ageVal = getCalculatedAge(info.dob);
+      const mlFeatures = {
+        age: ageVal !== '' ? ageVal : 0,
+        sex: info.gender !== '' ? parseInt(info.gender) : 0,
+        cp: bg.cp !== '' ? parseInt(bg.cp) : 0,
+        trestbps: info.bloodPressure !== '' ? parseFloat(info.bloodPressure) : 0,
+        chol: bg.chol !== '' ? parseFloat(bg.chol) : 0,
+        fbs: bg.fbs !== '' ? parseInt(bg.fbs) : 0,
+        restecg: bg.restecg !== '' ? parseInt(bg.restecg) : 0,
+        thalach: info.heartRate !== '' ? parseFloat(info.heartRate) : 0,
+        exang: bg.exang !== '' ? parseInt(bg.exang) : 0,
+        oldpeak: bg.oldpeak !== '' ? parseFloat(bg.oldpeak) : 0.0,
+        slope: bg.slope !== '' ? parseInt(bg.slope) : 0,
+        ca: bg.ca !== '' ? parseInt(bg.ca) : 0,
+        thal: bg.thal !== '' ? parseInt(bg.thal) : 0
+      };
+
+      const mlResponse = await predictECGLocal(mlFeatures);
+      const cardiologyReport = generateLocalCardiologyReport(mlResponse, mlFeatures);
 
       setResult({
         prediction: mlResponse.prediction,
@@ -138,7 +175,7 @@ export default function ECGPrediction() {
       setSummary(cardiologyReport.summary);
       setRecommendations(cardiologyReport.recommendations);
       setWaveformPattern(cardiologyReport.waveformPattern);
-      setHeartRate(currentFeatures.thalach);
+      setHeartRate(mlFeatures.thalach);
 
       let derivedRhythm = 'Normal Sinus Rhythm';
       if (cardiologyReport.waveformPattern === 'afib') derivedRhythm = 'Atrial Fibrillation';
@@ -164,8 +201,27 @@ export default function ECGPrediction() {
     }
   };
 
-  const handleFeatureChange = (name, val) => {
-    setFeatures(prev => ({ ...prev, [name]: parseFloat(val) }));
+
+  const getUnifiedFeatures = () => {
+    const ageVal = getCalculatedAge(patientInfo.dob);
+    return {
+      name: patientInfo.name,
+      height: patientInfo.height,
+      weight: patientInfo.weight,
+      age: ageVal !== '' ? ageVal : 0,
+      sex: patientInfo.gender !== '' ? parseInt(patientInfo.gender) : 0,
+      cp: backgroundFeatures.cp !== '' ? parseInt(backgroundFeatures.cp) : 0,
+      trestbps: patientInfo.bloodPressure !== '' ? parseFloat(patientInfo.bloodPressure) : 120,
+      chol: backgroundFeatures.chol !== '' ? parseFloat(backgroundFeatures.chol) : 0,
+      fbs: backgroundFeatures.fbs !== '' ? parseInt(backgroundFeatures.fbs) : 0,
+      restecg: backgroundFeatures.restecg !== '' ? parseInt(backgroundFeatures.restecg) : 0,
+      thalach: patientInfo.heartRate !== '' ? parseFloat(patientInfo.heartRate) : 0,
+      exang: backgroundFeatures.exang !== '' ? parseInt(backgroundFeatures.exang) : 0,
+      oldpeak: backgroundFeatures.oldpeak !== '' ? parseFloat(backgroundFeatures.oldpeak) : 0.0,
+      slope: backgroundFeatures.slope !== '' ? parseInt(backgroundFeatures.slope) : 0,
+      ca: backgroundFeatures.ca !== '' ? parseInt(backgroundFeatures.ca) : 0,
+      thal: backgroundFeatures.thal !== '' ? parseInt(backgroundFeatures.thal) : 0
+    };
   };
 
   return (
@@ -246,9 +302,9 @@ export default function ECGPrediction() {
         {/* ── Main Grid ─────────────────────────────────────────── */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
-          {/* ── LEFT SIDEBAR (Upload + Parameters) ─── col 1-4 */}
-          <div className="xl:col-span-4 space-y-5">
-
+          {/* ── LEFT COLUMN (Upload, Prediction, Metrics) ─── col 1-4 */}
+          <div className="xl:col-span-4 space-y-6">
+            
             {/* Upload Card */}
             <div className="ecg-fade-1">
               <ECGUploadCard
@@ -258,195 +314,28 @@ export default function ECGPrediction() {
               />
             </div>
 
-            {/* Clinical Parameters Panel */}
+            {/* Prediction Result */}
             <div className="ecg-fade-2">
-              <div className="bg-zinc-950 border border-zinc-800/60 rounded-2xl overflow-hidden">
-                {/* Panel header */}
-                <div className="px-5 py-4 border-b border-zinc-800/60 bg-zinc-900/40">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Activity className="w-4 h-4 text-blue-400" />
-                      <h3 className="text-sm font-bold text-white">Clinical Parameters</h3>
-                    </div>
-                    <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest
-                      px-2 py-0.5 bg-zinc-800 rounded-full">
-                      13 Features
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-zinc-600 mt-1">
-                    Auto-filled from upload. You can manually adjust any value before running prediction.
-                  </p>
-                </div>
-
-                <div className="p-5 space-y-6">
-                  {/* ── Patient Info ─── */}
-                  <div>
-                    <SectionLabel icon={UserCircle} label="Patient Info" color="text-blue-400" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <FieldInput
-                        label="Age (years)"
-                        type="number" min="0" max="120"
-                        value={features.age}
-                        onChange={(e) => handleFeatureChange('age', e.target.value)}
-                      />
-                      <FieldSelect
-                        label="Gender"
-                        value={features.sex}
-                        onChange={(e) => handleFeatureChange('sex', e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="0">Female</option>
-                        <option value="1">Male</option>
-                      </FieldSelect>
-                    </div>
-                  </div>
-
-                  {/* ── Cardiac Symptoms ─── */}
-                  <div>
-                    <SectionLabel icon={Heart} label="Cardiac Symptoms" color="text-rose-400" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <FieldSelect
-                        label="Chest Pain Type"
-                        helpText="0=Asympt · 1=Atypical · 2=Non-ang · 3=Typical"
-                        value={features.cp}
-                        onChange={(e) => handleFeatureChange('cp', e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="0">Asymptomatic</option>
-                        <option value="1">Atypical Angina</option>
-                        <option value="2">Non-anginal Pain</option>
-                        <option value="3">Typical Angina</option>
-                      </FieldSelect>
-                      <FieldSelect
-                        label="Exercise Angina"
-                        helpText="Pain triggered by exercise?"
-                        value={features.exang}
-                        onChange={(e) => handleFeatureChange('exang', e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="0">No</option>
-                        <option value="1">Yes</option>
-                      </FieldSelect>
-                    </div>
-                  </div>
-
-                  {/* ── Vitals ─── */}
-                  <div>
-                    <SectionLabel icon={Activity} label="Vitals & Labs" color="text-cyan-400" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <FieldInput
-                        label="Resting BP (mmHg)"
-                        type="number" min="0"
-                        value={features.trestbps}
-                        onChange={(e) => handleFeatureChange('trestbps', e.target.value)}
-                      />
-                      <FieldInput
-                        label="Cholesterol (mg/dl)"
-                        type="number" min="0"
-                        value={features.chol}
-                        onChange={(e) => handleFeatureChange('chol', e.target.value)}
-                      />
-                      <FieldSelect
-                        label="Fasting Blood Sugar"
-                        helpText="> 120 mg/dl?"
-                        value={features.fbs}
-                        onChange={(e) => handleFeatureChange('fbs', e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="0">Normal (≤ 120)</option>
-                        <option value="1">High (&gt; 120)</option>
-                      </FieldSelect>
-                      <FieldInput
-                        label="Max Heart Rate"
-                        helpText="thalach (BPM)"
-                        type="number" min="0"
-                        value={features.thalach}
-                        onChange={(e) => handleFeatureChange('thalach', e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* ── ECG Readings ─── */}
-                  <div>
-                    <SectionLabel icon={Zap} label="ECG Readings" color="text-amber-400" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <FieldSelect
-                        label="Resting ECG"
-                        value={features.restecg}
-                        onChange={(e) => handleFeatureChange('restecg', e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="0">Normal</option>
-                        <option value="1">ST-T Abnormality</option>
-                        <option value="2">LV Hypertrophy</option>
-                      </FieldSelect>
-                      <FieldInput
-                        label="ST Depression (mm)"
-                        helpText="oldpeak – exercise vs rest"
-                        type="number" step="0.1" min="0"
-                        value={features.oldpeak}
-                        onChange={(e) => handleFeatureChange('oldpeak', e.target.value)}
-                      />
-                      <FieldSelect
-                        label="ST Slope"
-                        value={features.slope}
-                        onChange={(e) => handleFeatureChange('slope', e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="0">Upsloping</option>
-                        <option value="1">Flat</option>
-                        <option value="2">Downsloping</option>
-                      </FieldSelect>
-                      <FieldInput
-                        label="Major Vessels (ca)"
-                        helpText="0–3 fluoroscopy vessels"
-                        type="number" min="0" max="3"
-                        value={features.ca}
-                        onChange={(e) => handleFeatureChange('ca', e.target.value)}
-                      />
-                      <FieldSelect
-                        label="Thalassemia (thal)"
-                        value={features.thal}
-                        onChange={(e) => handleFeatureChange('thal', e.target.value)}
-                      >
-                        <option value="">--</option>
-                        <option value="0">Unknown</option>
-                        <option value="1">Normal</option>
-                        <option value="2">Fixed Defect</option>
-                        <option value="3">Reversible Defect</option>
-                      </FieldSelect>
-                    </div>
-                  </div>
-
-                  {/* Disclaimer note */}
-                  <div className="flex gap-2 p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/40">
-                    <AlertCircle className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
-                    <p className="text-[10px] text-zinc-500 leading-relaxed">
-                      Values are parsed directly from the uploaded ECG document. Adjust manually only if the OCR extraction was inaccurate.
-                    </p>
-                  </div>
-
-                  {/* Run button */}
-                  <button
-                    onClick={() => executeOfflinePrediction(features)}
-                    disabled={isProcessing}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm
-                      bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 disabled:text-zinc-500
-                      text-white transition-all duration-200 shadow-lg shadow-blue-600/20
-                      disabled:shadow-none disabled:cursor-not-allowed"
-                  >
-                    {isProcessing
-                      ? <><LoaderIcon className="w-4 h-4 animate-spin" /> Analyzing…</>
-                      : <><RefreshCw className="w-4 h-4" /> Run ML Prediction</>
-                    }
-                  </button>
-                </div>
-              </div>
+              {result ? (
+                <ECGResultCard
+                  result={result.prediction}
+                  probability={result.risk_probability}
+                  riskLabel={result.riskLabel}
+                />
+              ) : (
+                <EmptyResultCard />
+              )}
             </div>
+
+            {/* Clinical Metrics & Demographics */}
+            <div className="ecg-fade-3">
+              <HeartAnalytics patientInfo={patientInfo} />
+            </div>
+
           </div>
 
-          {/* ── RIGHT MAIN (Monitor + Results) ─── col 5-12 */}
-          <div className="xl:col-span-8 space-y-5">
+          {/* ── RIGHT COLUMN (Monitor, AI Medical Summary) ─── col 5-12 */}
+          <div className="xl:col-span-8 space-y-6">
 
             {/* ECG Live Monitor */}
             <div className="ecg-fade-1">
@@ -458,37 +347,17 @@ export default function ECGPrediction() {
               />
             </div>
 
-            {/* Metrics row */}
+            {/* AI Summary */}
             <div className="ecg-fade-2">
-              <HeartAnalytics features={features} />
+              <AIAnalysisCard
+                summary={summary}
+                recommendations={recommendations}
+                isProcessing={isProcessing}
+                result={result}
+                features={getUnifiedFeatures()}
+              />
             </div>
 
-            {/* Prediction + AI Analysis side by side */}
-            <div className="ecg-fade-3 grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Prediction Result – always visible, shows empty state if no result */}
-              <div>
-                {result ? (
-                  <ECGResultCard
-                    result={result.prediction}
-                    probability={result.risk_probability}
-                    riskLabel={result.riskLabel}
-                  />
-                ) : (
-                  <EmptyResultCard />
-                )}
-              </div>
-
-              {/* AI Summary */}
-              <div>
-                <AIAnalysisCard
-                  summary={summary}
-                  recommendations={recommendations}
-                  isProcessing={isProcessing}
-                  result={result}
-                  features={features}
-                />
-              </div>
-            </div>
           </div>
 
         </div>

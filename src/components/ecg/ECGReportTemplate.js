@@ -70,12 +70,12 @@ export default function ECGReportTemplate({ result, features, summary }) {
       <div className="mb-8 shrink-0">
         <h2 className="text-lg font-bold text-blue-900 uppercase border-l-4 border-blue-600 pl-3 mb-4">Patient Information</h2>
         <div className="grid grid-cols-4 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200 text-sm">
-          <div><span className="text-gray-500 block text-xs uppercase">Name</span><span className="font-semibold">John Doe (Mock)</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Age</span><span className="font-semibold">{features?.age || 45} Years</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Gender</span><span className="font-semibold">{features?.sex === 1 ? 'Male' : 'Female'}</span></div>
+          <div><span className="text-gray-500 block text-xs uppercase">Name</span><span className="font-semibold">{features?.name || "N/A"}</span></div>
+          <div><span className="text-gray-500 block text-xs uppercase">Age</span><span className="font-semibold">{features?.age ? `${features.age} Years` : "N/A"}</span></div>
+          <div><span className="text-gray-500 block text-xs uppercase">Gender</span><span className="font-semibold">{features?.sex === 1 ? 'Male' : features?.sex === 0 ? 'Female' : 'N/A'}</span></div>
           <div><span className="text-gray-500 block text-xs uppercase">Blood Group</span><span className="font-semibold">O+</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Height</span><span className="font-semibold">178 cm</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Weight</span><span className="font-semibold">75 kg</span></div>
+          <div><span className="text-gray-500 block text-xs uppercase">Height</span><span className="font-semibold">{features?.height ? `${features.height} cm` : "N/A"}</span></div>
+          <div><span className="text-gray-500 block text-xs uppercase">Weight</span><span className="font-semibold">{features?.weight ? `${features.weight} kg` : "N/A"}</span></div>
           <div><span className="text-gray-500 block text-xs uppercase">Contact</span><span className="font-semibold">+1 234 567 8900</span></div>
           <div><span className="text-gray-500 block text-xs uppercase">Hospital</span><span className="font-semibold">CareConnect General</span></div>
         </div>
@@ -117,10 +117,6 @@ export default function ECGReportTemplate({ result, features, summary }) {
                 <td className="py-2 font-bold text-right">{features?.thalach || '--'}</td>
               </tr>
               <tr className="border-b border-gray-200">
-                <td className="py-2 text-gray-600 font-medium">Blood Pressure (mmHg)</td>
-                <td className="py-2 font-bold text-right">{features?.trestbps || '--'}/80</td>
-              </tr>
-              <tr className="border-b border-gray-200">
                 <td className="py-2 text-gray-600 font-medium">Cholesterol (mg/dl)</td>
                 <td className="py-2 font-bold text-right">{features?.chol || '--'}</td>
               </tr>
@@ -154,7 +150,7 @@ export default function ECGReportTemplate({ result, features, summary }) {
             <>
               <li className="font-bold text-red-600">Immediate cardiology consultation strongly recommended.</li>
               <li>Schedule an echocardiogram and a stress test as soon as possible.</li>
-              <li>Monitor blood pressure daily and keep a detailed log.</li>
+              <li>Monitor cardiovascular metrics daily and keep a detailed log.</li>
               <li>Avoid strenuous physical activity until cleared by a physician.</li>
             </>
           ) : (

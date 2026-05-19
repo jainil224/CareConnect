@@ -41,6 +41,7 @@ const extractPDFText = async (file) => {
   if (!fullText || fullText.trim().length === 0) {
     console.warn("PDF contains no selectable text. Returning empty clinical profile.");
     return {
+      name: "", dob: "", height: "", weight: "",
       age: "", sex: "", cp: "", trestbps: "",
       chol: "", fbs: "", restecg: "", thalach: "",
       exang: "", oldpeak: "", slope: "", ca: "", thal: ""
@@ -48,6 +49,10 @@ const extractPDFText = async (file) => {
   }
 
   // Exact clinical feature extraction matching scikit-learn model
+  let name = "";
+  let dob = "";
+  let height = "";
+  let weight = "";
   let age = "";
   let sex = "";
   let cp = "";
@@ -62,19 +67,171 @@ const extractPDFText = async (file) => {
   let ca = "";
   let thal = "";
 
-  // Regex selectors
-  const ageMatch = fullText.match(/(?:age|yrs|years):\s*(\d+)/i) || fullText.match(/(\d+)\s*(?:years\s*old|yo)/i);
-  if (ageMatch) age = parseInt(ageMatch[1]);
+  // ─── QRS Diagnostic Specific Layout Detection ───
+  const isQrsDiagnostic = /Name:\s*ID:\s*Gender:\s*Date of Birth:\s*Height:\s*Weight:/i.test(fullText);
+  
+  if (isQrsDiagnostic) {
+    console.log("QRS Diagnostic specific layout matched! Parsing with high-fidelity coordinate blocks...");
+    
+    // Extract patient details block (from Name: ID: Gender: Date of Birth: Height: Weight: up to Recording Details or Measurements or end)
+    const patientDetailsMatch = fullText.match(/Weight:\s*(.*?)(?=\s*(?:Recording Details|Measurements|$))/i);
+    if (patientDetailsMatch) {
+      const valuesPart = patientDetailsMatch[1].trim();
+      console.log("QRS valuesPart:", valuesPart);
+      
+      // 1. Gender: Male or Female
+      const genderMatch = valuesPart.match(/\b(Male|Female)\b/i);
+      if (genderMatch) {
+        sex = genderMatch[1].toLowerCase() === 'male' ? 1 : 0;
+      }
+      
+      // 2. DOB: e.g. 1/25/1950 or 1950-01-25 or 25-01-1950
+      const dobMatch = valuesPart.match(/\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})\b/) || valuesPart.match(/\b(\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})\b/);
+      if (dobMatch) {
+        dob = dobMatch[1].trim();
+      }
+      
+      // 3. Age: e.g. (61 years) or 61 years
+      const ageMatch = valuesPart.match(/\((\d+)\s*years?\)/i) || valuesPart.match(/\b(\d+)\s*years?\b/i);
+      if (ageMatch) {
+        age = parseInt(ageMatch[1]);
+      }
+      
+      // 4. Height: "6 ft 3 in" or "182 cm"
+      const ftInMatch = valuesPart.match(/(\d+)\s*ft\s*(\d+)\s*in/i) || valuesPart.match(/(\d+)'\s*(\d+)"/);
+      if (ftInMatch) {
+        const ft = parseInt(ftInMatch[1]);
+        const inches = parseInt(ftInMatch[2]);
+        height = Math.round(ft * 30.48 + inches * 2.54);
+      } else {
+        const cmMatch = valuesPart.match(/(\d+)\s*cm/i);
+        if (cmMatch) height = parseInt(cmMatch[1]);
+      }
+      
+      // 5. Weight: "223 lbs" or "101 kg"
+      const lbsMatch = valuesPart.match(/(\d+(?:\.\d+)?)\s*lbs?/i);
+      if (lbsMatch) {
+        const lbs = parseFloat(lbsMatch[1]);
+        weight = Math.round(lbs * 0.453592);
+      } else {
+        const kgMatch = valuesPart.match(/(\d+(?:\.\d+)?)\s*kg/i);
+        if (kgMatch) weight = Math.round(parseFloat(kgMatch[1]));
+      }
+      
+      // 6. Name and ID:
+      if (genderMatch) {
+        const preGender = valuesPart.split(genderMatch[0])[0].trim();
+        const idMatch = preGender.match(/\s+(\d+)\s*$/);
+        if (idMatch) {
+          name = preGender.replace(/\s+(\d+)\s*$/, '').trim();
+        } else {
+          name = preGender;
+        }
+      }
+    }
 
-  const sexMatch = fullText.match(/(?:sex|gender):\s*(male|female|1|0)/i) || fullText.match(/\b(male|female)\b/i);
-  if (sexMatch) {
-    const s = sexMatch[1].toLowerCase();
-    if (s === 'male' || s === '1') sex = 1;
-    else sex = 0;
+    // Extract Heart Rate from Measurements section specifically for QRS Diagnostic if present
+    const measurementsMatch = fullText.match(/Measurements\s+(.*?)(?=\s*$)/i);
+    if (measurementsMatch) {
+      const measurementsPart = measurementsMatch[1].trim();
+      const valuesMatch = measurementsPart.match(/Axis:\s*(.*)/i);
+      if (valuesMatch) {
+        const valuesStr = valuesMatch[1].trim();
+        const hrValMatch = valuesStr.match(/^(\d+)\s*bpm/i);
+        if (hrValMatch) {
+          thalach = parseInt(hrValMatch[1]);
+        }
+      }
+    }
+  } else {
+    // ─── Standard priority-cascaded parsing for generic layouts ───
+    // ─── Patient Name Parsing ───
+    const namePatterns = [
+      /(?:patient\s*name|fullname|client|subject)\s*[:\-\s]\s*([a-zA-Z\s\.\-]+?)(?:\s*(?:age|sex|gender|dob|date|ht|height|wt|weight|bp|blood|resting|hr|heart|thalach|chol|fbs|restecg|exang|oldpeak|slope|ca|thal|id|physician|doctor|ref|clinical|ordered|status|page|mrn|acc)\b|$)/i,
+      /(?:patient\s*name|patient|fullname|client|subject)\s*[:\-\s]\s*([a-zA-Z\s\.\-]+)/i,
+      /\bname\b\s*[:\-\s]\s*([a-zA-Z\s\.\-]+)/i,
+      /(?:patient)\s*([a-zA-Z\s\.\-]+)/i
+    ];
+    for (const pattern of namePatterns) {
+      const match = fullText.match(pattern);
+      if (match && match[1] && match[1].trim().length > 2 && !/details/i.test(match[1])) {
+        name = match[1].trim().replace(/\s+/g, ' ');
+        break;
+      }
+    }
+
+    // ─── DOB Parsing ───
+    const dobPatterns = [
+      /(?:dob|date\s*of\s*birth|birthdate|birth\s*date|born)\s*[:\-\s]\s*([\d\-\/\.\w,\s]{6,25}?)(?:\s*(?:age|sex|gender|ht|height|wt|weight|bp|blood|resting|hr|heart|thalach|chol|fbs|restecg|exang|oldpeak|slope|ca|thal|id|physician|doctor|mrn)\b|$)/i,
+      /(?:dob|date\s*of\s*birth|birthdate|birth\s*date|born)\s*[:\-\s]\s*([\d\-\/\w,\s]{6,25})/i,
+      /(?:dob|birthdate)\s*[:\-\s]?\s*([\d\-\/\w,\s]{6,25})/i,
+      /\b(?:dob|date\s*of\s*birth)\b\s*([\d\-\/]+)/i
+    ];
+    for (const pattern of dobPatterns) {
+      const match = fullText.match(pattern);
+      if (match && match[1]) {
+        const cleanDob = match[1].trim();
+        if (/\d/.test(cleanDob)) {
+          dob = cleanDob;
+          break;
+        }
+      }
+    }
+
+    // ─── Height Parsing ───
+    const heightPatterns = [
+      /(?:height|ht)\s*[:\-\s]\s*(\d+(?:\.\d+)?)\s*(?:cm|in|inch|inches|m|feet|ft)?/i,
+      /(?:height|ht)\s*(\d+(?:\.\d+)?)/i,
+      /\b(?:ht)\b\s*[:\-\s]?\s*(\d+)/i
+    ];
+    for (const pattern of heightPatterns) {
+      const match = fullText.match(pattern);
+      if (match && match[1]) {
+        height = parseInt(match[1]);
+        break;
+      }
+    }
+
+    // ─── Weight Parsing ───
+    const weightPatterns = [
+      /(?:weight|wt)\s*[:\-\s]\s*(\d+(?:\.\d+)?)\s*(?:kg|lbs|lb|pound|pounds)?/i,
+      /(?:weight|wt)\s*(\d+(?:\.\d+)?)/i,
+      /\b(?:wt)\b\s*[:\-\s]?\s*(\d+)/i
+    ];
+    for (const pattern of weightPatterns) {
+      const match = fullText.match(pattern);
+      if (match && match[1]) {
+        weight = parseInt(match[1]);
+        break;
+      }
+    }
+
+    // Regex selectors
+    const ageMatch = fullText.match(/(?:age|yrs|years)\s*:?\s*(\d+)/i) || fullText.match(/(\d+)\s*(?:years\s*old|yo)/i);
+    if (ageMatch) age = parseInt(ageMatch[1]);
+
+    const sexMatch = fullText.match(/(?:sex|gender)\s*:?\s*(male|female|1|0)/i) || fullText.match(/\b(male|female)\b/i);
+    if (sexMatch) {
+      const s = sexMatch[1].toLowerCase();
+      if (s === 'male' || s === '1') sex = 1;
+      else sex = 0;
+    }
   }
 
-  const bpMatch = fullText.match(/(?:blood pressure|bp|resting bp|trestbps):\s*(\d+)/i) || fullText.match(/(\d+)\/80/i);
-  if (bpMatch) trestbps = parseInt(bpMatch[1]);
+  // ─── Blood Pressure Parsing (Strips date formats to avoid false-matching DOBs) ───
+  const textWithoutDates = fullText.replace(/\d{1,4}[\/\-\.]\d{1,4}[\/\-\.]\d{1,4}/g, '');
+  const bpPatterns = [
+    /(?:blood\s*pressure|bp|resting\s*bp|trestbps|pressure)\s*[:\-\s]\s*(\d+)\s*\/\s*(\d+)/i,
+    /(?:blood\s*pressure|bp|resting\s*bp|trestbps|pressure)\s*[:\-\s]\s*(\d+)/i,
+    /(\d{2,3})\s*\/\s*(\d{2,3})/
+  ];
+  for (const pattern of bpPatterns) {
+    const match = textWithoutDates.match(pattern);
+    if (match && match[1]) {
+      trestbps = parseInt(match[1]);
+      break;
+    }
+  }
 
   const cholMatch = fullText.match(/(?:cholesterol|chol):\s*(\d+)/i);
   if (cholMatch) chol = parseInt(cholMatch[1]);
@@ -106,7 +263,7 @@ const extractPDFText = async (file) => {
   const thalMatch = fullText.match(/(?:thal):\s*(\d)/i);
   if (thalMatch) thal = parseInt(thalMatch[1]);
 
-  return { age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal };
+  return { name, dob, height, weight, age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal };
 };
 
 // Client-side parser for CSV files containing clinical parameters
@@ -245,7 +402,7 @@ export const generateLocalCardiologyReport = (prediction, features) => {
     }
   } else {
     summary = `Local ML model analysis indicates normal cardiac profile and low cardiovascular risk (${prob}). `;
-    summary += `All essential features including resting blood pressure (${features.trestbps} mmHg) and cholesterol levels (${features.chol} mg/dl) reside within safe physiological envelopes.`;
+    summary += `All essential features including cholesterol levels (${features.chol} mg/dl) reside within safe physiological envelopes.`;
     
     recommendations.push("Maintain a balanced dietary profile (Mediterranean or DASH diets).");
     recommendations.push("Continue regular moderate aerobic exercise (e.g. 150 minutes per week).");
