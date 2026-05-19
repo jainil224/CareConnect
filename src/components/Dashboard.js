@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHealth } from '../context/HealthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Activity, Heart, Brain, TrendingUp, Users, Calendar, MessageSquare, Upload, Search, Info, AlertTriangle, CheckCircle, ArrowUpRight, Bell } from 'lucide-react';
@@ -10,6 +10,73 @@ import EmergencyButton from './EmergencyButton';
 import HeartSVG from './HeartSVG';
 import KidneySVG from './KidneySVG';
 import BrainSVG from './BrainSVG';
+
+// Reusable GlowingCard component for high-fidelity border/background spotlight hover effect
+const GlowingCard = ({ children, className = '', contentClassName = '', glowColor = '#3b82f6', borderRadius = '28px', style = {}, ...props }) => {
+  const cardRef = useRef(null);
+  const [opacity, setOpacity] = useState(0);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const cardRect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - cardRect.left;
+    const y = e.clientY - cardRect.top;
+    cardRef.current.style.setProperty('--x', `${x}px`);
+    cardRef.current.style.setProperty('--y', `${y}px`);
+  };
+
+  const hexToRgb = (hex) => {
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '59, 130, 246';
+  };
+
+  const rgbColor = hexToRgb(glowColor);
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setOpacity(1)}
+      onMouseLeave={() => setOpacity(0)}
+      className={`relative overflow-hidden bg-white border border-gray-100/50 shadow-sm transition-shadow duration-300 hover:shadow-md ${className}`}
+      style={{
+        borderRadius,
+        '--glow-color': glowColor,
+        '--glow-bg': `rgba(${rgbColor}, 0.05)`,
+        '--glow-opacity': opacity,
+        ...style
+      }}
+      {...props}
+    >
+      {/* Background Glow Spotlight */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        style={{
+          opacity: 'var(--glow-opacity)',
+          background: 'radial-gradient(circle 200px at var(--x, 0px) var(--y, 0px), var(--glow-bg), transparent 80%)'
+        }}
+      />
+      {/* Border Glow Spotlight */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300 rounded-[inherit]"
+        style={{
+          opacity: 'var(--glow-opacity)',
+          padding: '1.5px',
+          background: 'radial-gradient(circle 130px at var(--x, 0px) var(--y, 0px), var(--glow-color), transparent 80%)',
+          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude'
+        }}
+      />
+      {/* Content wrapper */}
+      <div className={`relative z-10 h-full flex flex-col justify-between ${contentClassName}`}>
+        {children}
+      </div>
+    </div>
+  );
+};
 
 // Dynamic health data based on uploaded reports
 const getHealthTrendData = (reports, healthMetrics) => {
@@ -258,10 +325,13 @@ function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
+          const glowColor = stat.title === 'Health Score' ? '#ef4444' : stat.title === 'Active Reports' ? '#3b82f6' : '#10b981';
           return (
-            <div 
+            <GlowingCard 
               key={index} 
-              className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 cursor-pointer relative group border border-gray-50"
+              className="p-5 cursor-pointer hover:-translate-y-0.5"
+              glowColor={glowColor}
+              borderRadius="28px"
               onMouseEnter={() => setHoveredStat(index)}
               onMouseLeave={() => setHoveredStat(null)}
             >
@@ -297,7 +367,7 @@ function Dashboard() {
                   </div>
                 </div>
               )}
-            </div>
+            </GlowingCard>
           );
         })}
       </div>
@@ -325,7 +395,7 @@ function Dashboard() {
         {/* LEFT COLUMN: Vitals Charts */}
         <div className="space-y-6 flex flex-col justify-between">
           {/* Heartbeat Card */}
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 relative overflow-hidden flex-1 flex flex-col justify-between">
+          <GlowingCard className="p-6 flex-1" glowColor="#10B981" borderRadius="28px">
             <div>
               <span className="absolute top-5 right-5 bg-green-50 text-green-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 GOOD
@@ -350,12 +420,12 @@ function Dashboard() {
                 </g>
               </svg>
             </div>
-          </div>
+          </GlowingCard>
 
           {/* R-R Interval & Blood Status Row */}
           <div className="grid grid-cols-2 gap-4 mt-4 lg:mt-0">
             {/* R-R Interval Card */}
-            <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-50 flex flex-col justify-between h-40">
+            <GlowingCard className="p-5 h-40" glowColor="#3b82f6" borderRadius="28px">
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">R-R Interval</p>
                 <div className="flex items-baseline space-x-1 mt-1.5">
@@ -370,10 +440,10 @@ function Dashboard() {
                   </g>
                 </svg>
               </div>
-            </div>
+            </GlowingCard>
 
             {/* Blood Status Card */}
-            <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-50 flex flex-col justify-between h-40">
+            <GlowingCard className="p-5 h-40" glowColor="#ef4444" borderRadius="28px">
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Blood Status</p>
                 <div className="flex items-baseline space-x-0.5 mt-1.5">
@@ -390,13 +460,17 @@ function Dashboard() {
                   <div className="bg-red-500 h-full rounded-full" style={{ width: '68%' }}></div>
                 </div>
               </div>
-            </div>
+            </GlowingCard>
           </div>
         </div>
 
         {/* CENTER COLUMN: Interactive Organ Visualizer */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 flex flex-col justify-between items-center relative overflow-hidden min-h-[350px]">
-          
+        <GlowingCard 
+          className="p-6 min-h-[350px]" 
+          contentClassName="items-center" 
+          glowColor={organMap[activeOrgan].color} 
+          borderRadius="28px"
+        >
           {/* Radial color backdrop glow */}
           <div 
             className="absolute w-44 h-44 rounded-full blur-[60px] opacity-20 pointer-events-none transition-all duration-700"
@@ -439,12 +513,12 @@ function Dashboard() {
               </button>
             ))}
           </div>
-        </div>
+        </GlowingCard>
 
         {/* RIGHT COLUMN: Vitals Cards */}
         <div className="space-y-6 flex flex-col justify-between">
           {/* Glucose Level Card */}
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 relative overflow-hidden flex-1 flex flex-col justify-between">
+          <GlowingCard className="p-6 flex-1" glowColor="#F59E0B" borderRadius="28px">
             <div>
               <span className="absolute top-5 right-5 bg-amber-50 text-amber-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 250ml
@@ -468,10 +542,10 @@ function Dashboard() {
                 </g>
               </svg>
             </div>
-          </div>
+          </GlowingCard>
 
           {/* Blood Count Card */}
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 relative overflow-hidden flex-1 flex flex-col justify-between mt-6 lg:mt-0">
+          <GlowingCard className="p-6 flex-1 mt-6 lg:mt-0" glowColor="#3B82F6" borderRadius="28px">
             <div>
               <span className="absolute top-5 right-5 bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 Normal
@@ -499,9 +573,8 @@ function Dashboard() {
                 </g>
               </svg>
             </div>
-          </div>
+          </GlowingCard>
         </div>
-
       </div>
 
 
