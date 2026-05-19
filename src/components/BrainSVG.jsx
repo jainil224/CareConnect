@@ -38,9 +38,17 @@ export default function BrainSVG() {
         }
         .pulse-dot:nth-child(2) { animation-delay: 0.4s; }
         .pulse-dot:nth-child(3) { animation-delay: 0.8s; }
+        @keyframes brainPulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.03); }
+        }
+        .pulse-brain {
+          transform-origin: 100px 100px;
+          animation: brainPulse 4s ease-in-out infinite;
+        }
       `}</style>
 
-      <g filter="url(#brainGlow)">
+      <g filter="url(#brainGlow)" className="pulse-brain">
         {/* Brainstem at the bottom center */}
         <path 
           d="M92,142 L92,168 C92,172 108,172 108,168 L108,142 Z" 

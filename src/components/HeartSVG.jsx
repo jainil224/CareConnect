@@ -38,10 +38,20 @@ export default function HeartSVG() {
         }
         .pulse-dot:nth-child(2) { animation-delay: 0.4s; }
         .pulse-dot:nth-child(3) { animation-delay: 0.8s; }
+        @keyframes heartThump {
+          0%, 100% { transform: scale(1); }
+          15% { transform: scale(1.1); }
+          30% { transform: scale(1.02); }
+          45% { transform: scale(1.15); }
+        }
+        .thump-heart {
+          transform-origin: 100px 100px;
+          animation: heartThump 1.2s ease-in-out infinite;
+        }
       `}</style>
 
       {/* Aorta Arch & Tubes at the top */}
-      <g filter="url(#heartGlow)">
+      <g filter="url(#heartGlow)" className="thump-heart">
         {/* Aorta Arch */}
         <path 
           d="M95,65 L95,45 C95,30 120,30 120,48 L120,68" 

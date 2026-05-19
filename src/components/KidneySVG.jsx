@@ -38,9 +38,17 @@ export default function KidneySVG() {
         }
         .pulse-dot:nth-child(2) { animation-delay: 0.4s; }
         .pulse-dot:nth-child(3) { animation-delay: 0.8s; }
+        @keyframes kidneyPulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.04); }
+        }
+        .pulse-kidney {
+          transform-origin: 100px 100px;
+          animation: kidneyPulse 3s ease-in-out infinite;
+        }
       `}</style>
 
-      <g filter="url(#kidneyGlow)">
+      <g filter="url(#kidneyGlow)" className="pulse-kidney">
         {/* Renal artery and vein entering the hilum */}
         <path d="M75,100 L95,103" stroke="#ef4444" strokeWidth="6" strokeLinecap="round" />
         <path d="M70,110 L94,110" stroke="#3b82f6" strokeWidth="6" strokeLinecap="round" />

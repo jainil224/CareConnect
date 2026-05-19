@@ -192,6 +192,34 @@ function Dashboard() {
           from { opacity: 0; transform: scale(0.92); }
           to   { opacity: 1; transform: scale(1); }
         }
+        @keyframes ecgScroll {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-300px, 0, 0); }
+        }
+        .animate-ecg-scroll {
+          animation: ecgScroll 3s linear infinite;
+        }
+        @keyframes rrScroll {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-60px, 0, 0); }
+        }
+        .animate-rr-scroll {
+          animation: rrScroll 2s linear infinite;
+        }
+        @keyframes glucoseScroll {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-600px, 0, 0); }
+        }
+        .animate-glucose-scroll {
+          animation: glucoseScroll 8s linear infinite;
+        }
+        @keyframes bloodScroll {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-600px, 0, 0); }
+        }
+        .animate-blood-scroll {
+          animation: bloodScroll 8s linear infinite;
+        }
       `}</style>
 
       {/* 1. HERO SECTION (100% UNCHANGED) */}
@@ -310,14 +338,16 @@ function Dashboard() {
             </div>
             {/* Heartbeat ECG wave chart */}
             <div className="h-24 mt-4 flex items-end">
-              <svg className="w-full h-full text-green-500" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
-                <path 
-                  d="M0,40 L60,40 L70,30 L80,50 L90,20 L100,60 L110,38 L120,42 L130,40 L190,40 L200,25 L210,55 L220,10 L230,70 L240,35 L250,45 L260,40 L300,40" 
-                  stroke="currentColor" 
-                  strokeWidth="3" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                />
+              <svg className="w-full h-full text-green-500 overflow-hidden" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
+                <g className="animate-ecg-scroll">
+                  <path 
+                    d="M0,40 L60,40 L70,30 L80,50 L90,20 L100,60 L110,38 L120,42 L130,40 L190,40 L200,25 L210,55 L220,10 L230,70 L240,35 L250,45 L260,40 L300,40 L360,40 L370,30 L380,50 L390,20 L400,60 L410,38 L420,42 L430,40 L490,40 L500,25 L510,55 L520,10 L530,70 L540,35 L550,45 L560,40 L600,40" 
+                    stroke="currentColor" 
+                    strokeWidth="3" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                  />
+                </g>
               </svg>
             </div>
           </div>
@@ -334,8 +364,10 @@ function Dashboard() {
                 </div>
               </div>
               <div className="h-12">
-                <svg className="w-full h-full text-blue-500" viewBox="0 0 150 40" fill="none" preserveAspectRatio="none">
-                  <path d="M0,25 Q15,5 30,25 T60,25 T90,25 T120,25 T150,25" stroke="currentColor" strokeWidth="2.5" fill="none" />
+                <svg className="w-full h-full text-blue-500 overflow-hidden" viewBox="0 0 150 40" fill="none" preserveAspectRatio="none">
+                  <g className="animate-rr-scroll">
+                    <path d="M0,25 Q15,5 30,25 T60,25 T90,25 T120,25 T150,25 T180,25 T210,25" stroke="currentColor" strokeWidth="2.5" fill="none" />
+                  </g>
                 </svg>
               </div>
             </div>
@@ -425,13 +457,15 @@ function Dashboard() {
             </div>
             {/* Trending Line Graph */}
             <div className="h-24 mt-4 flex items-end">
-              <svg className="w-full h-full text-amber-500" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
-                <path 
-                  d="M0,60 L50,55 L100,68 L150,45 L200,35 L250,28 L300,20" 
-                  stroke="currentColor" 
-                  strokeWidth="3.5" 
-                  strokeLinecap="round" 
-                />
+              <svg className="w-full h-full text-amber-500 overflow-hidden" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
+                <g className="animate-glucose-scroll">
+                  <path 
+                    d="M0,60 L50,55 L100,68 L150,45 L200,35 L250,28 L300,20 L350,28 L400,35 L450,45 L500,68 L550,55 L600,60 L650,55 L700,68 L750,45 L800,35 L850,28 L900,20 L950,28 L1000,35 L1050,45 L1100,68 L1150,55 L1200,60" 
+                    stroke="currentColor" 
+                    strokeWidth="3.5" 
+                    strokeLinecap="round" 
+                  />
+                </g>
               </svg>
             </div>
           </div>
@@ -450,17 +484,19 @@ function Dashboard() {
             </div>
             {/* Blue Area Chart */}
             <div className="h-24 mt-4 flex items-end">
-              <svg className="w-full h-full text-blue-500" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
-                <path 
-                  d="M0,80 L0,50 C50,42 100,60 150,38 C200,45 250,28 300,20 L300,80 Z" 
-                  fill="rgba(59, 130, 246, 0.08)" 
-                />
-                <path 
-                  d="M0,50 C50,42 100,60 150,38 C200,45 250,28 300,20" 
-                  stroke="currentColor" 
-                  strokeWidth="3" 
-                  strokeLinecap="round" 
-                />
+              <svg className="w-full h-full text-blue-500 overflow-hidden" viewBox="0 0 300 80" fill="none" preserveAspectRatio="none">
+                <g className="animate-blood-scroll">
+                  <path 
+                    d="M0,80 L0,50 C50,42 100,60 150,38 C200,45 250,28 300,20 C350,28 400,45 450,38 C500,60 550,42 600,50 C650,42 700,60 750,38 C800,45 850,28 900,20 C950,28 1000,45 1050,38 C1100,60 1150,42 1200,50 L1200,80 Z" 
+                    fill="rgba(59, 130, 246, 0.08)" 
+                  />
+                  <path 
+                    d="M0,50 C50,42 100,60 150,38 C200,45 250,28 300,20 C350,28 400,45 450,38 C500,60 550,42 600,50 C650,42 700,60 750,38 C800,45 850,28 900,20 C950,28 1000,45 1050,38 C1100,60 1150,42 1200,50" 
+                    stroke="currentColor" 
+                    strokeWidth="3" 
+                    strokeLinecap="round" 
+                  />
+                </g>
               </svg>
             </div>
           </div>
@@ -468,65 +504,7 @@ function Dashboard() {
 
       </div>
 
-      {/* 6. CHARTS ROW (LineChart & BarChart restyled) */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 hover:shadow-md transition-all duration-300">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800 tracking-tight">Health Trends</h3>
-            <div className="flex items-center space-x-1 text-xs font-semibold text-gray-500">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
-              <span>Click nodes for insights</span>
-            </div>
-          </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={healthData} onClick={(data) => data && handleChartClick(data.activePayload?.[0]?.payload, 'health')}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" fontSize={11} stroke="#94a3b8" />
-                <YAxis fontSize={11} stroke="#94a3b8" />
-                <Tooltip content={<CustomTooltip chartType="health" />} />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#2563EB" 
-                  strokeWidth={3}
-                  dot={{ fill: '#2563EB', strokeWidth: 2, r: 5, className: 'hover:r-7 transition-all cursor-pointer' }}
-                  activeDot={{ r: 7, stroke: '#2563EB', strokeWidth: 2, fill: '#ffffff' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 hover:shadow-md transition-all duration-300">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800 tracking-tight">Weekly Appointments</h3>
-            <div className="flex items-center space-x-1 text-xs font-semibold text-gray-500">
-              <Calendar className="h-4 w-4 text-blue-500" />
-              <span>Hover columns for details</span>
-            </div>
-          </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={appointmentData} onClick={(data) => data && handleChartClick(data.activePayload?.[0]?.payload, 'appointments')}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" fontSize={11} stroke="#94a3b8" />
-                <YAxis fontSize={11} stroke="#94a3b8" />
-                <Tooltip content={<CustomTooltip chartType="appointments" />} />
-                <Bar dataKey="appointments" className="cursor-pointer" radius={[4, 4, 0, 0]}>
-                  {appointmentData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.appointments > 6 ? '#EF4444' : entry.appointments > 4 ? '#F59E0B' : '#10B981'}
-                      className="hover:opacity-85 transition-opacity"
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
 
       {/* 7. QUICK ACTION MODULES (Restyled to modern white cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
@@ -555,59 +533,7 @@ function Dashboard() {
         })}
       </div>
 
-      {/* 8. BOTTOM DOCTORS & MEDICINE ROW (NEW - MagicHeal Style) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Doctors Section */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800 tracking-tight">Doctors</h3>
-            <a href="#" className="text-blue-600 text-xs font-bold hover:text-blue-700 transition-colors">View All</a>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { name: 'Dr. Kirsten', specialty: 'Cardiology', img: '1' },
-              { name: 'Dr. Edward', specialty: 'Neurology', img: '2' },
-              { name: 'Dr. Bryant', specialty: 'Nephrology', img: '3' }
-            ].map((doc, idx) => (
-              <div 
-                key={idx} 
-                className="flex flex-col items-center p-3 rounded-2xl border border-transparent hover:border-gray-100 hover:bg-gray-50/50 transition-all duration-300 cursor-pointer text-center"
-              >
-                <img 
-                  src={`https://i.pravatar.cc/48?img=${doc.img}`} 
-                  className="w-12 h-12 rounded-full mb-2 object-cover shadow-sm border border-white" 
-                  alt={doc.name} 
-                />
-                <span className="text-[9px] font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full mb-1">
-                  {doc.specialty}
-                </span>
-                <span className="text-xs font-bold text-gray-800 truncate w-full">{doc.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* My Medicine Section */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800 tracking-tight">My Medicine</h3>
-            <a href="#" className="text-blue-600 text-xs font-bold hover:text-blue-700 transition-colors">View All</a>
-          </div>
-          <div className="grid grid-cols-4 gap-3">
-            {['Benazepril', 'Captopril', 'Quinapril', 'Fosinopril'].map((med, idx) => (
-              <div 
-                key={idx} 
-                className="flex flex-col items-center p-4 rounded-2xl bg-gray-50/80 border border-gray-100 hover:scale-[1.03] hover:bg-white hover:shadow-sm transition-all duration-300 cursor-pointer text-center"
-              >
-                <span className="text-2xl mb-2 filter drop-shadow-sm">💊</span>
-                <span className="text-xs font-bold text-gray-700 truncate w-full">{med}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </div>
 
       {/* 9. RECENT ACTIVITY PANEL (Restyled) */}
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
