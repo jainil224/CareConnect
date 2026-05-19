@@ -8,7 +8,7 @@ export default function FeatureCard({ icon: Icon, title, description, points = [
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-20px" }}
+      viewport={{ once: true, margin: "200px" }}
       whileHover={{ 
         y: -8,
         scale: 1.01,

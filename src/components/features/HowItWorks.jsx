@@ -52,7 +52,7 @@ export default function HowItWorks() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "200px" }}
           className="inline-block px-4 py-1.5 bg-white text-black text-[10px] font-black rounded-full uppercase tracking-widest mb-5"
         >
           Workflow
@@ -62,7 +62,7 @@ export default function HowItWorks() {
         <motion.h2 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-20px" }}
+          viewport={{ once: true, margin: "200px" }}
           transition={{ duration: 0.35 }}
           className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-5"
         >
@@ -73,7 +73,7 @@ export default function HowItWorks() {
         <motion.p 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-20px" }}
+          viewport={{ once: true, margin: "200px" }}
           transition={{ duration: 0.35, delay: 0.1 }}
           className="text-zinc-400 text-base sm:text-lg max-w-2xl mx-auto mb-16 leading-relaxed"
         >
@@ -89,7 +89,7 @@ export default function HowItWorks() {
                 key={idx}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-20px" }}
+                viewport={{ once: true, margin: "200px" }}
                 transition={{ duration: 0.3, delay: idx * 0.04, ease: "easeOut" }}
                 whileHover={{ y: -8, borderColor: 'rgb(82 82 91)' }}
                 className="bg-[#121212] border border-zinc-800/80 p-6 rounded-[24px] flex flex-col items-center transition-all duration-300"

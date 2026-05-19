@@ -93,8 +93,9 @@ export default function LandingPage() {
         
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "200px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center max-w-5xl mx-auto"
         >
           {/* Huge Typography */}
@@ -162,9 +163,10 @@ export default function LandingPage() {
 
           {/* Subtitle */}
           <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "200px" }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed"
           >
             We empower medical professionals with real-time ECG analysis, predictive AI insights, and instant hospital-grade reporting.
@@ -174,10 +176,11 @@ export default function LandingPage() {
           <motion.button
             onClick={() => navigate('/login')}
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "200px" }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.5, delay: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
             className="group relative inline-flex items-center justify-center px-8 py-4 text-sm font-bold text-white transition-all duration-200 bg-black border border-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
           >
             {/* Animated Glow Wrapper */}

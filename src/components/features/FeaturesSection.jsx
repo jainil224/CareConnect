@@ -15,7 +15,7 @@ export default function FeaturesSection() {
           <motion.h2 
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-20px" }}
+            viewport={{ once: true, margin: "200px" }}
             transition={{ duration: 0.35 }}
             className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-5"
           >
@@ -25,7 +25,7 @@ export default function FeaturesSection() {
           <motion.p 
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-20px" }}
+            viewport={{ once: true, margin: "200px" }}
             transition={{ duration: 0.35, delay: 0.1 }}
             className="text-zinc-400 text-base sm:text-lg md:text-xl font-medium leading-relaxed"
           >
