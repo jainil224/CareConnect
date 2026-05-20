@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import {
+  Activity,
+  Bell,
+  CheckCircle2,
+  Database,
+  FileText,
+  HeartPulse,
+  History,
+  MonitorDot,
+  Shield,
+  Sparkles
+} from 'lucide-react';
 import ECGUploadCard from '../components/ecg/ECGUploadCard';
 import ECGResultCard from '../components/ecg/ECGResultCard';
 import ECGWaveChart from '../components/ecg/ECGWaveChart';
@@ -7,39 +19,26 @@ import HeartAnalytics from '../components/ecg/HeartAnalytics';
 import AIAnalysisCard from '../components/ecg/AIAnalysisCard';
 import EmergencyAlert from '../components/ecg/EmergencyAlert';
 import {
+  generateLocalCardiologyReport,
+  generatePhysiologicalDefaults,
+  parseCSVFile,
   parsePDFFileContent,
-  predictECGLocal,
-  generateLocalCardiologyReport
+  predictECGLocal
 } from '../services/ecgApi';
-import toast from 'react-hot-toast';
-import {
-  Shield, Sparkles, Activity, ChevronRight
-} from 'lucide-react';
 
-// ─── Helper ──────────────────────────────────────────────────────────────────
-const LoaderIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-  </svg>
-);
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ECGPrediction() {
-  const location = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStage, setCurrentStage] = useState('');
   const [result, setResult] = useState(null);
 
   const [patientInfo, setPatientInfo] = useState({
     name: '',
-    gender: '', // '0' for Female, '1' for Male
-    dob: '', // 'YYYY-MM-DD'
-    height: '', // cm
-    weight: '', // kg
-    heartRate: '', // BPM
-    bloodPressure: '' // mmHg
+    gender: '',
+    dob: '',
+    height: '',
+    weight: '',
+    heartRate: '',
+    bloodPressure: ''
   });
 
   const [backgroundFeatures, setBackgroundFeatures] = useState({
@@ -57,7 +56,7 @@ export default function ECGPrediction() {
   const [summary, setSummary] = useState('');
   const [recommendations, setRecommendations] = useState([]);
   const [waveformPattern, setWaveformPattern] = useState('normal');
-  const [rhythmType, setRhythmType] = useState('Normal');
+  const [rhythmType, setRhythmType] = useState('Normal Sinus Rhythm');
   const [heartRate, setHeartRate] = useState(0);
   const [showEmergency, setShowEmergency] = useState(false);
 
@@ -65,12 +64,12 @@ export default function ECGPrediction() {
     if (!dobString) return '';
     try {
       const dobDate = new Date(dobString);
-      if (isNaN(dobDate.getTime())) return '';
+      if (Number.isNaN(dobDate.getTime())) return '';
       const today = new Date();
       let calculatedAge = today.getFullYear() - dobDate.getFullYear();
       const monthDiff = today.getMonth() - dobDate.getMonth();
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
-        calculatedAge--;
+        calculatedAge -= 1;
       }
       return calculatedAge >= 0 ? calculatedAge : '';
     } catch (e) {
@@ -81,23 +80,23 @@ export default function ECGPrediction() {
   const mapExtractedToStates = (extracted) => {
     const info = {
       name: extracted.name || '',
-      gender: extracted.sex !== undefined && extracted.sex !== "" ? String(extracted.sex) : '',
+      gender: extracted.sex !== undefined && extracted.sex !== '' ? String(extracted.sex) : '',
       dob: extracted.dob || '',
       height: extracted.height || '',
       weight: extracted.weight || '',
-      heartRate: extracted.thalach !== undefined && extracted.thalach !== "" ? String(extracted.thalach) : '',
-      bloodPressure: extracted.trestbps !== undefined && extracted.trestbps !== "" ? String(extracted.trestbps) : ''
+      heartRate: extracted.thalach !== undefined && extracted.thalach !== '' ? String(extracted.thalach) : '',
+      bloodPressure: extracted.trestbps !== undefined && extracted.trestbps !== '' ? String(extracted.trestbps) : ''
     };
     const bg = {
-      cp: extracted.cp !== undefined && extracted.cp !== "" ? String(extracted.cp) : '',
-      chol: extracted.chol !== undefined && extracted.chol !== "" ? String(extracted.chol) : '',
-      fbs: extracted.fbs !== undefined && extracted.fbs !== "" ? String(extracted.fbs) : '',
-      restecg: extracted.restecg !== undefined && extracted.restecg !== "" ? String(extracted.restecg) : '',
-      exang: extracted.exang !== undefined && extracted.exang !== "" ? String(extracted.exang) : '',
-      oldpeak: extracted.oldpeak !== undefined && extracted.oldpeak !== "" ? String(extracted.oldpeak) : '',
-      slope: extracted.slope !== undefined && extracted.slope !== "" ? String(extracted.slope) : '',
-      ca: extracted.ca !== undefined && extracted.ca !== "" ? String(extracted.ca) : '',
-      thal: extracted.thal !== undefined && extracted.thal !== "" ? String(extracted.thal) : ''
+      cp: extracted.cp !== undefined && extracted.cp !== '' ? String(extracted.cp) : '',
+      chol: extracted.chol !== undefined && extracted.chol !== '' ? String(extracted.chol) : '',
+      fbs: extracted.fbs !== undefined && extracted.fbs !== '' ? String(extracted.fbs) : '',
+      restecg: extracted.restecg !== undefined && extracted.restecg !== '' ? String(extracted.restecg) : '',
+      exang: extracted.exang !== undefined && extracted.exang !== '' ? String(extracted.exang) : '',
+      oldpeak: extracted.oldpeak !== undefined && extracted.oldpeak !== '' ? String(extracted.oldpeak) : '',
+      slope: extracted.slope !== undefined && extracted.slope !== '' ? String(extracted.slope) : '',
+      ca: extracted.ca !== undefined && extracted.ca !== '' ? String(extracted.ca) : '',
+      thal: extracted.thal !== undefined && extracted.thal !== '' ? String(extracted.thal) : ''
     };
     setPatientInfo(info);
     setBackgroundFeatures(bg);
@@ -107,31 +106,33 @@ export default function ECGPrediction() {
   const handleECGUpload = async (file) => {
     setIsProcessing(true);
     setCurrentStage('Uploading');
+    setShowEmergency(false);
     toast.success('Receiving diagnostic document stream...');
 
     try {
       let extractedFeatures = null;
+      const fileName = file.name.toLowerCase();
 
-      if (file.name.toLowerCase().endsWith('.csv')) {
+      if (fileName.endsWith('.csv')) {
         setCurrentStage('Extracting');
-        await new Promise((r) => setTimeout(r, 600));
+        await new Promise((resolve) => setTimeout(resolve, 600));
         extractedFeatures = await parseCSVFile(file);
-      } else if (file.name.toLowerCase().endsWith('.pdf')) {
+      } else if (fileName.endsWith('.pdf')) {
         setCurrentStage('Extracting');
-        await new Promise((r) => setTimeout(r, 800));
+        await new Promise((resolve) => setTimeout(resolve, 800));
         extractedFeatures = await parsePDFFileContent(file);
       } else {
         setCurrentStage('Extracting');
-        await new Promise((r) => setTimeout(r, 800));
+        await new Promise((resolve) => setTimeout(resolve, 800));
         extractedFeatures = generatePhysiologicalDefaults(file);
       }
 
-      if (extractedFeatures) {
-        const { info, bg } = mapExtractedToStates(extractedFeatures);
-        await executeOfflinePrediction(info, bg);
-      } else {
+      if (!extractedFeatures) {
         throw new Error('Unable to parse features from document.');
       }
+
+      const { info, bg } = mapExtractedToStates(extractedFeatures);
+      await executeOfflinePrediction(info, bg);
     } catch (error) {
       toast.error('Format unrecognized. Please upload a clear CSV, image, or PDF.');
       setCurrentStage('');
@@ -143,33 +144,34 @@ export default function ECGPrediction() {
   const executeOfflinePrediction = async (info, bg) => {
     setIsProcessing(true);
     setCurrentStage('Analyzing');
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
     try {
       const ageVal = getCalculatedAge(info.dob);
       const mlFeatures = {
         age: ageVal !== '' ? ageVal : 0,
-        sex: info.gender !== '' ? parseInt(info.gender) : 0,
-        cp: bg.cp !== '' ? parseInt(bg.cp) : 0,
+        sex: info.gender !== '' ? parseInt(info.gender, 10) : 0,
+        cp: bg.cp !== '' ? parseInt(bg.cp, 10) : 0,
         trestbps: info.bloodPressure !== '' ? parseFloat(info.bloodPressure) : 0,
         chol: bg.chol !== '' ? parseFloat(bg.chol) : 0,
-        fbs: bg.fbs !== '' ? parseInt(bg.fbs) : 0,
-        restecg: bg.restecg !== '' ? parseInt(bg.restecg) : 0,
+        fbs: bg.fbs !== '' ? parseInt(bg.fbs, 10) : 0,
+        restecg: bg.restecg !== '' ? parseInt(bg.restecg, 10) : 0,
         thalach: info.heartRate !== '' ? parseFloat(info.heartRate) : 0,
-        exang: bg.exang !== '' ? parseInt(bg.exang) : 0,
-        oldpeak: bg.oldpeak !== '' ? parseFloat(bg.oldpeak) : 0.0,
-        slope: bg.slope !== '' ? parseInt(bg.slope) : 0,
-        ca: bg.ca !== '' ? parseInt(bg.ca) : 0,
-        thal: bg.thal !== '' ? parseInt(bg.thal) : 0
+        exang: bg.exang !== '' ? parseInt(bg.exang, 10) : 0,
+        oldpeak: bg.oldpeak !== '' ? parseFloat(bg.oldpeak) : 0,
+        slope: bg.slope !== '' ? parseInt(bg.slope, 10) : 0,
+        ca: bg.ca !== '' ? parseInt(bg.ca, 10) : 0,
+        thal: bg.thal !== '' ? parseInt(bg.thal, 10) : 0
       };
 
       const mlResponse = await predictECGLocal(mlFeatures);
       const cardiologyReport = generateLocalCardiologyReport(mlResponse, mlFeatures);
+      const highRisk = mlResponse.prediction !== 'Normal';
 
       setResult({
         prediction: mlResponse.prediction,
         risk_probability: mlResponse.risk_probability,
-        riskLabel: mlResponse.prediction !== 'Normal' ? 'Critical' : 'Healthy'
+        riskLabel: highRisk ? 'Critical' : 'Healthy'
       });
 
       setSummary(cardiologyReport.summary);
@@ -181,14 +183,14 @@ export default function ECGPrediction() {
       if (cardiologyReport.waveformPattern === 'afib') derivedRhythm = 'Atrial Fibrillation';
       else if (cardiologyReport.waveformPattern === 'tachycardia') derivedRhythm = 'Tachycardia';
       else if (cardiologyReport.waveformPattern === 'bradycardia') derivedRhythm = 'Bradycardia';
-      else if (mlResponse.prediction !== 'Normal') derivedRhythm = 'Irregular Rhythm';
+      else if (highRisk) derivedRhythm = 'Irregular Rhythm';
       setRhythmType(derivedRhythm);
 
       setCurrentStage('Complete');
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise((resolve) => setTimeout(resolve, 400));
       setCurrentStage('');
 
-      if (mlResponse.prediction !== 'Normal') {
+      if (highRisk) {
         setTimeout(() => setShowEmergency(true), 2000);
       } else {
         toast.success('Diagnostic profile successfully analyzed!');
@@ -201,7 +203,6 @@ export default function ECGPrediction() {
     }
   };
 
-
   const getUnifiedFeatures = () => {
     const ageVal = getCalculatedAge(patientInfo.dob);
     return {
@@ -209,181 +210,256 @@ export default function ECGPrediction() {
       height: patientInfo.height,
       weight: patientInfo.weight,
       age: ageVal !== '' ? ageVal : 0,
-      sex: patientInfo.gender !== '' ? parseInt(patientInfo.gender) : 0,
-      cp: backgroundFeatures.cp !== '' ? parseInt(backgroundFeatures.cp) : 0,
+      sex: patientInfo.gender !== '' ? parseInt(patientInfo.gender, 10) : 0,
+      cp: backgroundFeatures.cp !== '' ? parseInt(backgroundFeatures.cp, 10) : 0,
       trestbps: patientInfo.bloodPressure !== '' ? parseFloat(patientInfo.bloodPressure) : 120,
       chol: backgroundFeatures.chol !== '' ? parseFloat(backgroundFeatures.chol) : 0,
-      fbs: backgroundFeatures.fbs !== '' ? parseInt(backgroundFeatures.fbs) : 0,
-      restecg: backgroundFeatures.restecg !== '' ? parseInt(backgroundFeatures.restecg) : 0,
+      fbs: backgroundFeatures.fbs !== '' ? parseInt(backgroundFeatures.fbs, 10) : 0,
+      restecg: backgroundFeatures.restecg !== '' ? parseInt(backgroundFeatures.restecg, 10) : 0,
       thalach: patientInfo.heartRate !== '' ? parseFloat(patientInfo.heartRate) : 0,
-      exang: backgroundFeatures.exang !== '' ? parseInt(backgroundFeatures.exang) : 0,
-      oldpeak: backgroundFeatures.oldpeak !== '' ? parseFloat(backgroundFeatures.oldpeak) : 0.0,
-      slope: backgroundFeatures.slope !== '' ? parseInt(backgroundFeatures.slope) : 0,
-      ca: backgroundFeatures.ca !== '' ? parseInt(backgroundFeatures.ca) : 0,
-      thal: backgroundFeatures.thal !== '' ? parseInt(backgroundFeatures.thal) : 0
+      exang: backgroundFeatures.exang !== '' ? parseInt(backgroundFeatures.exang, 10) : 0,
+      oldpeak: backgroundFeatures.oldpeak !== '' ? parseFloat(backgroundFeatures.oldpeak) : 0,
+      slope: backgroundFeatures.slope !== '' ? parseInt(backgroundFeatures.slope, 10) : 0,
+      ca: backgroundFeatures.ca !== '' ? parseInt(backgroundFeatures.ca, 10) : 0,
+      thal: backgroundFeatures.thal !== '' ? parseInt(backgroundFeatures.thal, 10) : 0
     };
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] font-sans pb-16 pt-8">
-
-      {/* ── Page-level animations ─────────────────────────────── */}
+    <div className="min-h-screen bg-[#0a0a0a] text-[#e5e2e1] font-sans">
       <style>{`
-        @keyframes ecg-fade-up {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
+        .ecg-glass {
+          background: rgba(18, 18, 18, 0.72);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: 0 18px 60px rgba(0,0,0,0.28);
+          backdrop-filter: blur(14px);
         }
-        .ecg-fade-0 { animation: ecg-fade-up 0.55s ease-out 0ms   forwards; opacity:0; }
-        .ecg-fade-1 { animation: ecg-fade-up 0.55s ease-out 80ms  forwards; opacity:0; }
-        .ecg-fade-2 { animation: ecg-fade-up 0.55s ease-out 160ms forwards; opacity:0; }
-        .ecg-fade-3 { animation: ecg-fade-up 0.55s ease-out 240ms forwards; opacity:0; }
-        .ecg-fade-4 { animation: ecg-fade-up 0.55s ease-out 320ms forwards; opacity:0; }
-
-        select option { background: #18181b; color: #fff; }
+        .ecg-grid-bg {
+          background-image:
+            linear-gradient(rgba(0, 209, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 209, 255, 0.05) 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+        .ecg-critical-text {
+          color: #ffb4ab;
+          text-shadow: 0 0 15px rgba(255, 180, 171, 0.55);
+        }
+        @keyframes ecg-scan {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(420%); }
+        }
+        .ecg-scanline {
+          background: linear-gradient(90deg, transparent, rgba(0,209,255,0.2), transparent);
+          animation: ecg-scan 4s linear infinite;
+        }
       `}</style>
 
-      {/* Subtle ambient glows */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/5 rounded-full blur-[100px]" />
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-500/5 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* ── Page Header ───────────────────────────────────────── */}
-        <div className="ecg-fade-0 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <section className="border-b border-[#3c494e] bg-[#131313]/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/10">
+              <HeartPulse className="h-6 w-6 text-[#a4e6ff]" />
+            </div>
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                  <Shield className="w-5 h-5 text-blue-400" />
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                  ECG Intelligence
-                </h1>
-              </div>
-              <p className="text-zinc-500 text-sm sm:text-base ml-14">
-                Upload a patient ECG report, review extracted clinical parameters, then run the local ML model.
+              <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl">ECG Intelligence</h1>
+              <p className="hidden text-[11px] font-bold uppercase tracking-[0.22em] text-[#bbc9cf] sm:block">
+                AI Diagnostics
               </p>
             </div>
-
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                bg-green-500/8 border border-green-500/20 text-xs font-semibold text-green-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                100% Offline
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                bg-blue-500/8 border border-blue-500/20 text-xs font-semibold text-blue-400">
-                <Sparkles className="w-3 h-3" />
-                scikit-learn ML
-              </span>
-            </div>
           </div>
 
-          {/* 3-step guide strip */}
-          <div className="mt-6 grid grid-cols-3 gap-3">
-            {[
-              { step: '01', label: 'Upload ECG File', desc: 'PDF, CSV, or image', color: 'border-blue-500/30 bg-blue-500/5' },
-              { step: '02', label: 'Review Parameters', desc: 'Verify extracted values', color: 'border-zinc-700/50 bg-zinc-900/30' },
-              { step: '03', label: 'Get Prediction', desc: 'Heart risk assessment', color: 'border-zinc-700/50 bg-zinc-900/30' },
-            ].map(({ step, label, desc, color }) => (
-              <div key={step} className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${color} transition-colors`}>
-                <span className="text-2xl font-black text-zinc-700 leading-none shrink-0">{step}</span>
-                <div>
-                  <p className="text-sm font-semibold text-zinc-300">{label}</p>
-                  <p className="text-[11px] text-zinc-600 mt-0.5">{desc}</p>
+          <div className="hidden items-center gap-3 md:flex">
+            <StatusPill color="green" label="100% Offline" icon={<Shield className="h-3.5 w-3.5" />} />
+            <StatusPill color="cyan" label="scikit-learn ML" icon={<Sparkles className="h-3.5 w-3.5" />} />
+            <button className="rounded-full border border-[#3c494e] p-2 text-[#bbc9cf] transition hover:border-cyan-300/40 hover:text-[#a4e6ff]">
+              <Bell className="h-4 w-4" />
+            </button>
+            <button className="rounded-full border border-[#3c494e] p-2 text-[#bbc9cf] transition hover:border-cyan-300/40 hover:text-[#a4e6ff]">
+              <Database className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-[1600px] px-5 py-8">
+        <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-[#a4e6ff]">
+              Diagnostics Dashboard
+            </p>
+            <h2 className="text-2xl font-semibold text-white sm:text-3xl">
+              {patientInfo.name ? `${patientInfo.name} | ECG Review` : 'Patient #8842-X | Ward 4B'}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#bbc9cf]/75">
+              Review clinical parameters, monitor rhythm changes, and generate a local AI risk assessment.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[620px]">
+            <ProgressStep step="01" label="Upload ECG File" active complete />
+            <ProgressStep step="02" label="Review Parameters" active={Boolean(result) || isProcessing} />
+            <ProgressStep step="03" label="Get Prediction" active={Boolean(result)} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+          <aside className="space-y-4 xl:col-span-4">
+            <ECGUploadCard
+              onUpload={handleECGUpload}
+              isProcessing={isProcessing}
+              currentStage={currentStage}
+            />
+
+            {result ? (
+              <ECGResultCard
+                result={result.prediction}
+                probability={result.risk_probability}
+                riskLabel={result.riskLabel}
+              />
+            ) : (
+              <EmptyPredictionCard />
+            )}
+
+            <MedicalHistory />
+          </aside>
+
+          <section className="space-y-4 xl:col-span-8">
+            <div className="ecg-glass overflow-hidden rounded-xl">
+              <div className="flex items-center justify-between border-b border-[#3c494e] bg-[#1c1b1b]/70 px-5 py-4">
+                <div className="flex items-center gap-2">
+                  <MonitorDot className="h-4 w-4 animate-pulse text-[#a4e6ff]" />
+                  <h3 className="text-sm font-bold text-white">Live ECG Monitor</h3>
+                </div>
+                <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#bbc9cf]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#a4e6ff]/60" />
+                    Lead II
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#a4e6ff]/60" />
+                    25 mm/s
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Main Grid ─────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-
-          {/* ── LEFT COLUMN (Upload, Prediction) ─── col 1-4 */}
-          <div className="xl:col-span-4 space-y-6">
-            
-            {/* Upload Card */}
-            <div className="ecg-fade-1">
-              <ECGUploadCard
-                onUpload={handleECGUpload}
-                isProcessing={isProcessing}
-                currentStage={currentStage}
-              />
-            </div>
-
-            {/* Prediction Result */}
-            <div className="ecg-fade-2">
-              {result ? (
-                <ECGResultCard
-                  result={result.prediction}
-                  probability={result.risk_probability}
-                  riskLabel={result.riskLabel}
+              <div className="ecg-grid-bg relative overflow-hidden">
+                <div className="ecg-scanline absolute inset-y-0 left-0 z-10 w-1/3" />
+                <ECGWaveChart
+                  isProcessing={isProcessing}
+                  heartRate={heartRate}
+                  rhythmType={rhythmType}
+                  waveformPattern={waveformPattern}
                 />
-              ) : (
-                <EmptyResultCard />
-              )}
+              </div>
             </div>
 
-          </div>
+            <AIAnalysisCard
+              summary={summary}
+              recommendations={recommendations}
+              isProcessing={isProcessing}
+              result={result}
+              features={getUnifiedFeatures()}
+            />
 
-          {/* ── RIGHT COLUMN (Monitor, AI Medical Summary, Metrics) ─── col 5-12 */}
-          <div className="xl:col-span-8 space-y-6">
-
-            {/* ECG Live Monitor */}
-            <div className="ecg-fade-1">
-              <ECGWaveChart
-                isProcessing={isProcessing}
-                heartRate={heartRate}
-                rhythmType={rhythmType}
-                waveformPattern={waveformPattern}
-              />
-            </div>
-
-            {/* AI Summary */}
-            <div className="ecg-fade-2">
-              <AIAnalysisCard
-                summary={summary}
-                recommendations={recommendations}
-                isProcessing={isProcessing}
-                result={result}
-                features={getUnifiedFeatures()}
-              />
-            </div>
-
-            {/* Clinical Metrics & Demographics */}
-            <div className="ecg-fade-3">
-              <HeartAnalytics patientInfo={patientInfo} />
-            </div>
-
-          </div>
-
+            <HeartAnalytics patientInfo={patientInfo} />
+          </section>
         </div>
-      </div>
+      </main>
 
       <EmergencyAlert isOpen={showEmergency} onClose={() => setShowEmergency(false)} />
     </div>
   );
 }
 
-// Empty placeholder before first prediction
-function EmptyResultCard() {
+function StatusPill({ color, icon, label }) {
+  const colorClass = color === 'green'
+    ? 'border-green-500/20 bg-green-500/10 text-green-400'
+    : 'border-cyan-300/20 bg-cyan-300/10 text-[#a4e6ff]';
+
   return (
-    <div className="h-full bg-zinc-950 border border-zinc-800/60 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[220px] space-y-3">
-      <div className="w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-        <Activity className="w-7 h-7 text-zinc-700" />
+    <div className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider ${colorClass}`}>
+      {icon}
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function ProgressStep({ step, label, active, complete }) {
+  return (
+    <div className={`ecg-glass relative overflow-hidden rounded-xl p-4 ${active ? 'border-cyan-300/30' : 'opacity-55'}`}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className={active ? 'font-mono text-xl font-bold text-[#a4e6ff]' : 'font-mono text-xl font-bold text-[#bbc9cf]'}>
+          {step}
+        </span>
+        {complete && <CheckCircle2 className="h-4 w-4 text-[#a4e6ff]" />}
       </div>
-      <div className="text-center">
-        <p className="text-sm font-semibold text-zinc-500">Prediction Engine</p>
-        <p className="text-xs text-zinc-700 mt-1">
-          Run ML prediction to see your<br />cardiovascular risk assessment.
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#e5e2e1]">{label}</p>
+      <div className={`absolute bottom-0 left-0 h-1 ${active ? 'w-full bg-[#00d1ff]' : 'w-1/2 bg-[#353534]'}`} />
+    </div>
+  );
+}
+
+function EmptyPredictionCard() {
+  return (
+    <div className="ecg-glass relative min-h-[260px] overflow-hidden rounded-xl border-red-300/10 p-6">
+      <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-red-300/10 blur-[60px]" />
+      <div className="mb-6 flex items-center gap-2">
+        <Activity className="h-5 w-5 text-[#a4e6ff]" />
+        <h3 className="text-lg font-semibold text-white">Prediction Engine</h3>
+      </div>
+      <div className="flex flex-col items-center justify-center py-6 text-center">
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-[#3c494e] bg-[#1c1b1b]">
+          <FileText className="h-9 w-9 text-[#bbc9cf]" />
+        </div>
+        <h4 className="text-3xl font-black uppercase tracking-tight text-[#bbc9cf]">Awaiting ECG</h4>
+        <p className="mt-2 text-xs font-bold uppercase tracking-widest text-[#bbc9cf]/70">
+          Upload a record to run prediction
         </p>
       </div>
-      <div className="flex items-center gap-1.5 text-xs text-zinc-600">
-        <ChevronRight className="w-3 h-3" />
-        Upload ECG → Run ML Prediction
+      <div className="space-y-2">
+        <div className="flex items-end justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#bbc9cf]">AI Confidence Score</span>
+          <span className="font-mono text-lg font-bold text-[#bbc9cf]">--</span>
+        </div>
+        <div className="h-2 w-full overflow-hidden rounded-full bg-[#201f1f]" />
+      </div>
+    </div>
+  );
+}
+
+function MedicalHistory() {
+  const rows = [
+    { label: 'Last Visit', value: '12 Jan 2026', badge: 'Stable', tone: 'green' },
+    { label: 'Prior ECG', value: '05 Nov 2025', badge: 'Sinus Rhythm', tone: 'neutral' },
+    { label: 'Admission', value: '02 Oct 2025', badge: 'Chest Pain', tone: 'red' }
+  ];
+
+  return (
+    <div className="ecg-glass rounded-xl p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <History className="h-5 w-5 text-[#a4e6ff]" />
+        <h3 className="text-lg font-semibold text-white">Medical History</h3>
+      </div>
+      <div className="space-y-3">
+        {rows.map((row) => (
+          <div
+            key={row.label}
+            className="flex items-center justify-between rounded-lg border border-[#3c494e]/40 bg-[#1c1b1b]/50 p-3 transition hover:border-cyan-300/30"
+          >
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#bbc9cf]">{row.label}</p>
+              <p className="mt-1 text-sm text-white">{row.value}</p>
+            </div>
+            <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+              row.tone === 'green'
+                ? 'bg-green-500/10 text-green-400'
+                : row.tone === 'red'
+                  ? 'bg-red-400/10 text-[#ffb4ab]'
+                  : 'text-[#bbc9cf]'
+            }`}>
+              {row.badge}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
