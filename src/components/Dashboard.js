@@ -40,31 +40,33 @@ const GlowingCard = ({ children, className = '', contentClassName = '', glowColo
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setOpacity(1)}
       onMouseLeave={() => setOpacity(0)}
-      className={`relative overflow-hidden bg-white dark:bg-[#121214] border border-gray-100/50 dark:border-zinc-800/80 shadow-sm transition-shadow duration-300 hover:shadow-md dark:shadow-none ${className}`}
+      className={`relative overflow-hidden bg-white dark:bg-[#121214] border shadow-sm transition-all duration-500 hover:-translate-y-1 ${className}`}
       style={{
         borderRadius,
         '--glow-color': glowColor,
-        '--glow-bg': `rgba(${rgbColor}, 0.05)`,
+        '--glow-bg': `rgba(${rgbColor}, 0.1)`,
         '--glow-opacity': opacity,
+        borderColor: opacity === 1 ? `rgba(${rgbColor}, 0.4)` : 'rgba(255, 255, 255, 0.05)',
+        boxShadow: opacity === 1 ? `0 15px 35px -10px rgba(${rgbColor}, 0.3)` : '0 1px 3px rgba(0,0,0,0.1)',
         ...style
       }}
       {...props}
     >
       {/* Background Glow Spotlight */}
       <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        className="absolute inset-0 pointer-events-none transition-opacity duration-500"
         style={{
           opacity: 'var(--glow-opacity)',
-          background: 'radial-gradient(circle 200px at var(--x, 0px) var(--y, 0px), var(--glow-bg), transparent 80%)'
+          background: 'radial-gradient(circle 300px at var(--x, 0px) var(--y, 0px), var(--glow-bg), transparent 70%)'
         }}
       />
       {/* Border Glow Spotlight */}
       <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-300 rounded-[inherit]"
+        className="absolute inset-0 pointer-events-none transition-opacity duration-500 rounded-[inherit]"
         style={{
           opacity: 'var(--glow-opacity)',
-          padding: '1.5px',
-          background: 'radial-gradient(circle 130px at var(--x, 0px) var(--y, 0px), var(--glow-color), transparent 80%)',
+          padding: '2px',
+          background: 'radial-gradient(circle 200px at var(--x, 0px) var(--y, 0px), var(--glow-color), transparent 100%)',
           WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
           WebkitMaskComposite: 'xor',
           maskComposite: 'exclude'
@@ -396,31 +398,29 @@ function Dashboard() {
         }
       `}</style>
 
-      {/* 1. HERO SECTION (100% UNCHANGED) */}
-      <div className="relative bg-white dark:bg-[#121214] border border-transparent dark:border-zinc-800/80 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 overflow-hidden">
-        <img 
-          src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=1200&h=300&fit=crop&crop=center" 
-          alt="Medical Background" 
-          className="absolute inset-0 w-full h-full object-cover opacity-10"
-        />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+      {/* 1. HERO SECTION (REDESIGNED) */}
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-slate-800 dark:to-slate-900 shadow-xl p-6 sm:p-8 lg:p-10 border border-blue-400/20 dark:border-slate-700/50 mb-2">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=1200&h=300&fit=crop&crop=center')] bg-cover bg-center mix-blend-overlay opacity-20 dark:opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent mix-blend-multiply pointer-events-none"></div>
+        
+        <div className="relative z-10 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
           <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-2 drop-shadow-md">
               Health Dashboard
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Welcome back! Here's your health overview for {currentTime.toLocaleDateString()}
+            <p className="text-sm sm:text-base text-blue-100 dark:text-slate-300 font-medium max-w-xl drop-shadow-sm">
+              Welcome back! Here's your comprehensive health overview for {currentTime.toLocaleDateString()}
             </p>
           </div>
-          <div className="text-left lg:text-right">
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="flex flex-col items-start lg:items-end bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-inner">
+            <div className="text-3xl sm:text-4xl font-black text-white drop-shadow-sm tracking-tight font-mono">
               {currentTime.toLocaleTimeString()}
             </div>
-            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-xs sm:text-sm text-blue-200 dark:text-slate-400 font-semibold mt-1">
               {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
           </div>
-          <div className="flex items-center justify-center lg:justify-end">
+          <div className="flex items-center justify-center lg:justify-end mt-2 lg:mt-0">
             <EmergencyButton />
           </div>
         </div>
@@ -696,27 +696,31 @@ function Dashboard() {
 
 
 
-      {/* 7. QUICK ACTION MODULES (Restyled to modern white cards) */}
+      {/* 7. QUICK ACTION MODULES */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         {[
-          { path: '/ecg', icon: Heart, title: 'ECG Prediction', subtitle: 'AI Heart Analysis', accent: 'bg-cyan-500' },
-          { path: '/chat', icon: MessageSquare, title: 'AI Assistant', subtitle: 'Medical Guidance', accent: 'bg-blue-500' },
-          { path: '/upload', icon: Upload, title: 'Upload Reports', subtitle: 'Analyze Vitals', accent: 'bg-green-500' },
-          { path: '/health-data', icon: TrendingUp, title: 'Health Data', subtitle: 'Track Metrics', accent: 'bg-amber-500' },
-          { path: '/facilities', icon: Search, title: 'Find Healthcare', subtitle: 'Search Hospitals', accent: 'bg-purple-500' },
+          { path: '/ecg', icon: Heart, title: 'ECG Prediction', subtitle: 'AI Heart Analysis', accent: 'bg-cyan-500', hoverBg: 'group-hover:bg-cyan-500/10 dark:group-hover:bg-cyan-500/20' },
+          { path: '/chat', icon: MessageSquare, title: 'AI Assistant', subtitle: 'Medical Guidance', accent: 'bg-blue-500', hoverBg: 'group-hover:bg-blue-500/10 dark:group-hover:bg-blue-500/20' },
+          { path: '/upload', icon: Upload, title: 'Upload Reports', subtitle: 'Analyze Vitals', accent: 'bg-green-500', hoverBg: 'group-hover:bg-green-500/10 dark:group-hover:bg-green-500/20' },
+          { path: '/health-data', icon: TrendingUp, title: 'Health Data', subtitle: 'Track Metrics', accent: 'bg-amber-500', hoverBg: 'group-hover:bg-amber-500/10 dark:group-hover:bg-amber-500/20' },
+          { path: '/facilities', icon: Search, title: 'Find Healthcare', subtitle: 'Search Hospitals', accent: 'bg-purple-500', hoverBg: 'group-hover:bg-purple-500/10 dark:group-hover:bg-purple-500/20' },
         ].map((action, idx) => {
           const ActionIcon = action.icon;
           return (
             <div 
               key={idx}
               onClick={() => navigate(action.path)}
-              className="group relative bg-white dark:bg-[#121214] p-5 rounded-2xl shadow-sm border border-gray-50 dark:border-zinc-800/80 cursor-pointer hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+              className={`group relative bg-white dark:bg-[#121214] p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800/80 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 overflow-hidden ${action.hoverBg}`}
             >
-              <div className={`absolute top-0 left-0 w-1.5 h-full ${action.accent}`} />
-              <div className="relative z-10 pl-1.5">
-                <ActionIcon className="h-6 w-6 mb-3 text-gray-600 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors group-hover:scale-110 duration-300" />
-                <h4 className="text-sm font-bold text-gray-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">{action.title}</h4>
-                <p className="text-xs text-gray-400 mt-0.5">{action.subtitle}</p>
+              {/* Expanding Accent Border */}
+              <div className={`absolute top-0 left-0 w-1.5 h-full ${action.accent} transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-10`} />
+              
+              <div className="relative z-10 pl-1.5 flex flex-col items-start">
+                <div className="p-3 rounded-xl mb-4 bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                  <ActionIcon className="h-6 w-6 text-gray-600 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-white transition-colors duration-300" />
+                </div>
+                <h4 className="text-sm font-bold text-gray-800 dark:text-white group-hover:text-blue-700 dark:group-hover:text-white transition-colors tracking-wide">{action.title}</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">{action.subtitle}</p>
               </div>
             </div>
           );
