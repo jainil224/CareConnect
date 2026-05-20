@@ -39,13 +39,13 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
   const stageInfo = STAGE_CONFIG[currentStage];
 
   return (
-    <div className="bg-zinc-950 border border-zinc-800/60 rounded-2xl overflow-hidden">
+    <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800/60 rounded-2xl overflow-hidden transition-colors duration-300">
 
       {/* Card Header */}
-      <div className="px-5 py-4 border-b border-zinc-800/60 bg-zinc-900/40 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800/60 bg-zinc-50 dark:bg-zinc-900/40 flex items-center justify-between transition-colors duration-300">
         <div className="flex items-center gap-2">
-          <Upload className="w-4 h-4 text-blue-400" />
-          <h3 className="text-sm font-bold text-white">Upload ECG Record</h3>
+          <Upload className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+          <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Upload ECG Record</h3>
         </div>
         <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-widest
           px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-full">
@@ -70,8 +70,8 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
               : dragActive
                 ? 'border-blue-500/60 bg-blue-500/8 shadow-[0_0_20px_rgba(59,130,246,0.15)]'
                 : selectedFile
-                  ? 'border-zinc-700/60 bg-zinc-900/40 hover:border-zinc-600/80'
-                  : 'border-zinc-800/60 bg-zinc-900/20 hover:border-blue-500/40 hover:bg-blue-500/5'
+                  ? 'border-zinc-300 dark:border-zinc-700/60 bg-zinc-50 dark:bg-zinc-900/40 hover:border-zinc-400 dark:hover:border-zinc-600/80'
+                  : 'border-zinc-300 dark:border-zinc-800/60 bg-zinc-50 dark:bg-zinc-900/20 hover:border-blue-400 dark:hover:border-blue-500/40 hover:bg-blue-500/5'
             }
           `}
         >
@@ -91,7 +91,7 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
                 <Loader2 className="absolute inset-0 m-auto w-5 h-5 text-blue-400 animate-pulse" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-blue-300">Processing…</p>
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-300">Processing…</p>
                 <p className="text-[11px] text-zinc-500 mt-0.5 uppercase tracking-wider">
                   {currentStage} Stage Active
                 </p>
@@ -110,10 +110,10 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
                 </div>
               )}
               <div className="text-center">
-                <p className="text-sm font-semibold text-white truncate max-w-[200px]">{selectedFile.name}</p>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate max-w-[200px]">{selectedFile.name}</p>
                 <p className="text-xs text-zinc-500 mt-0.5">{(selectedFile.size / 1024).toFixed(1)} KB</p>
               </div>
-              <span className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-blue-400 transition-colors">
+              <span className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 <RefreshCw className="w-3.5 h-3.5" /> Replace file
               </span>
             </div>
@@ -124,14 +124,14 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
                 <Upload className="w-7 h-7 text-blue-400" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Drag & drop your ECG report</p>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white">Drag & drop your ECG report</p>
                 <p className="text-xs text-zinc-500 mt-1">or click to browse from your device</p>
               </div>
               <div className="flex items-center gap-4 mt-1">
-                <span className="flex items-center gap-1 text-[11px] text-zinc-600">
+                <span className="flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-600">
                   <FileText className="w-3 h-3" /> PDF · CSV
                 </span>
-                <span className="flex items-center gap-1 text-[11px] text-zinc-600">
+                <span className="flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-600">
                   <ImageIcon className="w-3 h-3" /> PNG · JPG
                 </span>
               </div>
@@ -144,22 +144,22 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
           <div className="mt-4 space-y-2">
             <div className="flex items-center justify-between text-[11px]">
               <span className="font-semibold text-blue-400 uppercase tracking-wider">{currentStage}</span>
-              <span className="font-bold text-zinc-400">{stageInfo.pct}%</span>
+              <span className="font-bold text-zinc-500 dark:text-zinc-400">{stageInfo.pct}%</span>
             </div>
-            <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/40">
+            <div className="h-1.5 bg-zinc-200 dark:bg-zinc-900 rounded-full overflow-hidden border border-zinc-300 dark:border-zinc-800/40">
               <div
-                className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-700 ease-out"
+                className="h-full bg-gradient-to-r from-blue-500 to-blue-400 dark:from-blue-600 dark:to-blue-400 rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${stageInfo.pct}%` }}
               />
             </div>
-            <p className="text-[10px] text-zinc-600 italic">{stageInfo.label}</p>
+            <p className="text-[10px] text-zinc-500 dark:text-zinc-600 italic">{stageInfo.label}</p>
           </div>
         )}
 
         {/* Format hint */}
         {!currentStage && !isProcessing && (
-          <p className="mt-4 text-center text-[11px] text-zinc-700">
-            Upload a <span className="text-zinc-500">PDF ECG report</span> for best parameter extraction accuracy.
+          <p className="mt-4 text-center text-[11px] text-zinc-500 dark:text-zinc-700">
+            Upload a <span className="text-zinc-700 dark:text-zinc-500">PDF ECG report</span> for best parameter extraction accuracy.
           </p>
         )}
       </div>

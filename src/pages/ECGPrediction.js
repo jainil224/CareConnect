@@ -282,13 +282,18 @@ export default function ECGPrediction() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#e5e2e1] font-sans">
+    <div className="min-h-screen pt-20 bg-zinc-50 dark:bg-[#0a0a0a] text-zinc-900 dark:text-[#e5e2e1] font-sans transition-colors duration-300">
       <style>{`
         .ecg-glass {
+          background: rgba(255, 255, 255, 0.72);
+          border: 1px solid rgba(0,0,0,0.08);
+          box-shadow: 0 18px 60px rgba(0,0,0,0.05);
+          backdrop-filter: blur(14px);
+        }
+        .dark .ecg-glass {
           background: rgba(18, 18, 18, 0.72);
           border: 1px solid rgba(255,255,255,0.08);
           box-shadow: 0 18px 60px rgba(0,0,0,0.28);
-          backdrop-filter: blur(14px);
         }
         .ecg-grid-bg {
           background-image:
@@ -311,15 +316,15 @@ export default function ECGPrediction() {
       `}</style>
 
       {/* Header */}
-      <section className="border-b border-[#3c494e] bg-[#131313]/90 backdrop-blur-xl">
+      <section className="border-b border-zinc-200 dark:border-[#3c494e] bg-white/90 dark:bg-[#131313]/90 backdrop-blur-xl transition-colors duration-300">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5">
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/10">
-              <HeartPulse className="h-6 w-6 text-[#a4e6ff]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-500/20 dark:border-cyan-300/20 bg-cyan-500/10 dark:bg-cyan-300/10">
+              <HeartPulse className="h-6 w-6 text-cyan-600 dark:text-[#a4e6ff]" />
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl">ECG Intelligence</h1>
-              <p className="hidden text-[11px] font-bold uppercase tracking-[0.22em] text-[#bbc9cf] sm:block">
+              <h1 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white sm:text-2xl">ECG Intelligence</h1>
+              <p className="hidden text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-500 dark:text-[#bbc9cf] sm:block">
                 AI Diagnostics
               </p>
             </div>
@@ -362,18 +367,18 @@ export default function ECGPrediction() {
           {/* Main content */}
           <section className="space-y-4 xl:col-span-8">
             <div className="ecg-glass overflow-hidden rounded-xl">
-              <div className="flex items-center justify-between border-b border-[#3c494e] bg-[#1c1b1b]/70 px-5 py-4">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-[#3c494e] bg-zinc-100/70 dark:bg-[#1c1b1b]/70 px-5 py-4 transition-colors duration-300">
                 <div className="flex items-center gap-2">
-                  <MonitorDot className="h-4 w-4 animate-pulse text-[#a4e6ff]" />
-                  <h3 className="text-sm font-bold text-white">Live ECG Monitor</h3>
+                  <MonitorDot className="h-4 w-4 animate-pulse text-cyan-600 dark:text-[#a4e6ff]" />
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Live ECG Monitor</h3>
                 </div>
-                <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#bbc9cf]">
+                <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-[#bbc9cf]">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#a4e6ff]/60" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-500/60 dark:bg-[#a4e6ff]/60" />
                     Lead II
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#a4e6ff]/60" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-500/60 dark:bg-[#a4e6ff]/60" />
                     25 mm/s
                   </span>
                 </div>
@@ -410,27 +415,27 @@ export default function ECGPrediction() {
 // ── Empty state card ────────────────────────────────────────────────────────
 function EmptyPredictionCard() {
   return (
-    <div className="ecg-glass relative min-h-[260px] overflow-hidden rounded-xl border-red-300/10 p-6">
-      <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-red-300/10 blur-[60px]" />
+    <div className="ecg-glass relative min-h-[260px] overflow-hidden rounded-xl border-red-500/10 dark:border-red-300/10 p-6">
+      <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-red-500/10 dark:bg-red-300/10 blur-[60px]" />
       <div className="mb-6 flex items-center gap-2">
-        <Activity className="h-5 w-5 text-[#a4e6ff]" />
-        <h3 className="text-lg font-semibold text-white">Prediction Engine</h3>
+        <Activity className="h-5 w-5 text-cyan-600 dark:text-[#a4e6ff]" />
+        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Prediction Engine</h3>
       </div>
       <div className="flex flex-col items-center justify-center py-6 text-center">
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-[#3c494e] bg-[#1c1b1b]">
-          <FileText className="h-9 w-9 text-[#bbc9cf]" />
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-zinc-300 dark:border-[#3c494e] bg-zinc-100 dark:bg-[#1c1b1b] transition-colors duration-300">
+          <FileText className="h-9 w-9 text-zinc-400 dark:text-[#bbc9cf]" />
         </div>
-        <h4 className="text-3xl font-black uppercase tracking-tight text-[#bbc9cf]">Awaiting ECG</h4>
-        <p className="mt-2 text-xs font-bold uppercase tracking-widest text-[#bbc9cf]/70">
+        <h4 className="text-3xl font-black uppercase tracking-tight text-zinc-400 dark:text-[#bbc9cf]">Awaiting ECG</h4>
+        <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-400/80 dark:text-[#bbc9cf]/70">
           Upload a record to run prediction
         </p>
       </div>
       <div className="space-y-2">
         <div className="flex items-end justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#bbc9cf]">AI Confidence Score</span>
-          <span className="font-mono text-lg font-bold text-[#bbc9cf]">--</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-[#bbc9cf]">AI Confidence Score</span>
+          <span className="font-mono text-lg font-bold text-zinc-400 dark:text-[#bbc9cf]">--</span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-[#201f1f]" />
+        <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-[#201f1f]" />
       </div>
     </div>
   );
@@ -479,25 +484,25 @@ function MedicalHistory({ backgroundFeatures }) {
   return (
     <div className="ecg-glass rounded-xl p-5">
       <div className="mb-4 flex items-center gap-2">
-        <History className="h-5 w-5 text-[#a4e6ff]" />
-        <h3 className="text-lg font-semibold text-white">Medical History</h3>
+        <History className="h-5 w-5 text-cyan-600 dark:text-[#a4e6ff]" />
+        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Medical History</h3>
       </div>
       <div className="space-y-3">
         {rows.map((row) => (
           <div
             key={row.label}
-            className="flex items-center justify-between rounded-lg border border-[#3c494e]/40 bg-[#1c1b1b]/50 p-3 transition hover:border-cyan-300/30"
+            className="flex items-center justify-between rounded-lg border border-zinc-200 dark:border-[#3c494e]/40 bg-zinc-50 dark:bg-[#1c1b1b]/50 p-3 transition hover:border-cyan-500/30 dark:hover:border-cyan-300/30"
           >
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#bbc9cf]">{row.label}</p>
-              <p className="mt-1 text-sm text-white">{row.value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-[#bbc9cf]">{row.label}</p>
+              <p className="mt-1 text-sm text-zinc-900 dark:text-white">{row.value}</p>
             </div>
             <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
               row.tone === 'green'
-                ? 'bg-green-500/10 text-green-400'
+                ? 'bg-green-500/10 text-green-600 dark:text-green-400'
                 : row.tone === 'red'
-                  ? 'bg-red-400/10 text-[#ffb4ab]'
-                  : 'text-[#bbc9cf]'
+                  ? 'bg-red-500/10 text-red-600 dark:text-[#ffb4ab]'
+                  : 'text-zinc-600 dark:text-[#bbc9cf]'
             }`}>
               {row.badge}
             </span>

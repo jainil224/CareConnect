@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useHealth } from '../context/HealthContext';
-import { Send, Bot, User, MessageCircle } from 'lucide-react';
+import { Send, Bot, User, MessageCircle, Sparkles, PlusCircle } from 'lucide-react';
 import { getMistralResponse } from '../utils/mistralAPI';
 
 function AIAssistant() {
@@ -33,7 +33,7 @@ What health concerns would you like to discuss today?`,
         }
       });
     }
-  }, []);
+  }, [dispatch, state.chatHistory.length]);
 
   const getAIResponse = async (userMessage) => {
     try {
@@ -64,7 +64,7 @@ What health concerns would you like to discuss today?`,
 
     setTimeout(async () => {
       try {
-        const response = await getAIResponse(message.trim());
+        const response = await getAIResponse(userMessage.message);
         
         const botMessage = {
           id: Date.now() + 1,
@@ -94,75 +94,65 @@ What health concerns would you like to discuss today?`,
     }
   };
 
-
+  const quickActions = [
+    { icon: '🤒', label: 'Fever', prompt: 'I have a fever' },
+    { icon: '🤕', label: 'Headache', prompt: 'I have a headache' },
+    { icon: '💔', label: 'Chest Pain', prompt: 'I have chest pain' },
+    { icon: '😷', label: 'Cough', prompt: 'I have a cough' },
+    { icon: '🩺', label: 'Diabetes', prompt: 'I have diabetes' },
+    { icon: '💓', label: 'Hypertension', prompt: 'I have high blood pressure' },
+    { icon: '🫁', label: 'Asthma', prompt: 'I have asthma' },
+    { icon: '🦴', label: 'Arthritis', prompt: 'I have joint pain' },
+    { icon: '🧘', label: 'Mental Health', prompt: 'I have anxiety' },
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="p-3 bg-blue-500 rounded-lg">
-          <MessageCircle className="h-8 w-8 text-white" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            AI Health Assistant
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Get health guidance and information
-          </p>
-        </div>
-      </div>
-      
+    <div className="min-h-screen pt-20 pb-10 bg-zinc-50 dark:bg-[#0a0a0a] transition-colors duration-300">
+      <style>{`
+        /* Custom scrollbar for chat area */
+        .chat-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .chat-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+          background-color: rgba(156, 163, 175, 0.3);
+          border-radius: 20px;
+        }
+        .dark .chat-scroll::-webkit-scrollbar-thumb {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      `}</style>
 
-      
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg h-96 flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {state.chatHistory.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-start space-x-2 max-w-xs lg:max-w-md ${msg.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                  msg.type === 'user' ? 'bg-blue-500' : 'bg-green-500'
-                }`}>
-                  {msg.type === 'user' ? (
-                    <User className="h-4 w-4 text-white" />
-                  ) : (
-                    <Bot className="h-4 w-4 text-white" />
-                  )}
-                </div>
-                <div className={`px-4 py-2 rounded-lg ${
-                  msg.type === 'user' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                }`}>
-                  <div className="text-sm whitespace-pre-wrap">
-                    {msg.message}
-                  </div>
-                  <p className="text-xs opacity-70 mt-1">
-                    {new Date(msg.timestamp).toLocaleTimeString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-[calc(100vh-8rem)] flex flex-col">
+        {/* Header Title */}
+        <div className="flex items-center space-x-4 mb-6 shrink-0">
+          <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+            <Sparkles className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
+              AI Health Assistant
+            </h1>
+            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+              Powered by Mistral Intelligence
+            </p>
+          </div>
+        </div>
+        
+        {/* Main Chat Interface */}
+        <div className="flex-1 bg-white/60 dark:bg-[#121214]/60 backdrop-blur-2xl rounded-3xl border border-zinc-200/50 dark:border-white/5 shadow-2xl flex flex-col overflow-hidden relative">
           
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="flex items-start space-x-2">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-white animate-pulse" />
-                </div>
-                <div className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                  <div className="text-sm text-gray-700 dark:text-gray-200">
-                    AI is thinking...
-                  </div>
-                </div>
-              </div>
+          {/* Header Bar inside Chat */}
+          <div className="h-16 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 flex items-center justify-between px-6 shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300 tracking-wide">Secure Connection Established</span>
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="border-t dark:border-gray-700 p-4">
-          <div className="flex space-x-2 mb-3">
             <button
               onClick={() => {
                 dispatch({ type: 'CLEAR_CHAT_HISTORY' });
@@ -176,85 +166,104 @@ What health concerns would you like to discuss today?`,
                   }
                 });
               }}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2"
+              className="px-4 py-2 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300 text-sm font-bold rounded-xl transition-colors duration-300 flex items-center space-x-2 border border-zinc-200/50 dark:border-white/5"
             >
-              <MessageCircle className="h-4 w-4" />
+              <PlusCircle className="h-4 w-4" />
               <span>New Chat</span>
             </button>
           </div>
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask about your health symptoms..."
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!message.trim() || isTyping}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-            >
-              <Send className="h-4 w-4" />
-            </button>
+
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto chat-scroll p-6 space-y-6">
+            {state.chatHistory.map((msg) => (
+              <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex items-end space-x-3 max-w-[85%] sm:max-w-[75%] ${msg.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                  
+                  {/* Avatar */}
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
+                    msg.type === 'user' 
+                      ? 'bg-gradient-to-br from-indigo-500 to-blue-600' 
+                      : 'bg-gradient-to-br from-emerald-400 to-teal-500'
+                  }`}>
+                    {msg.type === 'user' ? (
+                      <User className="h-4 w-4 text-white" />
+                    ) : (
+                      <Bot className="h-4 w-4 text-white" />
+                    )}
+                  </div>
+
+                  {/* Message Bubble */}
+                  <div className={`px-5 py-3.5 rounded-2xl shadow-sm ${
+                    msg.type === 'user' 
+                      ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-br-sm' 
+                      : 'bg-white dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 border border-zinc-100 dark:border-white/5 rounded-bl-sm'
+                  }`}>
+                    <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
+                      {msg.message}
+                    </div>
+                    <p className={`text-[10px] font-semibold mt-2 text-right ${msg.type === 'user' ? 'text-blue-100/70' : 'text-zinc-400 dark:text-zinc-500'}`}>
+                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+            ))}
+            
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="flex items-end space-x-3 max-w-[75%]">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-md">
+                    <Bot className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="px-5 py-4 rounded-2xl rounded-bl-sm bg-white dark:bg-zinc-800/80 border border-zinc-100 dark:border-white/5 shadow-sm">
+                    <div className="flex items-center space-x-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} className="h-2" />
           </div>
-          
-          <div className="flex space-x-2 mt-2">
-            <button 
-              onClick={() => setMessage('I have a fever')}
-              className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs hover:bg-red-200"
-            >
-              🤒 Fever
-            </button>
-            <button 
-              onClick={() => setMessage('I have a headache')}
-              className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs hover:bg-yellow-200"
-            >
-              🤕 Headache
-            </button>
-            <button 
-              onClick={() => setMessage('I have chest pain')}
-              className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs hover:bg-red-200"
-            >
-              💔 Chest Pain
-            </button>
-            <button 
-              onClick={() => setMessage('I have a cough')}
-              className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs hover:bg-blue-200"
-            >
-              😷 Cough
-            </button>
-            <button 
-              onClick={() => setMessage('I have diabetes')}
-              className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs hover:bg-purple-200"
-            >
-              🩺 Diabetes
-            </button>
-            <button 
-              onClick={() => setMessage('I have high blood pressure')}
-              className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs hover:bg-pink-200"
-            >
-              💓 Hypertension
-            </button>
-            <button 
-              onClick={() => setMessage('I have asthma')}
-              className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs hover:bg-green-200"
-            >
-              🫁 Asthma
-            </button>
-            <button 
-              onClick={() => setMessage('I have joint pain')}
-              className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs hover:bg-orange-200"
-            >
-              🦴 Arthritis
-            </button>
-            <button 
-              onClick={() => setMessage('I have anxiety')}
-              className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs hover:bg-indigo-200"
-            >
-              🧘 Mental Health
-            </button>
+
+          {/* Input Area */}
+          <div className="p-4 sm:p-6 bg-white/50 dark:bg-black/30 border-t border-zinc-200/50 dark:border-white/5 shrink-0">
+            {/* Quick Actions Scroll */}
+            <div className="flex overflow-x-auto chat-scroll pb-4 mb-2 space-x-2 w-full">
+              {quickActions.map((action, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setMessage(action.prompt)}
+                  className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 bg-zinc-100 dark:bg-white/5 hover:bg-cyan-500/10 hover:border-cyan-500/30 text-zinc-700 dark:text-zinc-300 hover:text-cyan-600 dark:hover:text-cyan-400 border border-zinc-200/50 dark:border-white/10 rounded-full text-[12px] font-bold tracking-wide transition-all duration-300"
+                >
+                  <span className="text-sm">{action.icon}</span>
+                  {action.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Bar */}
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask about your health symptoms or medical concerns..."
+                className="w-full pl-5 pr-14 py-4 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-2xl text-sm font-medium text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-transparent transition-all shadow-sm"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!message.trim() || isTyping}
+                className="absolute right-2 p-2.5 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] disabled:opacity-50 disabled:hover:shadow-none transition-all duration-300"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
