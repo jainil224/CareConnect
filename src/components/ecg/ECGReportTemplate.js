@@ -8,20 +8,20 @@ export default function ECGReportTemplate({ result, features, summary }) {
   const numConfidence = parseFloat(confidence);
   
   let riskLevel = "Low Risk";
-  let statusColor = "text-green-600";
-  let bgStatusColor = "bg-green-100";
-  let borderStatusColor = "border-green-500";
+  let statusColor = "text-green-400";
+  let bgStatusColor = "bg-green-500/10";
+  let borderStatusColor = "border-green-500/30";
 
   if (isHighRisk || numConfidence > 50) {
     riskLevel = "High Risk";
-    statusColor = "text-red-600";
-    bgStatusColor = "bg-red-100";
-    borderStatusColor = "border-red-500";
+    statusColor = "text-[#ffb4ab]";
+    bgStatusColor = "bg-red-500/10";
+    borderStatusColor = "border-red-500/30";
   } else if (numConfidence > 20) {
     riskLevel = "Moderate Risk";
-    statusColor = "text-yellow-600";
-    bgStatusColor = "bg-yellow-100";
-    borderStatusColor = "border-yellow-500";
+    statusColor = "text-amber-400";
+    bgStatusColor = "bg-amber-500/10";
+    borderStatusColor = "border-amber-500/30";
   }
 
   // Generate a mock ECG Waveform SVG path for visual fidelity
@@ -42,134 +42,145 @@ export default function ECGReportTemplate({ result, features, summary }) {
   };
 
   const currentDate = new Date().toLocaleString();
-  const reportId = `ECG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const reportId = `REP-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}`;
   const patientId = `PT-${Math.floor(10000 + Math.random() * 90000)}`;
 
   return (
-    <div id="ecg-pdf-report" className="bg-white text-gray-900 font-sans p-8 w-[210mm] min-h-[297mm] mx-auto box-border flex flex-col">
+    <div id="ecg-pdf-report" className="bg-[#0a0a0a] text-[#bbc9cf] font-sans w-[210mm] h-[296mm] mx-auto box-border flex flex-col relative overflow-hidden"
+         style={{ backgroundImage: 'radial-gradient(circle, #2a2a2a 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
       
       {/* HEADER */}
-      <div className="flex justify-between items-start border-b-2 border-blue-600 pb-6 mb-6 shrink-0">
+      <div className="flex justify-between items-start border-b border-cyan-500/30 p-5 shrink-0 bg-[#0c0c0e]/90">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-            <Activity className="text-white w-8 h-8" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Activity className="text-cyan-400 w-8 h-8" strokeWidth={1.5} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-blue-900 tracking-tight">CareConnect</h1>
-            <p className="text-sm font-semibold text-blue-600 uppercase tracking-widest">AI ECG Prediction System</p>
+            <h1 className="text-xl font-bold text-white tracking-tight">CareConnect</h1>
+            <p className="text-[9px] font-bold text-cyan-500 uppercase tracking-widest">AI ECG Prediction System</p>
           </div>
         </div>
-        <div className="text-right text-sm text-gray-600 space-y-1">
-          <p><span className="font-semibold text-gray-800">Report ID:</span> {reportId}</p>
-          <p><span className="font-semibold text-gray-800">Date & Time:</span> {currentDate}</p>
-          <p><span className="font-semibold text-gray-800">Patient ID:</span> {patientId}</p>
+        <div className="text-right text-[10px] text-zinc-400 space-y-0.5">
+          <p><span className="font-semibold text-zinc-300">Report ID:</span> {reportId}</p>
+          <p><span className="font-semibold text-zinc-300">Date:</span> {currentDate}</p>
+          <p><span className="font-semibold text-zinc-300">Patient ID:</span> {patientId}</p>
         </div>
       </div>
 
-      {/* PATIENT DETAILS */}
-      <div className="mb-8 shrink-0">
-        <h2 className="text-lg font-bold text-blue-900 uppercase border-l-4 border-blue-600 pl-3 mb-4">Patient Information</h2>
-        <div className="grid grid-cols-4 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200 text-sm">
-          <div><span className="text-gray-500 block text-xs uppercase">Name</span><span className="font-semibold">{features?.name || "N/A"}</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Age</span><span className="font-semibold">{features?.age ? `${features.age} Years` : "N/A"}</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Gender</span><span className="font-semibold">{features?.sex === 1 ? 'Male' : features?.sex === 0 ? 'Female' : 'N/A'}</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Blood Group</span><span className="font-semibold">O+</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Height</span><span className="font-semibold">{features?.height ? `${features.height} cm` : "N/A"}</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Weight</span><span className="font-semibold">{features?.weight ? `${features.weight} kg` : "N/A"}</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Contact</span><span className="font-semibold">+1 234 567 8900</span></div>
-          <div><span className="text-gray-500 block text-xs uppercase">Hospital</span><span className="font-semibold">CareConnect General</span></div>
-        </div>
-      </div>
-
-      {/* MAIN RESULT */}
-      <div className={`mb-8 p-6 rounded-2xl border-2 ${borderStatusColor} ${bgStatusColor} relative overflow-hidden shrink-0`}>
-        <div className="relative z-10 flex justify-between items-center">
-          <div>
-            <h2 className="text-sm font-bold uppercase text-gray-700 tracking-wider mb-1">AI Diagnostic Result</h2>
-            <h1 className={`text-4xl font-extrabold ${statusColor} mb-2`}>{result?.prediction || 'Normal'}</h1>
-            <p className="font-semibold text-gray-700 text-lg">Risk Level: <span className={statusColor}>{riskLevel}</span></p>
-          </div>
-          <div className="text-center bg-white p-4 rounded-xl shadow-sm border border-gray-200 min-w-[120px]">
-            <p className="text-xs text-gray-500 font-bold uppercase mb-1">Confidence</p>
-            <p className={`text-3xl font-black ${statusColor}`}>{confidence}</p>
+      <div className="p-6 flex flex-col flex-grow gap-4">
+        {/* PATIENT DETAILS */}
+        <div className="shrink-0">
+          <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest border-l-2 border-cyan-500 pl-2 mb-2">Patient Information</h2>
+          <div className="grid grid-cols-4 gap-3 bg-[#1c1b1b]/80 p-3 rounded-lg border border-zinc-800/80 text-xs">
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Name</span><span className="font-semibold text-white">{features?.name || "N/A"}</span></div>
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Age</span><span className="font-semibold text-white">{features?.age ? `${features.age} Years` : "N/A"}</span></div>
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Gender</span><span className="font-semibold text-white">{features?.sex === 1 ? 'Male' : features?.sex === 0 ? 'Female' : 'N/A'}</span></div>
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Blood Group</span><span className="font-semibold text-white">O+</span></div>
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Height</span><span className="font-semibold text-white">{features?.height ? `${features.height} cm` : "N/A"}</span></div>
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Weight</span><span className="font-semibold text-white">{features?.weight ? `${features.weight} kg` : "N/A"}</span></div>
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Contact</span><span className="font-semibold text-white">+1 555-0198</span></div>
+            <div><span className="text-zinc-500 block text-[9px] font-bold tracking-widest uppercase">Hospital</span><span className="font-semibold text-white">CareConnect Central</span></div>
           </div>
         </div>
-      </div>
 
-      {/* ECG WAVEFORM */}
-      <div className="mb-8 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-        <h2 className="text-lg font-bold text-blue-900 uppercase border-l-4 border-blue-600 pl-3 mb-4">Signal Visualization (Lead II Approximation)</h2>
-        <div className="border border-gray-300 rounded-xl bg-[#f8fafc] p-2 relative" style={{ backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-          <svg viewBox="0 0 800 100" className="w-full h-32 stroke-blue-600 fill-none" style={{ strokeWidth: 1.5 }}>
-            <path d={generateWaveformPath()} />
-          </svg>
-        </div>
-      </div>
-
-      {/* CLINICAL ANALYTICS */}
-      <div className="mb-8 grid grid-cols-2 gap-8 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-        <div>
-          <h2 className="text-lg font-bold text-blue-900 uppercase border-l-4 border-blue-600 pl-3 mb-4">Heart Analytics</h2>
-          <table className="w-full text-sm text-left border-collapse">
-            <tbody>
-              <tr className="border-b border-gray-200">
-                <td className="py-2 text-gray-600 font-medium">Heart Rate (BPM)</td>
-                <td className="py-2 font-bold text-right">{features?.thalach || '--'}</td>
-              </tr>
-              <tr className="border-b border-gray-200">
-                <td className="py-2 text-gray-600 font-medium">Cholesterol (mg/dl)</td>
-                <td className="py-2 font-bold text-right">{features?.chol || '--'}</td>
-              </tr>
-              <tr className="border-b border-gray-200">
-                <td className="py-2 text-gray-600 font-medium">ST Depression (mm)</td>
-                <td className="py-2 font-bold text-right">{features?.oldpeak || '--'}</td>
-              </tr>
-              <tr className="border-b border-gray-200">
-                <td className="py-2 text-gray-600 font-medium">Fasting Blood Sugar</td>
-                <td className="py-2 font-bold text-right">{features?.fbs === 1 ? '> 120 mg/dl' : '< 120 mg/dl'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-bold text-blue-900 uppercase border-l-4 border-blue-600 pl-3 mb-4">AI Medical Summary</h2>
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 h-full">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {summary || "AI summary not available. Please wait for the analysis to complete."}
-            </p>
+        {/* MAIN RESULT */}
+        <div className={`p-4 rounded-lg border ${borderStatusColor} ${bgStatusColor} relative overflow-hidden shrink-0`}>
+          <div className="relative z-10 flex justify-between items-center">
+            <div>
+              <h2 className="text-[9px] font-bold uppercase text-zinc-400 tracking-widest mb-1">AI Diagnostic Result</h2>
+              <h1 className={`text-3xl font-extrabold ${statusColor} mb-1 tracking-tight`}>{result?.prediction || 'Normal'}</h1>
+              <p className="font-semibold text-zinc-300 text-xs tracking-wide">Risk Level: <span className={statusColor}>{riskLevel}</span></p>
+            </div>
+            <div className="text-center bg-[#0c0c0e]/80 p-3 rounded-lg border border-zinc-800/80 min-w-[120px]">
+              <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-1">Confidence</p>
+              <p className={`text-2xl font-black ${statusColor}`}>{confidence}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* RECOMMENDATIONS */}
-      <div className="mb-8 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-        <h2 className="text-lg font-bold text-blue-900 uppercase border-l-4 border-blue-600 pl-3 mb-4">Recommendations</h2>
-        <ul className="list-disc pl-6 text-sm text-gray-700 space-y-2">
-          {isHighRisk ? (
-            <>
-              <li className="font-bold text-red-600">Immediate cardiology consultation strongly recommended.</li>
-              <li>Schedule an echocardiogram and a stress test as soon as possible.</li>
-              <li>Monitor cardiovascular metrics daily and keep a detailed log.</li>
-              <li>Avoid strenuous physical activity until cleared by a physician.</li>
-            </>
-          ) : (
-            <>
-              <li>Maintain current healthy cardiovascular lifestyle habits.</li>
-              <li>Continue regular aerobic exercise (e.g., 30 mins walking/day).</li>
-              <li>Ensure balanced diet to maintain healthy cholesterol levels.</li>
-              <li>Schedule standard annual check-ups.</li>
-            </>
-          )}
-        </ul>
+        {/* ECG WAVEFORM */}
+        <div className="shrink-0" style={{ pageBreakInside: 'avoid' }}>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest border-l-2 border-cyan-500 pl-2">Lead II • 25 mm/s</h2>
+            <span className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">Rhythm: {isHighRisk ? 'Irregular' : 'Normal Sinus Rhythm'}</span>
+          </div>
+          <div className="border border-zinc-700/50 rounded-lg bg-[#0a0a0a] p-2 relative overflow-hidden" 
+               style={{ backgroundImage: 'linear-gradient(#1f2937 1px, transparent 1px), linear-gradient(90deg, #1f2937 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+            <svg viewBox="0 0 800 100" className="w-full h-24 stroke-[#ffb4ab] fill-none drop-shadow-[0_0_8px_rgba(255,180,171,0.5)]" style={{ strokeWidth: 1.5 }}>
+              <path d={generateWaveformPath()} />
+            </svg>
+          </div>
+        </div>
+
+        {/* CLINICAL ANALYTICS */}
+        <div className="grid grid-cols-2 gap-4 shrink-0" style={{ pageBreakInside: 'avoid' }}>
+          <div className="flex flex-col">
+            <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest border-l-2 border-cyan-500 pl-2 mb-2">Clinical Metrics</h2>
+            <div className="bg-[#1c1b1b]/80 rounded-lg border border-zinc-800/80 overflow-hidden flex-grow">
+              <table className="w-full text-[10px] text-left border-collapse">
+                <tbody>
+                  <tr className="border-b border-zinc-800/80">
+                    <td className="py-2.5 px-3 text-zinc-400 font-medium tracking-wide">Heart Rate (BPM)</td>
+                    <td className="py-2.5 px-3 font-bold text-right text-white">{features?.thalach || '--'}</td>
+                  </tr>
+                  <tr className="border-b border-zinc-800/80">
+                    <td className="py-2.5 px-3 text-zinc-400 font-medium tracking-wide">Cholesterol (mg/dl)</td>
+                    <td className="py-2.5 px-3 font-bold text-right text-white">{features?.chol || '--'}</td>
+                  </tr>
+                  <tr className="border-b border-zinc-800/80">
+                    <td className="py-2.5 px-3 text-zinc-400 font-medium tracking-wide">ST Depression (mm)</td>
+                    <td className="py-2.5 px-3 font-bold text-right text-white">{features?.oldpeak || '--'}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-3 text-zinc-400 font-medium tracking-wide">Fasting Blood Sugar</td>
+                    <td className="py-2.5 px-3 font-bold text-right text-white">{features?.fbs === 1 ? '> 120 mg/dl' : '< 120 mg/dl'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest border-l-2 border-cyan-500 pl-2 mb-2">AI Medical Summary</h2>
+            <div className="bg-[#1c1b1b]/80 p-3 rounded-lg border border-zinc-800/80 flex-grow">
+              <p className="text-[10px] text-zinc-300 leading-relaxed">
+                {summary || "AI summary not available. Please wait for the analysis to complete."}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* RECOMMENDATIONS */}
+        <div className="shrink-0" style={{ pageBreakInside: 'avoid' }}>
+          <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest border-l-2 border-cyan-500 pl-2 mb-2">Cardiac Recommendations</h2>
+          <div className="bg-[#1c1b1b]/40 p-3 rounded-lg border border-zinc-800/40">
+            <ul className="space-y-2">
+              {isHighRisk ? (
+                <>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Immediate cardiology consultation strongly recommended.</li>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Schedule an echocardiogram and a stress test as soon as possible.</li>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Monitor cardiovascular metrics daily and keep a detailed log.</li>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Avoid strenuous physical activity until cleared by a physician.</li>
+                </>
+              ) : (
+                <>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Maintain current healthy cardiovascular lifestyle habits.</li>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Continue regular aerobic exercise (e.g., 30 mins walking/day).</li>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Ensure balanced diet to maintain healthy cholesterol levels.</li>
+                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Schedule standard annual check-ups.</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
       </div>
 
       {/* FOOTER */}
-      <div className="mt-auto pt-8 shrink-0" style={{ pageBreakInside: 'avoid' }}>
-        <div className="border-t border-gray-300 pt-4 text-center">
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-1">Generated by CareConnect AI System</p>
-          <p className="text-[10px] text-gray-400">
-            DISCLAIMER: This report is generated by an artificial intelligence predictive model and should not be used as the sole basis for clinical diagnosis. 
+      <div className="mt-auto shrink-0 bg-[#0c0c0e]/90 p-4 border-t border-cyan-500/10" style={{ pageBreakInside: 'avoid' }}>
+        <div className="text-center">
+          <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold mb-1">Generated by CareConnect AI System</p>
+          <p className="text-[7px] text-zinc-600 leading-relaxed">
+            DISCLAIMER: This report is AI-generated and should not be used as the sole basis for clinical diagnosis. 
             All results must be verified by a certified healthcare professional.
           </p>
         </div>

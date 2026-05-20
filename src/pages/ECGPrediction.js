@@ -356,7 +356,7 @@ export default function ECGPrediction() {
               <EmptyPredictionCard />
             )}
 
-            <MedicalHistory />
+            <MedicalHistory backgroundFeatures={backgroundFeatures} />
           </aside>
 
           {/* Main content */}
@@ -437,12 +437,44 @@ function EmptyPredictionCard() {
 }
 
 // ── Medical history card ────────────────────────────────────────────────────
-function MedicalHistory() {
-  const rows = [
+function MedicalHistory({ backgroundFeatures }) {
+  const hasData = backgroundFeatures && backgroundFeatures.cp !== '';
+
+  let rows = [
     { label: 'Last Visit', value: '12 Jan 2026', badge: 'Stable',       tone: 'green' },
     { label: 'Prior ECG',  value: '05 Nov 2025', badge: 'Sinus Rhythm', tone: 'neutral' },
     { label: 'Admission',  value: '02 Oct 2025', badge: 'Chest Pain',   tone: 'red' },
   ];
+
+  if (hasData) {
+    const cpMap = { 0: 'Asymptomatic', 1: 'Atypical Angina', 2: 'Non-anginal Pain', 3: 'Typical Angina' };
+    const ecgMap = { 0: 'Sinus Rhythm', 1: 'ST-T Abnormality', 2: 'LV Hypertrophy' };
+    
+    const cpVal = parseInt(backgroundFeatures.cp, 10);
+    const ecgVal = parseInt(backgroundFeatures.restecg, 10);
+    const exangVal = parseInt(backgroundFeatures.exang, 10);
+
+    rows = [
+      { 
+        label: 'Chest Pain History', 
+        value: 'Reported Symptoms', 
+        badge: !isNaN(cpVal) ? cpMap[cpVal] : 'Unknown', 
+        tone: cpVal === 0 ? 'green' : 'red' 
+      },
+      { 
+        label: 'Resting ECG',  
+        value: 'Baseline Reading', 
+        badge: !isNaN(ecgVal) ? ecgMap[ecgVal] : 'Unknown', 
+        tone: ecgVal === 0 ? 'green' : 'red' 
+      },
+      { 
+        label: 'Exercise Angina',  
+        value: 'Stress Test Result', 
+        badge: exangVal === 1 ? 'Positive' : 'Negative',   
+        tone: exangVal === 1 ? 'red' : 'green' 
+      },
+    ];
+  }
 
   return (
     <div className="ecg-glass rounded-xl p-5">
