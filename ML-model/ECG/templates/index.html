@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ECG Heart Risk Predictor</title>
+</head>
+
+<body>
+
+<h2>ECG Heart Risk Prediction</h2>
+
+<form id="predictForm">
+
+Age: <input type="number" id="age"><br><br>
+
+Sex (1 = Male, 0 = Female): 
+<input type="number" id="sex"><br><br>
+
+Chest Pain Type:
+<input type="number" id="cp"><br><br>
+
+Resting BP:
+<input type="number" id="trestbps"><br><br>
+
+Cholesterol:
+<input type="number" id="chol"><br><br>
+
+Fasting Blood Sugar:
+<input type="number" id="fbs"><br><br>
+
+Rest ECG:
+<input type="number" id="restecg"><br><br>
+
+Max Heart Rate:
+<input type="number" id="thalach"><br><br>
+
+Exercise Angina:
+<input type="number" id="exang"><br><br>
+
+Oldpeak:
+<input type="number" id="oldpeak"><br><br>
+
+Slope:
+<input type="number" id="slope"><br><br>
+
+CA:
+<input type="number" id="ca"><br><br>
+
+Thal:
+<input type="number" id="thal"><br><br>
+
+<button type="button" onclick="predict()">Predict</button>
+
+</form>
+
+<h3 id="result"></h3>
+
+<script>
+
+function predict(){
+
+const data = {
+age: Number(document.getElementById("age").value),
+sex: Number(document.getElementById("sex").value),
+cp: Number(document.getElementById("cp").value),
+trestbps: Number(document.getElementById("trestbps").value),
+chol: Number(document.getElementById("chol").value),
+fbs: Number(document.getElementById("fbs").value),
+restecg: Number(document.getElementById("restecg").value),
+thalach: Number(document.getElementById("thalach").value),
+exang: Number(document.getElementById("exang").value),
+oldpeak: Number(document.getElementById("oldpeak").value),
+slope: Number(document.getElementById("slope").value),
+ca: Number(document.getElementById("ca").value),
+thal: Number(document.getElementById("thal").value)
+}
+
+fetch("/predict",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(data)
+})
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("result").innerText="Prediction: " + data.prediction;
+})
+.catch(err=>{
+console.log(err);
+alert("Prediction error");
+})
+
+}
+
+</script>
+
+</body>
+</html>

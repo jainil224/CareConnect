@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  # ── Flask ML Prediction Server ────────────────────────────────────────────
+  flask-ml:
+    build:
+      context: ./ML-model/ECG
+      dockerfile: Dockerfile
+    container_name: careconnect-flask-ml
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_DEBUG=false
+      - FLASK_PORT=5000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── React Frontend ────────────────────────────────────────────────────────
+  frontend:
+    image: node:20-slim
+    container_name: careconnect-frontend
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3076:3076"
+    environment:
+      - PORT=3076
+      - REACT_APP_FLASK_URL=http://flask-ml:5000
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -c "npm install && npm start"
+    depends_on:
+      flask-ml:
+        condition: service_healthy
+
+networks:
+  default:
+    name: careconnect-network
