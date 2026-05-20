@@ -282,18 +282,19 @@ export default function ECGPrediction() {
   };
 
   return (
-    <div className="min-h-screen pt-20 bg-zinc-50 dark:bg-[#0a0a0a] text-zinc-900 dark:text-[#e5e2e1] font-sans transition-colors duration-300">
+    <div className="min-h-screen pt-20 bg-[#f5f7fa] dark:bg-[#0c0c0e] text-zinc-900 dark:text-[#e5e2e1] font-sans transition-colors duration-300">
       <style>{`
         .ecg-glass {
-          background: rgba(255, 255, 255, 0.72);
-          border: 1px solid rgba(0,0,0,0.08);
-          box-shadow: 0 18px 60px rgba(0,0,0,0.05);
-          backdrop-filter: blur(14px);
+          background: rgba(255, 255, 255, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+          backdrop-filter: blur(16px);
+          border-radius: 24px;
         }
         .dark .ecg-glass {
-          background: rgba(18, 18, 18, 0.72);
-          border: 1px solid rgba(255,255,255,0.08);
-          box-shadow: 0 18px 60px rgba(0,0,0,0.28);
+          background: rgba(18, 18, 20, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
         .ecg-grid-bg {
           background-image:
@@ -316,7 +317,7 @@ export default function ECGPrediction() {
       `}</style>
 
       {/* Header */}
-      <section className="border-b border-zinc-200 dark:border-[#3c494e] bg-white/90 dark:bg-[#131313]/90 backdrop-blur-xl transition-colors duration-300">
+      <section className="border-b border-gray-200/50 dark:border-zinc-800/50 bg-white/60 dark:bg-[#0c0c0e]/60 backdrop-blur-xl transition-colors duration-300">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5">
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-500/20 dark:border-cyan-300/20 bg-cyan-500/10 dark:bg-cyan-300/10">
@@ -366,19 +367,21 @@ export default function ECGPrediction() {
 
           {/* Main content */}
           <section className="space-y-4 xl:col-span-8">
-            <div className="ecg-glass overflow-hidden rounded-xl">
-              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-[#3c494e] bg-zinc-100/70 dark:bg-[#1c1b1b]/70 px-5 py-4 transition-colors duration-300">
-                <div className="flex items-center gap-2">
-                  <MonitorDot className="h-4 w-4 animate-pulse text-cyan-600 dark:text-[#a4e6ff]" />
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Live ECG Monitor</h3>
+            <div className="ecg-glass overflow-hidden">
+              <div className="flex items-center justify-between border-b border-gray-100 dark:border-zinc-800/80 bg-white/40 dark:bg-zinc-900/40 px-6 py-5 transition-colors duration-300">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-500/20">
+                    <MonitorDot className="h-5 w-5 animate-pulse text-cyan-600 dark:text-[#a4e6ff]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-100 tracking-tight">Live ECG Monitor</h3>
                 </div>
-                <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-[#bbc9cf]">
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-500/60 dark:bg-[#a4e6ff]/60" />
+                <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                  <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-zinc-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-500/80 dark:bg-[#a4e6ff]" />
                     Lead II
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-500/60 dark:bg-[#a4e6ff]/60" />
+                  <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-zinc-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-500/80 dark:bg-[#a4e6ff]" />
                     25 mm/s
                   </span>
                 </div>
@@ -415,27 +418,30 @@ export default function ECGPrediction() {
 // ── Empty state card ────────────────────────────────────────────────────────
 function EmptyPredictionCard() {
   return (
-    <div className="ecg-glass relative min-h-[260px] overflow-hidden rounded-xl border-red-500/10 dark:border-red-300/10 p-6">
-      <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-red-500/10 dark:bg-red-300/10 blur-[60px]" />
-      <div className="mb-6 flex items-center gap-2">
-        <Activity className="h-5 w-5 text-cyan-600 dark:text-[#a4e6ff]" />
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Prediction Engine</h3>
-      </div>
-      <div className="flex flex-col items-center justify-center py-6 text-center">
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-zinc-300 dark:border-[#3c494e] bg-zinc-100 dark:bg-[#1c1b1b] transition-colors duration-300">
-          <FileText className="h-9 w-9 text-zinc-400 dark:text-[#bbc9cf]" />
+    <div className="ecg-glass relative min-h-[260px] overflow-hidden p-6 hover:shadow-xl transition-all duration-300 group">
+      <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-cyan-500/10 dark:bg-cyan-500/10 blur-[60px] group-hover:bg-cyan-500/20 transition-all duration-500" />
+      <div className="absolute -left-20 -bottom-20 h-48 w-48 rounded-full bg-blue-500/10 dark:bg-blue-500/10 blur-[60px] group-hover:bg-blue-500/20 transition-all duration-500" />
+      <div className="mb-6 flex items-center gap-3 relative z-10">
+        <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-500/20">
+          <Activity className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
         </div>
-        <h4 className="text-3xl font-black uppercase tracking-tight text-zinc-400 dark:text-[#bbc9cf]">Awaiting ECG</h4>
-        <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-400/80 dark:text-[#bbc9cf]/70">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-100 tracking-tight">Prediction Engine</h3>
+      </div>
+      <div className="flex flex-col items-center justify-center py-6 text-center relative z-10">
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:border-cyan-500/30">
+          <FileText className="h-9 w-9 text-gray-400 dark:text-zinc-500 group-hover:text-cyan-500 transition-colors" />
+        </div>
+        <h4 className="text-2xl font-black uppercase tracking-tight text-gray-800 dark:text-zinc-200">Awaiting ECG</h4>
+        <p className="mt-2 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-zinc-500">
           Upload a record to run prediction
         </p>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 relative z-10">
         <div className="flex items-end justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-[#bbc9cf]">AI Confidence Score</span>
-          <span className="font-mono text-lg font-bold text-zinc-400 dark:text-[#bbc9cf]">--</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-zinc-500">AI Confidence Score</span>
+          <span className="font-mono text-lg font-bold text-gray-400 dark:text-zinc-600">--</span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-[#201f1f]" />
+        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-zinc-800" />
       </div>
     </div>
   );
@@ -482,27 +488,29 @@ function MedicalHistory({ backgroundFeatures }) {
   }
 
   return (
-    <div className="ecg-glass rounded-xl p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <History className="h-5 w-5 text-cyan-600 dark:text-[#a4e6ff]" />
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Medical History</h3>
+    <div className="ecg-glass p-6">
+      <div className="mb-6 flex items-center gap-3">
+        <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-500/20">
+          <History className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-100 tracking-tight">Medical History</h3>
       </div>
       <div className="space-y-3">
         {rows.map((row) => (
           <div
             key={row.label}
-            className="flex items-center justify-between rounded-lg border border-zinc-200 dark:border-[#3c494e]/40 bg-zinc-50 dark:bg-[#1c1b1b]/50 p-3 transition hover:border-cyan-500/30 dark:hover:border-cyan-300/30"
+            className="flex items-center justify-between rounded-xl border border-gray-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 p-4 transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-cyan-500/30 dark:hover:border-cyan-500/30"
           >
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-[#bbc9cf]">{row.label}</p>
-              <p className="mt-1 text-sm text-zinc-900 dark:text-white">{row.value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-zinc-500">{row.label}</p>
+              <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-zinc-200">{row.value}</p>
             </div>
-            <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+            <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
               row.tone === 'green'
-                ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                ? 'bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400'
                 : row.tone === 'red'
-                  ? 'bg-red-500/10 text-red-600 dark:text-[#ffb4ab]'
-                  : 'text-zinc-600 dark:text-[#bbc9cf]'
+                  ? 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
+                  : 'bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400'
             }`}>
               {row.badge}
             </span>

@@ -39,13 +39,15 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
   const stageInfo = STAGE_CONFIG[currentStage];
 
   return (
-    <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800/60 rounded-2xl overflow-hidden transition-colors duration-300">
+    <div className="ecg-glass overflow-hidden transition-all duration-300">
 
       {/* Card Header */}
-      <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800/60 bg-zinc-50 dark:bg-zinc-900/40 flex items-center justify-between transition-colors duration-300">
-        <div className="flex items-center gap-2">
-          <Upload className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-          <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Upload ECG Record</h3>
+      <div className="px-6 py-5 border-b border-gray-100 dark:border-zinc-800/80 bg-white/40 dark:bg-zinc-900/40 flex items-center justify-between transition-colors duration-300">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-500/20">
+            <Upload className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-100 tracking-tight">Upload ECG Record</h3>
         </div>
         <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-widest
           px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-full">

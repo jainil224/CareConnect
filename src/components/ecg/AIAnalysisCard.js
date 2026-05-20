@@ -90,7 +90,7 @@ export default function AIAnalysisCard({ summary, recommendations = [], isProces
   const hasRecommendations = recommendations && recommendations.length > 0;
 
   return (
-    <div className="bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+    <div className="ecg-glass p-6 relative overflow-hidden transition-all duration-300">
       
       {/* Dynamic staggered anim entry */}
       <style>{`
@@ -104,11 +104,11 @@ export default function AIAnalysisCard({ summary, recommendations = [], isProces
         }
       `}</style>
 
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-          <Brain className={`w-6 h-6 text-cyan-400 ${isProcessing ? 'animate-pulse' : ''}`} />
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-500/20">
+          <Brain className={`w-6 h-6 text-cyan-600 dark:text-cyan-400 ${isProcessing ? 'animate-pulse' : ''}`} />
         </div>
-        <h3 className="text-lg font-semibold text-blue-100">AI Medical Summary</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-100 tracking-tight">AI Medical Summary</h3>
       </div>
 
       <div className="min-h-[160px] bg-zinc-900/50 border border-zinc-800/40 rounded-xl p-5 relative">
