@@ -2,15 +2,10 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import {
   Activity,
-  Bell,
-  CheckCircle2,
-  Database,
   FileText,
   HeartPulse,
   History,
-  MonitorDot,
-  Shield,
-  Sparkles
+  MonitorDot
 } from 'lucide-react';
 import ECGUploadCard from '../components/ecg/ECGUploadCard';
 import ECGResultCard from '../components/ecg/ECGResultCard';
@@ -268,40 +263,11 @@ export default function ECGPrediction() {
             </div>
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <StatusPill color="green" label="100% Offline" icon={<Shield className="h-3.5 w-3.5" />} />
-            <StatusPill color="cyan" label="scikit-learn ML" icon={<Sparkles className="h-3.5 w-3.5" />} />
-            <button className="rounded-full border border-[#3c494e] p-2 text-[#bbc9cf] transition hover:border-cyan-300/40 hover:text-[#a4e6ff]">
-              <Bell className="h-4 w-4" />
-            </button>
-            <button className="rounded-full border border-[#3c494e] p-2 text-[#bbc9cf] transition hover:border-cyan-300/40 hover:text-[#a4e6ff]">
-              <Database className="h-4 w-4" />
-            </button>
-          </div>
+          <div />
         </div>
       </section>
 
       <main className="mx-auto max-w-[1600px] px-5 py-8">
-        <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-[#a4e6ff]">
-              Diagnostics Dashboard
-            </p>
-            <h2 className="text-2xl font-semibold text-white sm:text-3xl">
-              {patientInfo.name ? `${patientInfo.name} | ECG Review` : 'Patient #8842-X | Ward 4B'}
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#bbc9cf]/75">
-              Review clinical parameters, monitor rhythm changes, and generate a local AI risk assessment.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[620px]">
-            <ProgressStep step="01" label="Upload ECG File" active complete />
-            <ProgressStep step="02" label="Review Parameters" active={Boolean(result) || isProcessing} />
-            <ProgressStep step="03" label="Get Prediction" active={Boolean(result)} />
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
           <aside className="space-y-4 xl:col-span-4">
             <ECGUploadCard
@@ -366,34 +332,6 @@ export default function ECGPrediction() {
       </main>
 
       <EmergencyAlert isOpen={showEmergency} onClose={() => setShowEmergency(false)} />
-    </div>
-  );
-}
-
-function StatusPill({ color, icon, label }) {
-  const colorClass = color === 'green'
-    ? 'border-green-500/20 bg-green-500/10 text-green-400'
-    : 'border-cyan-300/20 bg-cyan-300/10 text-[#a4e6ff]';
-
-  return (
-    <div className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider ${colorClass}`}>
-      {icon}
-      <span>{label}</span>
-    </div>
-  );
-}
-
-function ProgressStep({ step, label, active, complete }) {
-  return (
-    <div className={`ecg-glass relative overflow-hidden rounded-xl p-4 ${active ? 'border-cyan-300/30' : 'opacity-55'}`}>
-      <div className="mb-2 flex items-center justify-between">
-        <span className={active ? 'font-mono text-xl font-bold text-[#a4e6ff]' : 'font-mono text-xl font-bold text-[#bbc9cf]'}>
-          {step}
-        </span>
-        {complete && <CheckCircle2 className="h-4 w-4 text-[#a4e6ff]" />}
-      </div>
-      <p className="text-[10px] font-bold uppercase tracking-wider text-[#e5e2e1]">{label}</p>
-      <div className={`absolute bottom-0 left-0 h-1 ${active ? 'w-full bg-[#00d1ff]' : 'w-1/2 bg-[#353534]'}`} />
     </div>
   );
 }
