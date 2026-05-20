@@ -212,6 +212,22 @@ function ReportUpload() {
     URL.revokeObjectURL(url);
   };
 
+  const renderItem = (item) => {
+    if (typeof item === 'string') return item;
+    if (typeof item === 'object' && item !== null) {
+      if (item.metric && item.value) return `${item.metric}: ${item.value} ${item.unit || ''} ${item.category ? `[${item.category}]` : ''}`.trim();
+      if (item.target && item.advice) return `${item.target}: ${item.advice} ${item.followUp ? `(Follow-up: ${item.followUp})` : ''}`;
+      if (item.metric && item.total) return `${item.metric}: Total ${item.total}, HDL ${item.HDL || ''}, LDL ${item.LDL || ''}`;
+      
+      // Generic fallback for any other object shape returned by the AI
+      return Object.entries(item)
+        .filter(([_, v]) => typeof v !== 'object')
+        .map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`)
+        .join(' | ');
+    }
+    return String(item);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
@@ -324,7 +340,7 @@ function ReportUpload() {
               <ul className="space-y-2">
                 {analysis.keyFindings?.map((finding, index) => (
                   <li key={index} className="bg-gray-50 dark:bg-gray-700 p-2 rounded text-sm text-gray-700 dark:text-gray-300">
-                    {finding}
+                    {renderItem(finding)}
                   </li>
                 ))}
               </ul>
@@ -335,7 +351,7 @@ function ReportUpload() {
               <ul className="space-y-2">
                 {analysis.recommendations?.map((rec, index) => (
                   <li key={index} className="bg-green-50 dark:bg-green-900/20 p-2 rounded text-sm text-gray-700 dark:text-gray-300">
-                    {rec}
+                    {renderItem(rec)}
                   </li>
                 ))}
               </ul>
@@ -347,7 +363,7 @@ function ReportUpload() {
                 <ul className="space-y-2">
                   {analysis.normalValues?.map((value, index) => (
                     <li key={index} className="bg-gray-50 dark:bg-gray-700 p-2 rounded text-sm text-gray-700 dark:text-gray-300">
-                      {value}
+                      {renderItem(value)}
                     </li>
                   ))}
                 </ul>
