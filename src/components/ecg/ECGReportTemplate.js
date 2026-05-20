@@ -1,7 +1,7 @@
 import React from 'react';
 import { Activity, Heart, ShieldAlert, CheckCircle, AlertTriangle } from 'lucide-react';
 
-export default function ECGReportTemplate({ result, features, summary }) {
+export default function ECGReportTemplate({ result, features, summary, recommendations = [] }) {
   // Safe parsing
   const isHighRisk = result?.prediction !== "Normal";
   const confidence = result?.risk_probability || "0%";
@@ -155,20 +155,15 @@ export default function ECGReportTemplate({ result, features, summary }) {
           <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest border-l-2 border-cyan-500 pl-2 mb-2">Cardiac Recommendations</h2>
           <div className="bg-[#1c1b1b]/40 p-3 rounded-lg border border-zinc-800/40">
             <ul className="space-y-2">
-              {isHighRisk ? (
-                <>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Immediate cardiology consultation strongly recommended.</li>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Schedule an echocardiogram and a stress test as soon as possible.</li>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Monitor cardiovascular metrics daily and keep a detailed log.</li>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Avoid strenuous physical activity until cleared by a physician.</li>
-                </>
+              {recommendations && recommendations.length > 0 ? (
+                recommendations.map((rec, idx) => (
+                  <li key={idx} className="flex items-start text-[10px] text-zinc-300">
+                    <CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0 mt-0.5" /> 
+                    <span>{rec}</span>
+                  </li>
+                ))
               ) : (
-                <>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Maintain current healthy cardiovascular lifestyle habits.</li>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Continue regular aerobic exercise (e.g., 30 mins walking/day).</li>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Ensure balanced diet to maintain healthy cholesterol levels.</li>
-                  <li className="flex items-start text-[10px] text-zinc-300"><CheckCircle className="w-3.5 h-3.5 mr-2 text-cyan-500 shrink-0" /> Schedule standard annual check-ups.</li>
-                </>
+                <li className="flex items-start text-[10px] text-zinc-500 italic">No specific recommendations available.</li>
               )}
             </ul>
           </div>

@@ -54,7 +54,7 @@ export default function AIAnalysisCard({ summary, recommendations = [], isProces
       await new Promise(resolve => {
         root.render(
           <div id="pdf-wrapper">
-            <ECGReportTemplate result={result} features={features} summary={summary} />
+            <ECGReportTemplate result={result} features={features} summary={summary} recommendations={recommendations} />
           </div>
         );
         // Give React a moment to flush to DOM
