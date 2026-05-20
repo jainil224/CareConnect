@@ -521,7 +521,7 @@ function Dashboard() {
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Heartbeat</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 dark:text-zinc-150 tracking-tight">{metrics.heartbeat}</span>
+                <span className="text-4xl font-black text-gray-800 dark:text-white tracking-tight">{metrics.heartbeat}</span>
                 <span className="text-sm font-semibold text-gray-500">bpm</span>
               </div>
             </div>
@@ -548,7 +548,7 @@ function Dashboard() {
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">R-R Interval</p>
                 <div className="flex items-baseline space-x-1 mt-1.5">
-                  <span className="text-2xl font-black text-gray-800 dark:text-zinc-150">{metrics.rr}</span>
+                  <span className="text-2xl font-black text-gray-800 dark:text-white">{metrics.rr}</span>
                   <span className="text-xs font-semibold text-gray-500">sec</span>
                 </div>
               </div>
@@ -566,7 +566,7 @@ function Dashboard() {
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Blood Status</p>
                 <div className="flex items-baseline space-x-0.5 mt-1.5">
-                  <span className="text-2xl font-black text-gray-800 dark:text-zinc-150">{metrics.bp}</span>
+                  <span className="text-2xl font-black text-gray-800 dark:text-white">{metrics.bp}</span>
                   <span className="text-[10px] font-semibold text-gray-500">mmHg</span>
                 </div>
               </div>
@@ -602,7 +602,7 @@ function Dashboard() {
 
           <div className="w-full text-center">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Visualizer</span>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-150 mt-1">{organMap[activeOrgan].label} Health</h3>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mt-1">{organMap[activeOrgan].label} Health</h3>
           </div>
 
           {/* Centered Organ Component with Switcher Animation */}
@@ -642,7 +642,7 @@ function Dashboard() {
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Glucose Level</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 dark:text-zinc-150 tracking-tight">{metrics.glucose}</span>
+                <span className="text-4xl font-black text-gray-800 dark:text-white tracking-tight">{metrics.glucose}</span>
                 <span className="text-sm font-semibold text-gray-500">/ml</span>
               </div>
             </div>
@@ -669,7 +669,7 @@ function Dashboard() {
               </span>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Blood Count</p>
               <div className="flex items-baseline space-x-1 mt-2">
-                <span className="text-4xl font-black text-gray-800 dark:text-zinc-150 tracking-tight">{metrics.bloodCount}</span>
+                <span className="text-4xl font-black text-gray-800 dark:text-white tracking-tight">{metrics.bloodCount}</span>
                 <span className="text-xs font-bold text-gray-400">k/µL</span>
               </div>
             </div>
@@ -732,7 +732,7 @@ function Dashboard() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-all duration-300">
           <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-zinc-150 tracking-tight">Chart Details</h3>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight">Chart Details</h3>
               <button 
                 onClick={() => setSelectedChart(null)}
                 className="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 flex items-center justify-center font-bold text-sm transition-all"
@@ -772,7 +772,7 @@ function Dashboard() {
               </div>
               
               <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
-                <h4 className="font-bold text-gray-800 dark:text-zinc-150 text-sm mb-2.5">Recommendations:</h4>
+                <h4 className="font-bold text-gray-800 dark:text-white text-sm mb-2.5">Recommendations:</h4>
                 <ul className="text-xs text-gray-500 dark:text-zinc-400 space-y-2">
                   {selectedChart.chartType === 'health' ? (
                     selectedChart.data.value > 85 ? [
