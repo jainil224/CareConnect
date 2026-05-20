@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
@@ -18,4 +18,10 @@ export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : nul
 
 // Export authentication instances
 export const auth = getAuth(app);
+
+// Explicitly enforce local persistence so users stay logged in indefinitely until they hit logout
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Auth persistence setup error:", error);
+});
+
 export const googleProvider = new GoogleAuthProvider();

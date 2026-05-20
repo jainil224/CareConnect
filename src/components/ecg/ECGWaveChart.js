@@ -1,293 +1,242 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Activity, Heart } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
 
-export default function ECGWaveChart({ isProcessing, heartRate = 0, rhythmType = "Normal", waveformPattern = "normal" }) {
+export default function ECGWaveChart({ isProcessing, heartRate = 75, rhythmType = "Normal", waveformPattern = "normal" }) {
   const canvasRef = useRef(null);
-  const [liveBpm, setLiveBpm] = useState(heartRate);
-  const [flash, setFlash] = useState(false);
-
-  // Sync state heart rate changes
-  useEffect(() => {
-    setLiveBpm(heartRate);
-  }, [heartRate]);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
-    // Auto scale to match high-DPI displays
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Handle high-density (Retina) screens with responsive boundaries
     const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * window.devicePixelRatio;
-      canvas.height = rect.height * window.devicePixelRatio;
-      const ctx = canvas.getContext('2d');
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      if (containerRef.current && canvas) {
+        const rect = containerRef.current.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = 240; // Proportional height (matches reference ratio)
+      }
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const ctx = canvas.getContext('2d');
     let animationId;
+    let xCoord = 0; // Current write sweep head x-position
     
-    // Waveform parameters
-    const width = canvas.width / window.devicePixelRatio;
-    const height = canvas.height / window.devicePixelRatio;
-    const baseline = height / 2;
+    // Store rendering history for the continuous display sweep
+    const historyPoints = new Array(1200).fill(120);
     
-    // Keep a buffer of Y coordinates
-    const bufferSize = Math.floor(width);
-    const dataBuffer = new Array(bufferSize).fill(baseline);
+    // Continuous internal cardiac generator cycle phase
+    let timeAcc = 0; 
     
-    let scanX = 0;
-    const scanSpeed = 3.5; // pixels per frame
+    // Configurable constants
+    const sweepSpeed = 2.0; // Horizontal pixel step rate per frame
+    const blankingGap = 45; // Width of the visual blanking erase gap (px)
 
-    // PQRST waveforms templates (normalized 0 to 1, where 0.5 is baseline)
-    const normalPQRST = [
-      0.5, 0.5, 0.51, 0.52, 0.51, 0.5,       // P wave
-      0.5, 0.49, 0.48, 0.5,                   // PR segment
-      0.44, 0.2, 0.85, 0.5, 0.35, 0.5,        // QRS spike
-      0.5, 0.51, 0.53, 0.51, 0.5,             // ST + T wave
-      0.5, 0.5, 0.5, 0.5, 0.5                 // Baseline
-    ];
+    const render = () => {
+      if (!canvas || !ctx) return;
 
-    const stDepPQRST = [
-      0.5, 0.5, 0.51, 0.52, 0.51, 0.5,
-      0.5, 0.49, 0.48, 0.5,
-      0.44, 0.2, 0.85, 0.5, 0.35, 0.5,
-      0.62, 0.62, 0.58, 0.54, 0.5,            // ST Segment depressed below baseline (0.5)
-      0.5, 0.5, 0.5, 0.5, 0.5
-    ];
+      const width = canvas.width;
+      const height = canvas.height;
 
-    let currentWaveIndex = 0;
-    let waveInProgress = false;
-    let msSinceLastBeat = 0;
-    let lastTime = performance.now();
+      // 1. Calculations: Progress Sweep Head & Generate Next Mathematical ECG Voltages
+      const targetX = (xCoord + sweepSpeed) % width;
+      const segmentCount = Math.round(sweepSpeed);
 
-    // Sound/visual beat trigger
-    const triggerBeatFlash = () => {
-      setFlash(true);
-      setTimeout(() => setFlash(false), 120);
-    };
+      for (let i = 0; i < segmentCount; i++) {
+        const currentSubX = (xCoord + (i * sweepSpeed) / segmentCount) % width;
+        const index = Math.floor(currentSubX);
 
-    // Core Animation loop
-    const animate = (timestamp) => {
-      const elapsed = timestamp - lastTime;
-      lastTime = timestamp;
+        // Map BPM to active simulation time
+        // If processing or no heart rate, default to 75
+        const currentBpm = (isProcessing || !heartRate) ? 75 : heartRate;
+        
+        // Add random jitter if AFIB
+        const isAfib = waveformPattern.toLowerCase() === 'afib' && !isProcessing;
+        const activeBpm = isAfib ? currentBpm + (Math.random() * 20 - 10) : currentBpm;
 
-      // Render a perfectly flat straight line if liveBpm is 0, empty or falsy and not processing
-      if ((!liveBpm || liveBpm === 0) && !isProcessing) {
-        const steps = Math.ceil(scanSpeed);
-        for (let i = 0; i < steps; i++) {
-          const targetIdx = Math.floor(scanX);
-          if (targetIdx < bufferSize) {
-            dataBuffer[targetIdx] = baseline;
-          }
-          scanX += 1;
-          if (scanX >= bufferSize) {
-            scanX = 0;
-          }
-        }
-      } else {
-        const currentBpm = isProcessing ? 75 : liveBpm;
-        const beatIntervalMs = 60000 / currentBpm;
-        msSinceLastBeat += elapsed;
+        const bps = activeBpm / 60;
+        const cycleDurationMs = 1000 / bps;
+        timeAcc += (16.67 / cycleDurationMs); // Normalized delta assuming ~60fps
+        const phase = timeAcc % 1.0;
 
-        // Rhythm conditions & irregularities
-        const pattern = isProcessing ? "normal" : waveformPattern.toLowerCase();
-        let isBeatDue = msSinceLastBeat >= beatIntervalMs;
+        let voltage = 0; // Microvolts baseline offset
+        const isStDepression = waveformPattern.toLowerCase() === 'stdepression' && !isProcessing;
 
-        // Introduce slight spacing irregularity if AFIB is active
-        if (pattern === 'afib') {
-          const jitter = (Math.random() - 0.5) * (beatIntervalMs * 0.4);
-          isBeatDue = msSinceLastBeat >= (beatIntervalMs + jitter);
-        }
-
-        if (isBeatDue && !waveInProgress) {
-          waveInProgress = true;
-          currentWaveIndex = 0;
-          msSinceLastBeat = 0;
-          triggerBeatFlash();
-        }
-
-        // Generate coordinates
-        const steps = Math.ceil(scanSpeed);
-        for (let i = 0; i < steps; i++) {
-          const targetIdx = Math.floor(scanX);
-          if (targetIdx >= bufferSize) continue;
-
-          let targetY = baseline;
-
-          if (waveInProgress) {
-            let template = normalPQRST;
-            if (pattern === 'stdepression') {
-              template = stDepPQRST;
-            } else if (pattern === 'afib') {
-              template = [
-                0.5, 0.49, 0.52, 0.47, 0.53, 0.48, 0.51, 0.49,
-                0.44, 0.25, 0.8, 0.5, 0.38, 0.52, 0.48, 0.53,
-                0.49, 0.51, 0.47, 0.52, 0.5, 0.49, 0.51
-              ];
-            }
-
-            if (currentWaveIndex < template.length) {
-              const rawVal = template[currentWaveIndex];
-              const noise = (Math.random() - 0.5) * 0.015;
-              targetY = baseline + ((rawVal - 0.5) * (height * 0.7)) + (noise * height);
-              currentWaveIndex++;
+        if (isProcessing && (!heartRate || heartRate === 0)) {
+           // Flatline or processing noise
+           voltage = (Math.random() - 0.5) * 5;
+        } else {
+          // High-fidelity standard Lead II mathematical ECG wave model (P, Q, R, S, T)
+          if (phase >= 0.05 && phase < 0.15) {
+            // P Wave (Atrial Depolarization)
+            // If AFIB, no distinct P wave, instead fibrillatory waves
+            if (isAfib) {
+              voltage = Math.sin(phase * Math.PI * 40) * 4;
             } else {
-              waveInProgress = false;
+              const pPhase = (phase - 0.05) / 0.10;
+              voltage = Math.sin(pPhase * Math.PI) * 10;
             }
+          } else if (phase >= 0.15 && phase < 0.22) {
+            // PR Segment (Baseline)
+            voltage = isAfib ? Math.sin(phase * Math.PI * 40) * 3 : 0;
+          } else if (phase >= 0.22 && phase < 0.24) {
+            // Q Wave (Septal Depolarization - Brief Negative Dip)
+            const qPhase = (phase - 0.22) / 0.02;
+            voltage = -Math.sin(qPhase * Math.PI) * 12;
+          } else if (phase >= 0.24 && phase < 0.28) {
+            // R Wave (Ventricular Depolarization - Tall Positive Spike)
+            const rPhase = (phase - 0.24) / 0.04;
+            voltage = Math.sin(rPhase * Math.PI) * 98;
+          } else if (phase >= 0.28 && phase < 0.31) {
+            // S Wave (Posterobasal Depolarization - Deep Negative Dip)
+            const sPhase = (phase - 0.28) / 0.03;
+            voltage = -Math.sin(sPhase * Math.PI) * 32;
+          } else if (phase >= 0.31 && phase < 0.38) {
+            // ST Segment (Baseline or Depressed)
+            voltage = isStDepression ? -15 : 0;
+          } else if (phase >= 0.38 && phase < 0.53) {
+            // T Wave (Ventricular Repolarization - Smooth Broad Wave)
+            const tPhase = (phase - 0.38) / 0.15;
+            // If ST Depression, T wave might be inverted or flattened, but we'll just keep it or lower it slightly
+            voltage = isStDepression ? Math.sin(tPhase * Math.PI) * 10 - 15 : Math.sin(tPhase * Math.PI) * 24;
           } else {
-            const noise = (Math.random() - 0.5) * 0.012;
-            targetY = baseline + (noise * height);
-          }
-
-          dataBuffer[targetIdx] = targetY;
-
-          scanX += 1;
-          if (scanX >= bufferSize) {
-            scanX = 0;
+            // TP Interval (Resting Electrical Baseline)
+            voltage = isAfib ? Math.sin(phase * Math.PI * 30) * 3 : 0;
           }
         }
+
+        // Add high-frequency muscular micro-vibration & baseline wander for organic realism
+        const baselineWander = Math.sin(timeAcc * 0.02) * 5;
+        const finalY = (height / 2) - (voltage + baselineWander);
+        historyPoints[index] = finalY;
       }
 
-      // 3. Draw standard Clinical ECG Grid Background
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#09090b'; // True site black
+      xCoord = targetX;
+
+      // 2. Painting: Render Pink Millimetric Clinical ECG Grid
+      ctx.fillStyle = '#fff5f5'; // Light clinical pink paper background
       ctx.fillRect(0, 0, width, height);
 
-      // Grid line configurations
+      // Minor grids (5px intervals)
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.08)';
       ctx.lineWidth = 0.5;
-      const gridSpacing = 20;
-
-      // Small vertical & horizontal grid lines (blue-tinted, matching site palette)
-      for (let x = 0; x < width; x += gridSpacing) {
-        ctx.strokeStyle = (x % (gridSpacing * 5) === 0) ? 'rgba(59,130,246,0.18)' : 'rgba(59,130,246,0.05)';
-        ctx.lineWidth = (x % (gridSpacing * 5) === 0) ? 1.0 : 0.5;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
+      for (let gx = 0; gx < width; gx += 5) {
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, height);
       }
-
-      for (let y = 0; y < height; y += gridSpacing) {
-        ctx.strokeStyle = (y % (gridSpacing * 5) === 0) ? 'rgba(59,130,246,0.18)' : 'rgba(59,130,246,0.05)';
-        ctx.lineWidth = (y % (gridSpacing * 5) === 0) ? 1.0 : 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
+      for (let gy = 0; gy < height; gy += 5) {
+        ctx.moveTo(0, gy);
+        ctx.lineTo(width, gy);
       }
+      ctx.stroke();
 
-      // 4. Draw Animated blue ECG line with soft glow
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = 'rgba(96,165,250,0.8)';
-      ctx.strokeStyle = '#60a5fa';
-      ctx.lineWidth = 2.0;
+      // Major grids (25px intervals)
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.22)';
+      ctx.lineWidth = 1.0;
+      for (let gx = 0; gx < width; gx += 25) {
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, height);
+      }
+      for (let gy = 0; gy < height; gy += 25) {
+        ctx.moveTo(0, gy);
+        ctx.lineTo(width, gy);
+      }
+      ctx.stroke();
+
+      // 3. Painting: Render Sweep Waveform (excluding current blanking window)
+      ctx.beginPath();
+      ctx.lineWidth = 2.4;
+      ctx.strokeStyle = '#004ac6'; // Cobalt clinical blue waveform line
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
-      // We draw in two separate paths split at the scanX to prevent joining at wrapping edge
-      const drawRange = (start, end) => {
-        if (start >= end) return;
-        ctx.beginPath();
-        ctx.moveTo(start, dataBuffer[start]);
-        for (let x = start + 1; x < end; x++) {
-          ctx.lineTo(x, dataBuffer[x]);
+      let isDrawingLine = false;
+
+      for (let px = 0; px < width; px++) {
+        // Evaluate if pixel falls inside the moving blanking gap zone
+        const inBlankingGap = (px >= xCoord && px < xCoord + blankingGap) ||
+          (xCoord + blankingGap > width && (px >= xCoord || px < (xCoord + blankingGap) % width));
+
+        if (inBlankingGap) {
+          isDrawingLine = false;
+          continue;
         }
-        ctx.stroke();
-      };
 
-      const gap = 12; // visual gap right in front of scan sweep bar
-      const firstSectionEnd = Math.max(0, Math.floor(scanX) - gap);
-      const secondSectionStart = Math.min(bufferSize, Math.floor(scanX) + 1);
+        const py = historyPoints[px] !== undefined ? historyPoints[px] : height / 2;
 
-      drawRange(0, firstSectionEnd);
-      drawRange(secondSectionStart, bufferSize);
+        if (!isDrawingLine) {
+          ctx.moveTo(px, py);
+          isDrawingLine = true;
+        } else {
+          ctx.lineTo(px, py);
+        }
+      }
+      ctx.stroke();
 
-      // Reset shadows for scan line sweeps
-      ctx.shadowBlur = 0;
+      // 4. Painting: Render Sweep Head Circular Dot
+      ctx.beginPath();
+      ctx.fillStyle = '#004ac6'; // Match dot color to blue trace line
+      const activeHeadY = historyPoints[Math.floor(xCoord)] || height / 2;
+      ctx.arc(xCoord, activeHeadY, 5, 0, 2 * Math.PI);
+      ctx.fill();
 
-      // 5. Draw scanning sweep bar
-      const grad = ctx.createLinearGradient(scanX - gap, 0, scanX, 0);
-      grad.addColorStop(0, 'rgba(59,130,246,0)');
-      grad.addColorStop(0.8, 'rgba(59,130,246,0.18)');
-      grad.addColorStop(1, 'rgba(96,165,250,0.7)');
-
-      ctx.fillStyle = grad;
-      ctx.fillRect(Math.max(0, scanX - gap), 0, Math.min(gap, scanX), height);
-
-      animationId = requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(render);
     };
 
-    animationId = requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, [liveBpm, isProcessing, waveformPattern]);
-
-  const flashColor = flash ? 'text-blue-400 scale-110' : 'text-zinc-700 scale-100';
+  }, [isProcessing, heartRate, waveformPattern]);
 
   return (
-    <div className="bg-zinc-950 border border-zinc-800/60 rounded-2xl overflow-hidden">
-
-      {/* Card Header */}
-      <div className="px-5 py-4 border-b border-zinc-800/60 bg-zinc-900/40 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-blue-400" />
-          <h3 className="text-sm font-bold text-white">Live ECG Monitor</h3>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-            Lead II
+    <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg p-1 relative">
+      {/* Absolute Overlays for UI */}
+      {/* Floating BPM */}
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80">
+        <svg className={`w-4 h-4 transition-all duration-100 text-blue-400`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-black text-white leading-none">
+            {isProcessing ? '--' : (heartRate || '--')}
           </span>
-          <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
-            25 mm/s
-          </span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase">BPM</span>
         </div>
       </div>
 
-      {/* Canvas Area */}
-      <div className="relative" style={{ height: '220px' }}>
-        <canvas ref={canvasRef} className="w-full h-full block" />
-
-        {/* Floating BPM */}
-        <div className="absolute top-3 left-4 z-10 flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-zinc-800/70">
-          <Heart className={`w-4 h-4 transition-all duration-100 ${flashColor}`} fill={flash ? '#60a5fa' : 'none'} />
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl font-black text-white leading-none">
-              {isProcessing ? '--' : (liveBpm || '--')}
-            </span>
-            <span className="text-[10px] font-bold text-zinc-500 uppercase">BPM</span>
-          </div>
+      {/* Rhythm badge */}
+      {!isProcessing && (
+        <div className="absolute bottom-4 left-4 z-10 bg-black/70 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700/80 flex items-center gap-2">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rhythm:</span>
+          <span className={`text-[11px] font-bold uppercase tracking-wide ${
+            rhythmType.toLowerCase().includes('normal')
+              ? 'text-green-400'
+              : 'text-rose-400 animate-pulse'
+          }`}>
+            {rhythmType}
+          </span>
         </div>
+      )}
 
-        {/* Rhythm badge */}
-        {!isProcessing && (
-          <div className="absolute bottom-3 left-4 z-10 bg-black/70 backdrop-blur-md px-3 py-1 rounded-lg border border-zinc-800/70 flex items-center gap-2">
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Rhythm:</span>
-            <span className={`text-[11px] font-bold uppercase tracking-wide ${
-              rhythmType.toLowerCase().includes('normal')
-                ? 'text-green-400'
-                : 'text-rose-400 animate-pulse'
-            }`}>
-              {rhythmType}
-            </span>
-          </div>
-        )}
+      {/* Processing overlay */}
+      {isProcessing && (
+        <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-20">
+          <div className="w-12 h-12 border-[3px] border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-3" />
+          <p className="text-sm font-medium text-blue-400 animate-pulse">Analyzing waveform…</p>
+        </div>
+      )}
 
-        {/* Processing overlay */}
-        {isProcessing && (
-          <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-            <div className="w-12 h-12 border-[3px] border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-3" />
-            <p className="text-sm font-medium text-blue-400 animate-pulse">Analyzing waveform…</p>
-          </div>
-        )}
+      {/* Waveform Viewport Port */}
+      <div ref={containerRef} className="w-full relative h-[240px] bg-slate-950">
+        <canvas ref={canvasRef} className="w-full h-full block" />
       </div>
     </div>
   );

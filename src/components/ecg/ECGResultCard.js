@@ -22,17 +22,8 @@ function IntervalBadge({ label, value, unit = 'ms', status }) {
 }
 
 export default function ECGResultCard({ result, probability, riskLabel, waveformIntervals, isFallback }) {
-  const [animateState, setAnimateState] = useState(false);
   const isHighRisk = result !== 'Normal' || (riskLabel && riskLabel.toLowerCase() === 'critical');
   const numProbability = parseFloat(probability) || 0;
-
-  useEffect(() => {
-    if (result) {
-      setAnimateState(true);
-      const timer = setTimeout(() => setAnimateState(false), 900);
-      return () => clearTimeout(timer);
-    }
-  }, [result]);
 
   const activeLabel = riskLabel || (isHighRisk ? 'Critical' : 'Healthy');
   const normLabel = activeLabel.toLowerCase();
@@ -76,8 +67,6 @@ export default function ECGResultCard({ result, probability, riskLabel, waveform
     confidenceBarColor = 'from-red-500 to-rose-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]';
   }
 
-  const bounceClass = animateState ? 'scale-110 rotate-1 ease-out duration-300' : 'scale-100 rotate-0 ease-in duration-200';
-
   // Determine which intervals to display
   const intervals = waveformIntervals;
   const classifications = intervals?._classifications || {};
@@ -91,14 +80,6 @@ export default function ECGResultCard({ result, probability, riskLabel, waveform
 
       {/* Animation styles */}
       <style>{`
-        @keyframes scale-up-bounce {
-          0% { transform: scale(0.9); }
-          50% { transform: scale(1.08); }
-          100% { transform: scale(1); }
-        }
-        .bounce-updater {
-          animation: scale-up-bounce 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
         @keyframes interval-slide-in {
           from { opacity: 0; transform: translateY(6px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -130,11 +111,11 @@ export default function ECGResultCard({ result, probability, riskLabel, waveform
         </span>
       </div>
 
-      <div className={`flex flex-col items-center justify-center space-y-4 py-4 relative z-10 transition-transform ${bounceClass}`}>
+      <div className="flex flex-col items-center justify-center space-y-4 py-4 relative z-10">
 
         {/* Status icon */}
         <div
-          className={`p-4.5 rounded-full bg-gradient-to-br ${statusColor} bg-opacity-20 backdrop-blur-md border border-white/10 shadow-lg transition-transform duration-300 ${animateState ? 'bounce-updater' : ''}`}
+          className={`p-4.5 rounded-full bg-gradient-to-br ${statusColor} bg-opacity-20 backdrop-blur-md border border-white/10 shadow-lg`}
           style={{ boxShadow: `0 0 35px ${glowColor}` }}
         >
           <Icon className="w-11 h-11 text-white" />

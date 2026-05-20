@@ -12,7 +12,7 @@ function Header() {
   const { currentUser, logout } = useAuth();
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Dashboard' },
+    { path: '/dashboard', icon: Home, label: 'Dashboard' },
     { path: '/upload', icon: Upload, label: 'Upload Report' },
     { path: '/health-data', icon: BarChart, label: 'Health Data' },
     { path: '/facilities', icon: MapPin, label: 'Find Facilities' },
