@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Upload, MapPin, MessageCircle, Home, Moon, Sun, BarChart, LogOut } from 'lucide-react';
+import { Activity, Upload, MapPin, MessageCircle, Home, Moon, Sun, BarChart, LogOut, User } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -29,51 +29,66 @@ function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-[#09090b] border-b border-transparent dark:border-zinc-800/80 shadow-lg transition-colors absolute w-full z-10">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2">
-            <Activity className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-bold text-gray-800 dark:text-white">CareConnect</h1>
+    <header className="fixed top-0 w-full z-50 transition-all duration-500 bg-white/80 dark:bg-[#060608]/70 backdrop-blur-2xl border-b border-zinc-200/50 dark:border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_40px_rgba(0,0,0,0.5)]">
+      <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+        
+        {/* Logo Section */}
+        <Link to="/" className="flex items-center space-x-3 group">
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_15px_rgba(6,182,212,0.4)] group-hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] transition-all duration-300">
+            <Activity className="h-5 w-5 text-white animate-pulse" />
           </div>
-          
-          <div className="flex items-center space-x-4">
-            <nav className="flex space-x-8">
-              {navItems.map(({ path, icon: Icon, label }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    location.pathname === path
-                      ? 'text-primary bg-blue-50 dark:bg-zinc-800/50'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-zinc-800/60'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{label}</span>
-                </Link>
-              ))}
-            </nav>
-            
-            <div className="flex items-center space-x-2 border-l border-gray-200 dark:border-zinc-800 pl-4 ml-4">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300 mr-2 hidden sm:block">
-                {currentUser?.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-                title="Logout"
+          <h1 className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-zinc-400 group-hover:from-cyan-400 group-hover:to-blue-500 transition-all duration-300">
+            CareConnect
+          </h1>
+        </Link>
+        
+        {/* Navigation Links */}
+        <nav className="hidden lg:flex items-center space-x-2 bg-zinc-100/50 dark:bg-black/40 p-1.5 rounded-2xl border border-zinc-200/50 dark:border-white/5 shadow-inner">
+          {navItems.map(({ path, icon: Icon, label }) => {
+            const isActive = location.pathname === path;
+            return (
+              <Link
+                key={path}
+                to={path}
+                className={`relative flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 overflow-hidden ${
+                  isActive
+                    ? 'text-cyan-400 bg-cyan-500/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_0_15px_rgba(6,182,212,0.15)] ring-1 ring-cyan-500/20'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-cyan-600 dark:hover:text-cyan-300 hover:bg-white/50 dark:hover:bg-white/5'
+                }`}
               >
-                <LogOut className="h-5 w-5" />
-              </button>
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
-                aria-label="Toggle theme"
-              >
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
+                <Icon className={`h-4 w-4 ${isActive ? 'drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : ''}`} />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+        
+        {/* Actions / User Profile Section */}
+        <div className="flex items-center space-x-4">
+          <div className="hidden sm:flex items-center space-x-3 bg-zinc-100/80 dark:bg-black/40 px-3 py-1.5 rounded-full border border-zinc-200/50 dark:border-white/5 shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-inner">
+              <User className="h-4 w-4 text-white" />
             </div>
+            <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 tracking-wide pr-2">
+              {currentUser?.email?.split('@')[0] || 'User'}
+            </span>
+          </div>
+
+          <div className="flex items-center space-x-2 border-l border-zinc-200 dark:border-zinc-800/80 pl-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-black/30 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-cyan-500 dark:hover:text-cyan-400 border border-transparent dark:border-white/5 transition-all duration-300 shadow-sm"
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="p-2.5 rounded-xl text-zinc-500 dark:text-zinc-400 bg-zinc-100/50 dark:bg-black/30 hover:bg-rose-100 dark:hover:bg-rose-500/10 hover:text-rose-500 dark:hover:text-rose-400 border border-transparent dark:border-white/5 hover:border-rose-500/20 transition-all duration-300 shadow-sm"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
