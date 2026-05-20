@@ -38,8 +38,9 @@ What health concerns would you like to discuss today?`,
   const getAIResponse = async (userMessage) => {
     try {
       const systemPrompt = `You are a helpful AI health assistant. Provide accurate, helpful medical information while being clear about your limitations. 
-      Always recommend consulting healthcare professionals for diagnosis and treatment. Be empathetic and informative.
-      Keep responses concise and focused on the user's health question.`;
+      Always recommend consulting healthcare professionals for diagnosis and treatment. 
+      CRITICAL INSTRUCTION: If the user reports severe, acute, or potentially life-threatening symptoms (such as "chest pain", "shortness of breath", "severe injury", etc.), you MUST explicitly advise them to seek immediate emergency medical care and highly recommend they use the "Find Facilities" tab in this application to quickly locate the nearest hospitals or urgent care centers.
+      Be empathetic and informative. Keep responses concise and focused on the user's health question.`;
       
       return await getMistralResponse(userMessage, systemPrompt);
     } catch (error) {
