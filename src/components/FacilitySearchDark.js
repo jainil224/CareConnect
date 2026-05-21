@@ -121,10 +121,10 @@ function FacilitySearch() {
             onChange={(e) => setFilters({...filters, type: e.target.value})}
             className="w-full px-4 py-2.5 bg-white/50 dark:bg-black/40 border border-gray-200 dark:border-white/10 dark:text-white rounded-xl focus:ring-2 focus:ring-cyan-500/50 transition-all shadow-inner"
           >
-            <option value="all">All Types</option>
-            <option value="hospital">Hospital</option>
-            <option value="clinic">Clinic</option>
-            <option value="laboratory">Laboratory</option>
+            <option value="all" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">All Types</option>
+            <option value="hospital" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">Hospital</option>
+            <option value="clinic" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">Clinic</option>
+            <option value="laboratory" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">Laboratory</option>
           </select>
 
           <div>
@@ -149,10 +149,10 @@ function FacilitySearch() {
               onChange={(e) => setFilters({...filters, rating: parseFloat(e.target.value)})}
               className="w-full px-3 py-2.5 bg-white/50 dark:bg-black/40 border border-gray-200 dark:border-white/10 dark:text-white rounded-xl focus:ring-2 focus:ring-cyan-500/50 transition-all shadow-inner text-sm"
             >
-              <option value="0">Any Rating</option>
-              <option value="3">3+ Stars</option>
-              <option value="4">4+ Stars</option>
-              <option value="4.5">4.5+ Stars</option>
+              <option value="0" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">Any Rating</option>
+              <option value="3" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">3+ Stars</option>
+              <option value="4" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">4+ Stars</option>
+              <option value="4.5" className="bg-white dark:bg-[#111116] text-gray-900 dark:text-white">4.5+ Stars</option>
             </select>
           </div>
         </div>
