@@ -11,6 +11,7 @@ import {
   WifiOff,
   Loader2,
   ArrowLeft,
+  RefreshCw,
 } from 'lucide-react';
 import ECGUploadCard from '../components/ecg/ECGUploadCard';
 import ECGResultCard from '../components/ecg/ECGResultCard';
@@ -138,6 +139,28 @@ export default function ECGPrediction() {
     setPatientInfo(info);
     setBackgroundFeatures(bg);
     return { info, bg };
+  };
+
+  // ── Reset handler ────────────────────────────────────────────────────────
+  const handleReset = () => {
+    setIsProcessing(false);
+    setCurrentStage('');
+    setResult(null);
+    setWaveformIntervals(null);
+    setPatientInfo({
+      name: '', gender: '', dob: '', height: '', weight: '',
+      heartRate: '', bloodPressure: ''
+    });
+    setBackgroundFeatures({
+      cp: '', chol: '', fbs: '', restecg: '',
+      exang: '', oldpeak: '', slope: '', ca: '', thal: ''
+    });
+    setSummary('');
+    setRecommendations([]);
+    setWaveformPattern('normal');
+    setRhythmType('Normal Sinus Rhythm');
+    setHeartRate(0);
+    setShowEmergency(false);
   };
 
   // ── File upload handler ──────────────────────────────────────────────────
@@ -340,8 +363,21 @@ export default function ECGPrediction() {
             </div>
           </div>
 
-          {/* Flask server status in header */}
-          <FlaskStatusBadge status={flaskStatus} />
+          <div className="flex items-center gap-3">
+            {/* Reset / Refresh button */}
+            {result && (
+              <button
+                onClick={handleReset}
+                className="flex items-center justify-center p-2 rounded-xl border border-gray-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-gray-600 dark:text-zinc-400 hover:text-cyan-600 dark:hover:text-cyan-400"
+                title="Refresh and upload new report"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            )}
+            
+            {/* Flask server status in header */}
+            <FlaskStatusBadge status={flaskStatus} />
+          </div>
         </div>
       </section>
 
