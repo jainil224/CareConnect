@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useHealth } from '../context/HealthContext';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Upload, Download, AlertCircle, CheckCircle, Loader, Brain, MapPin, Star, Phone } from 'lucide-react';
-import { analyzeMedicalReport } from '../utils/mistralAPI';
+import { analyzeMedicalReport, extractTextFromDocument } from '../utils/mistralAPI';
+import { fileToBase64 } from '../utils/fileToBase64';
+import { HealthReportResults } from './HealthReport/HealthReportResults';
 import { facilities } from '../data/facilities';
 import { detectReportType } from '../utils/ReportTypeDetector';
 import toast from 'react-hot-toast';
+import html2pdf from 'html2pdf.js';
 
 function ReportUpload() {
   const { dispatch } = useHealth();
@@ -34,6 +37,10 @@ function ReportUpload() {
 
       setFile(selectedFile);
       setError(null);
+      setReportProcessed(false);
+      setAnalysis(null);
+      setExtractedText('');
+      setRecommendedFacilities([]);
       
       // Create preview
       const reader = new FileReader();
@@ -52,24 +59,12 @@ function ReportUpload() {
     setError(null);
     
     try {
-      const generateSampleData = () => {
-        const bpSystolic = 110 + Math.floor(Math.random() * 30);
-        const bpDiastolic = 70 + Math.floor(Math.random() * 20);
-        const glucose = 85 + Math.floor(Math.random() * 40);
-        const heartRate = 60 + Math.floor(Math.random() * 40);
-        const totalChol = 150 + Math.floor(Math.random() * 80);
-        const hdl = 40 + Math.floor(Math.random() * 30);
-        const ldl = 80 + Math.floor(Math.random() * 60);
-        const bmi = 20 + Math.random() * 10;
-        
-        return {
-          bpSystolic, bpDiastolic, glucose, heartRate, totalChol, hdl, ldl, bmi: bmi.toFixed(1)
-        };
-      };
+      // 1. Extract text from the PDF or image using Mistral OCR
+      const base64 = await fileToBase64(file);
+      const mediaType = file.type || 'application/octet-stream';
+      const extractedOCRText = await extractTextFromDocument(base64, mediaType);
       
-      const sampleData = generateSampleData();
-      const text = `Medical Report Analysis\n\nPatient: Sample Patient\nDate: ${new Date().toLocaleDateString()}\nFile: ${file.name}\nType: ${file.type}\nSize: ${(file.size / 1024 / 1024).toFixed(2)} MB\n\nExtracted Health Metrics:\n- Blood Pressure: ${sampleData.bpSystolic}/${sampleData.bpDiastolic} mmHg\n- Heart Rate: ${sampleData.heartRate} bpm\n- Cholesterol: Total ${sampleData.totalChol} mg/dL, HDL ${sampleData.hdl} mg/dL, LDL ${sampleData.ldl} mg/dL\n- Glucose: ${sampleData.glucose} mg/dL\n- BMI: ${sampleData.bmi}\n\nAnalysis: ${sampleData.bpSystolic <= 120 && sampleData.bpDiastolic <= 80 ? 'Blood pressure is normal.' : 'Blood pressure may need attention.'} ${sampleData.glucose <= 100 ? 'Glucose levels are normal.' : 'Glucose levels are elevated.'} Overall health indicators ${sampleData.bpSystolic <= 130 && sampleData.glucose <= 110 ? 'appear favorable' : 'show some areas for improvement'}.`;
-      
+      const text = extractedOCRText || "No text could be extracted from the file.";
       setExtractedText(text);
       
       // Analyze with Mistral AI
@@ -196,20 +191,23 @@ function ReportUpload() {
   const exportReport = () => {
     if (!analysis || !file) return;
     
-    const report = {
-      filename: file.name,
-      analysis,
-      summary: analysis.summary
+    const element = document.getElementById('report-results-container');
+    if (!element) {
+      toast.error("Could not find the report to export");
+      return;
+    }
+    
+    toast.success("Generating PDF report...");
+    
+    const opt = {
+      margin:       [0.5, 0.5, 0.5, 0.5],
+      filename:     `${file.name.split('.')[0]}_analysis.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0a0a0c' },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
     
-    const data = JSON.stringify(report, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `report_analysis.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    html2pdf().set(opt).from(element).save();
   };
 
   const renderItem = (item) => {
@@ -287,7 +285,17 @@ function ReportUpload() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Selected Report</h2>
             <div className="flex justify-center">
-              <img src={preview} alt="Report preview" className="max-h-64 rounded-lg border border-gray-200" />
+              {file && file.type === 'application/pdf' ? (
+                <div className="flex flex-col items-center justify-center py-8 w-full bg-red-50/50 dark:bg-red-500/5 rounded-xl border border-red-100 dark:border-red-500/10">
+                  <FileText className="h-12 w-12 text-red-500 mb-3" />
+                  <p className="text-gray-900 dark:text-white font-medium">{file.name}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                    PDF Document • {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              ) : (
+                <img src={preview} alt="Report preview" className="max-h-64 rounded-lg border border-gray-200" />
+              )}
             </div>
           </div>
         )}
@@ -341,80 +349,19 @@ function ReportUpload() {
         )}
       </div>
 
+
       {analysis && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Analysis Results</h2>
-            <div className="flex items-center space-x-2">
-              {analysis.normalValues?.length > 0 && (
-                <span className="flex items-center text-green-600 bg-green-50 px-2 py-1 rounded-full text-xs">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  {analysis.normalValues.length} Normal
-                </span>
-              )}
-            </div>
-          </div>
-          
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-6">
-            <h3 className="font-medium text-gray-900 dark:text-white mb-2">Summary</h3>
-            <p className="text-gray-700 dark:text-gray-300">{analysis.summary}</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white mb-2">Key Findings</h3>
-              <ul className="space-y-2">
-                {analysis.keyFindings?.map((finding, index) => (
-                  <li key={index} className="bg-gray-50 dark:bg-gray-700 p-2 rounded text-sm text-gray-700 dark:text-gray-300">
-                    {renderItem(finding)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white mb-2">Recommendations</h3>
-              <ul className="space-y-2">
-                {analysis.recommendations?.map((rec, index) => (
-                  <li key={index} className="bg-green-50 dark:bg-green-900/20 p-2 rounded text-sm text-gray-700 dark:text-gray-300">
-                    {renderItem(rec)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            {analysis.normalValues?.length > 0 && (
-              <div>
-                <h3 className="font-medium text-gray-900 dark:text-white mb-2">Normal Values</h3>
-                <ul className="space-y-2">
-                  {analysis.normalValues?.map((value, index) => (
-                    <li key={index} className="bg-gray-50 dark:bg-gray-700 p-2 rounded text-sm text-gray-700 dark:text-gray-300">
-                      {renderItem(value)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-          
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                <h4 className="text-xs text-gray-500 dark:text-gray-400 mb-1">Report Type</h4>
-                <p className="font-medium text-gray-900 dark:text-white">{analysis.reportType}</p>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                <h4 className="text-xs text-gray-500 dark:text-gray-400 mb-1">Doctor</h4>
-                <p className="font-medium text-gray-900 dark:text-white">{analysis.detectedDoctor}</p>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                <h4 className="text-xs text-gray-500 dark:text-gray-400 mb-1">Facility</h4>
-                <p className="font-medium text-gray-900 dark:text-white">{analysis.detectedFacility}</p>
-              </div>
-            </div>
-          </div>
+        <div className="mt-8 rounded-xl overflow-hidden" id="report-results-container" style={{ backgroundColor: '#0a0a0c', padding: '30px' }}>
+          <HealthReportResults 
+            data={analysis} 
+            onReset={() => {
+              setFile(null);
+              setAnalysis(null);
+              setReportProcessed(false);
+              setPreview(null);
+              setExtractedText('');
+            }} 
+          />
         </div>
       )}
       
