@@ -217,82 +217,81 @@ CareConnect is designed to give individuals complete control over their health f
 ```
 CareConnect/
 │
-├── 📄 package.json              # Node dependencies & npm scripts
+├── 📄 README.md                 # This file
+├── 📄 package.json              # Root-level npm scripts helper
 ├── 📄 docker-compose.yml        # Docker multi-service config
-├── 📄 tailwind.config.js        # TailwindCSS configuration
-├── 📄 postcss.config.js         # PostCSS plugins
 ├── 📄 .env                      # Environment variables (API keys)
+├── 📄 .gitignore                # Git ignore rules
 │
-├── 📂 ML-model/
-│   └── 📂 ECG/
-│       ├── 🐍 app.py            # Flask REST API server
-│       ├── 🧠 heart_model.pkl   # Trained scikit-learn classifier (~1.2 MB)
-│       ├── 📄 requirements.txt  # Python dependencies
-│       ├── 🐳 Dockerfile        # Flask container definition
-│       ├── 🧪 test_model.py     # Model validation tests
-│       ├── 📂 model/            # Model training notebooks/scripts
-│       ├── 📂 dataset/          # Cleveland Heart Disease dataset
-│       └── 📂 templates/        # Flask HTML templates
+├── 📂 Frontend/                 # ← React Web Application
+│   ├── 📄 package.json          # Node dependencies & npm scripts
+│   ├── 📄 tailwind.config.js    # TailwindCSS configuration
+│   ├── 📄 postcss.config.js     # PostCSS plugins
+│   │
+│   ├── 📂 public/               # Static assets (favicon, index.html)
+│   │
+│   └── 📂 src/
+│       ├── 📄 App.js            # Root component, router, global providers
+│       ├── 📄 index.js          # React entry point
+│       ├── 📄 index.css         # Global styles
+│       ├── 📄 config.js         # App configuration constants
+│       │
+│       ├── 📂 pages/
+│       │   ├── 📄 LandingPage.js    # Public marketing/home page
+│       │   ├── 📄 Login.js          # User login page
+│       │   ├── 📄 Signup.js         # User registration page
+│       │   └── 📄 ECGPrediction.js  # ECG Intelligence full-page module
+│       │
+│       ├── 📂 components/
+│       │   ├── 📄 Header.js                    # Navigation bar with theme toggle
+│       │   ├── 📄 Dashboard.js                 # Main health dashboard
+│       │   ├── 📄 AIAssistant.js               # Full-page AI chat interface
+│       │   ├── 📄 ReportUpload.js              # Medical report OCR uploader
+│       │   ├── 📄 HealthDataVisualization.js   # Dynamic health charts & trends
+│       │   ├── 📄 FacilitySearchDark.js        # Google Maps hospital locator
+│       │   ├── 📄 DrugInteractionChecker.js    # Drug interaction AI tool
+│       │   ├── 📄 AppointmentConfirmation.js   # Appointment booking UI
+│       │   │
+│       │   ├── 📂 ecg/                         # ECG Intelligence sub-components
+│       │   │   ├── 📄 ECGUploadCard.js         # Report upload & form UI
+│       │   │   ├── 📄 ECGWaveChart.js          # Animated live ECG waveform
+│       │   │   ├── 📄 ECGResultCard.js         # Risk result display card
+│       │   │   ├── 📄 ECGReportTemplate.js     # Printable PDF report template
+│       │   │   ├── 📄 AIAnalysisCard.js        # AI medical summary card
+│       │   │   ├── 📄 HeartAnalytics.js        # Patient heart analytics panel
+│       │   │   ├── 📄 EmergencyAlert.js        # ECG emergency modal
+│       │   │   └── 📄 MedBotChatWidget.js      # Floating MedBot AI chatbot
+│       │   │
+│       │   └── 📂 auth/                        # Auth-related UI components
+│       │
+│       ├── 📂 context/
+│       │   ├── 📄 AuthContext.js       # Firebase auth state (login/logout)
+│       │   ├── 📄 HealthContext.js     # Global health data + chat history
+│       │   └── 📄 ThemeContext.js      # Dark/light mode toggle
+│       │
+│       ├── 📂 routes/
+│       │   └── 📄 ProtectedRoute.js   # Auth guard for protected pages
+│       │
+│       ├── 📂 utils/
+│       │   └── 📄 mistralAPI.js       # Mistral AI API client functions
+│       │
+│       ├── 📂 services/               # Firebase and external service clients
+│       ├── 📂 firebase/               # Firebase initialization config
+│       └── 📂 data/                   # Static data / mock datasets
 │
-├── 📂 public/                   # Static assets
-│
-└── 📂 src/
-    ├── 📄 App.js                # Root component, router, global providers
-    ├── 📄 index.js              # React entry point
-    ├── 📄 index.css             # Global styles
-    ├── 📄 config.js             # App configuration constants
-    │
-    ├── 📂 pages/
-    │   ├── 📄 LandingPage.js    # Public marketing/home page
-    │   ├── 📄 Login.js          # User login page
-    │   ├── 📄 Signup.js         # User registration page
-    │   └── 📄 ECGPrediction.js  # ECG Intelligence full-page module
-    │
-    ├── 📂 components/
-    │   ├── 📄 Header.js                    # Navigation bar with theme toggle
-    │   ├── 📄 Dashboard.js                 # Main health dashboard
-    │   ├── 📄 AIAssistant.js               # Full-page AI chat interface
-    │   ├── 📄 ReportUpload.js              # Medical report OCR uploader
-    │   ├── 📄 HealthDataVisualization.js   # Health charts and trends
-    │   ├── 📄 FacilitySearchDark.js        # Google Maps hospital locator
-    │   ├── 📄 DrugInteractionChecker.js    # Drug interaction AI tool
-    │   ├── 📄 AppointmentConfirmation.js   # Appointment booking UI
-    │   ├── 📄 EmergencyAlert.js            # Emergency modal (dashboard)
-    │   ├── 📄 EmergencyButton.js           # Floating emergency button
-    │   ├── 📄 BrainSVG.jsx                 # Animated 3D brain SVG
-    │   ├── 📄 HeartSVG.jsx                 # Animated 3D heart SVG
-    │   ├── 📄 KidneySVG.jsx                # Animated 3D kidney SVG
-    │   ├── 📄 LiverSVG.jsx                 # Animated 3D liver SVG
-    │   │
-    │   ├── 📂 auth/                        # Auth-related UI components
-    │   │
-    │   ├── 📂 ecg/                         # ECG Intelligence sub-components
-    │   │   ├── 📄 ECGUploadCard.js         # Report upload & form UI
-    │   │   ├── 📄 ECGWaveChart.js          # Animated live ECG waveform
-    │   │   ├── 📄 ECGResultCard.js         # Risk result display card
-    │   │   ├── 📄 ECGReportTemplate.js     # Printable PDF report template
-    │   │   ├── 📄 AIAnalysisCard.js        # AI medical summary card
-    │   │   ├── 📄 HeartAnalytics.js        # Patient heart analytics panel
-    │   │   ├── 📄 EmergencyAlert.js        # ECG emergency modal
-    │   │   └── 📄 MedBotChatWidget.js      # Floating MedBot AI chatbot
-    │   │
-    │   └── 📂 features/                    # Feature-specific UI components
-    │
-    ├── 📂 context/
-    │   ├── 📄 AuthContext.js       # Firebase auth state (login/logout)
-    │   ├── 📄 HealthContext.js     # Global health data + chat history
-    │   └── 📄 ThemeContext.js      # Dark/light mode toggle
-    │
-    ├── 📂 routes/
-    │   └── 📄 ProtectedRoute.js   # Auth guard for protected pages
-    │
-    ├── 📂 utils/
-    │   └── 📄 mistralAPI.js       # Mistral AI API client functions
-    │
-    ├── 📂 services/               # Firebase and external service clients
-    ├── 📂 firebase/               # Firebase initialization config
-    └── 📂 data/                   # Static data / mock datasets
+└── 📂 Backend/                  # ← Flask ML Server & Model
+    └── 📂 ML-model/
+        └── 📂 ECG/
+            ├── 🐍 app.py            # Flask REST API server
+            ├── 🧠 heart_model.pkl   # Trained scikit-learn classifier (~1.2 MB)
+            ├── 📄 requirements.txt  # Python dependencies
+            ├── 🐳 Dockerfile        # Flask container definition
+            ├── 🧪 test_model.py     # Model validation tests
+            ├── 📂 model/            # Model training notebooks/scripts
+            ├── 📂 dataset/          # Cleveland Heart Disease dataset
+            └── 📂 templates/        # Flask HTML templates
 ```
+
 
 ---
 
@@ -668,48 +667,73 @@ FLASK_PORT=5000
 
 ## 💻 Running the App Locally
 
+> The project is split into two top-level folders — **`Frontend/`** (React app) and **`Backend/`** (Flask ML server + ML model). You need **two separate terminals** to run the full stack.
+
 ### Prerequisites
-- **Node.js** ≥ 18.x
-- **Python** ≥ 3.9
-- **pip**
+| Tool | Version | Install |
+|------|---------|---------|
+| Node.js | ≥ 18.x | [nodejs.org](https://nodejs.org) |
+| npm | ≥ 9.x | Comes with Node.js |
+| Python | ≥ 3.9 | [python.org](https://python.org) |
+| pip | latest | Comes with Python |
 
-### Step 1 — Install Node dependencies
+---
+
+### Step 1 — Clone & set up environment
+
 ```bash
+git clone https://github.com/your-username/CareConnect.git
 cd CareConnect
-npm install
 ```
 
-### Step 2 — Install Python dependencies
-```bash
-cd ML-model/ECG
-pip install -r requirements.txt
-```
-
-### Step 3 — Configure environment
+Copy the environment file and fill in your API keys:
 ```bash
 cp .env.example .env
-# Edit .env with your API keys
-```
-
-### Step 4 — Run both servers concurrently
-```bash
-npm run dev:local
-```
-
-This uses `concurrently` to start:
-- ✅ React frontend → `http://localhost:3076`
-- ✅ Flask ML backend → `http://localhost:5000`
-
-### Run individually
-```bash
-# Frontend only
-npm run start
-
-# Flask ML server only
-npm run flask
+# Open .env and add your Mistral AI, Firebase, and Google Maps keys
 ```
 
 ---
+
+### Step 2 — Run the Frontend (React)
+
+Open **Terminal 1** and run:
+
+```bash
+cd Frontend
+npm install
+npm run dev
+```
+
+✅ React app starts at → **`http://localhost:3076`**
+
+---
+
+### Step 3 — Run the Backend (Flask ML Server)
+
+Open **Terminal 2** and run:
+
+```bash
+cd Backend/ML-model/ECG
+pip install -r requirements.txt
+python app.py
+```
+
+✅ Flask ML server starts at → **`http://localhost:5000`**
+
+> 💡 **Tip:** The frontend works without the Flask server — it automatically falls back to a local estimation mode. You only need Flask running for full scikit-learn ML predictions.
+
+---
+
+### Quick Reference
+
+| What | Command | Directory |
+|------|---------|-----------|
+| Start React frontend | `npm run dev` | `Frontend/` |
+| Install frontend deps | `npm install` | `Frontend/` |
+| Start Flask backend | `python app.py` | `Backend/ML-model/ECG/` |
+| Install Python deps | `pip install -r requirements.txt` | `Backend/ML-model/ECG/` |
+
+
 
 ## 🐳 Running with Docker
 
