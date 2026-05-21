@@ -50,79 +50,72 @@ function healthReducer(state, action) {
 export function HealthProvider({ children }) {
   const [state, dispatch] = useReducer(healthReducer, initialState);
 
-  const extractHealthMetrics = (reportText) => {
-    const metrics = {};
-    const currentDate = new Date().toISOString().split('T')[0];
-    
-    // Extract blood pressure
-    const bpMatch = reportText.match(/(\d{2,3})\/(\d{2,3})\s*mmHg/i);
-    if (bpMatch) {
-      metrics.bloodPressure = [{ date: currentDate, systolic: parseInt(bpMatch[1]), diastolic: parseInt(bpMatch[2]) }];
-    }
-    
-    // Extract glucose
-    const glucoseMatch = reportText.match(/glucose[:\s]*(\d+)\s*mg\/dl/i);
-    if (glucoseMatch) {
-      metrics.glucose = [{ date: currentDate, value: parseInt(glucoseMatch[1]) }];
-    }
-    
-    // Extract cholesterol
-    const totalCholMatch = reportText.match(/total[\s\w]*cholesterol[:\s]*(\d+)\s*mg\/dl/i);
-    const hdlMatch = reportText.match(/hdl[:\s]*(\d+)\s*mg\/dl/i);
-    const ldlMatch = reportText.match(/ldl[:\s]*(\d+)\s*mg\/dl/i);
-    
-    if (totalCholMatch || hdlMatch || ldlMatch) {
-      metrics.cholesterol = [{
-        date: currentDate,
-        total: totalCholMatch ? parseInt(totalCholMatch[1]) : null,
-        hdl: hdlMatch ? parseInt(hdlMatch[1]) : null,
-        ldl: ldlMatch ? parseInt(ldlMatch[1]) : null
-      }];
-    }
-    
-    // Extract heart rate
-    const hrMatch = reportText.match(/heart rate[:\s]*(\d+)\s*bpm/i);
-    if (hrMatch) {
-      metrics.heartRate = [{ date: currentDate, value: parseInt(hrMatch[1]) }];
-    }
-    
-    // Extract BMI
-    const bmiMatch = reportText.match(/bmi[:\s]*(\d+\.?\d*)/i);
-    if (bmiMatch) {
-      metrics.bmi = [{ date: currentDate, value: parseFloat(bmiMatch[1]) }];
-    }
-    
-    return metrics;
-  };
-
   const enhancedDispatch = (action) => {
-    if (action.type === 'ADD_REPORT' && action.payload.extractedText) {
-      const extractedMetrics = extractHealthMetrics(action.payload.extractedText);
+    if (action.type === 'ADD_REPORT' && action.payload.analysis) {
+      const reportDate = action.payload.analysis.meta?.reportDate || new Date().toISOString().split('T')[0];
+      const newMetrics = {};
       
-      // Calculate health score based on metrics
-      let healthScore = 85; // Base score
+      // Calculate health score based on AI status
+      let healthScore = 85;
       
-      if (extractedMetrics.bloodPressure?.[0]) {
-        const bp = extractedMetrics.bloodPressure[0];
-        if (bp.systolic <= 120 && bp.diastolic <= 80) healthScore += 5;
-        else if (bp.systolic > 140 || bp.diastolic > 90) healthScore -= 10;
+      if (action.payload.analysis.findings && Array.isArray(action.payload.analysis.findings)) {
+        action.payload.analysis.findings.forEach(finding => {
+          // Adjust score based on status
+          if (finding.status === 'HIGH' || finding.status === 'LOW') healthScore -= 2;
+          if (finding.status === 'CRITICAL_HIGH' || finding.status === 'CRITICAL_LOW') healthScore -= 5;
+          if (finding.status === 'NORMAL') healthScore += 1;
+          
+          // Try to extract a numeric value from the finding (e.g., "13.5 g/dL" -> 13.5)
+          // We look for numbers, allowing decimals
+          if (finding.value) {
+            // First check if it's blood pressure (e.g. "120/80")
+            const bpMatch = finding.value.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
+            if (finding.testName.toLowerCase().includes('blood pressure') && bpMatch) {
+              if (!newMetrics['Blood Pressure']) newMetrics['Blood Pressure'] = [];
+              newMetrics['Blood Pressure'].push({
+                date: reportDate,
+                systolic: parseInt(bpMatch[1]),
+                diastolic: parseInt(bpMatch[2]),
+                status: finding.status,
+                referenceRange: finding.referenceRange || ''
+              });
+              return; // Skip normal numeric parsing
+            }
+            
+            // Normal numeric parsing
+            const numMatch = finding.value.toString().match(/[-+]?[0-9]*\.?[0-9]+/);
+            if (numMatch) {
+              const val = parseFloat(numMatch[0]);
+              if (!isNaN(val)) {
+                // Use a clean test name for the key
+                const testName = finding.testName.trim();
+                if (!newMetrics[testName]) {
+                  newMetrics[testName] = [];
+                }
+                newMetrics[testName].push({
+                  date: reportDate,
+                  value: val,
+                  unit: finding.unit || '',
+                  status: finding.status,
+                  referenceRange: finding.referenceRange || ''
+                });
+              }
+            }
+          }
+        });
       }
       
-      if (extractedMetrics.glucose?.[0]) {
-        const glucose = extractedMetrics.glucose[0].value;
-        if (glucose <= 100) healthScore += 3;
-        else if (glucose > 125) healthScore -= 8;
-      }
-      
+      healthScore = Math.min(Math.max(healthScore, 0), 100);
+
       // Dispatch the report
       dispatch(action);
       
       // Update health metrics if any were extracted
-      if (Object.keys(extractedMetrics).length > 0) {
+      if (Object.keys(newMetrics).length > 0) {
         dispatch({
           type: 'UPDATE_HEALTH_METRICS',
-          payload: extractedMetrics,
-          healthScore: Math.min(Math.max(healthScore, 0), 100)
+          payload: newMetrics,
+          healthScore: healthScore
         });
       }
     } else {
