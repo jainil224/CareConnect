@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import {
   Activity,
   FileText,
@@ -9,6 +10,7 @@ import {
   Wifi,
   WifiOff,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react';
 import ECGUploadCard from '../components/ecg/ECGUploadCard';
 import ECGResultCard from '../components/ecg/ECGResultCard';
@@ -320,6 +322,13 @@ export default function ECGPrediction() {
       <section className="border-b border-gray-200/50 dark:border-zinc-800/50 bg-white/60 dark:bg-[#0c0c0e]/60 backdrop-blur-xl transition-colors duration-300">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5">
           <div className="flex items-center gap-4">
+            <Link
+              to="/dashboard"
+              className="mr-2 flex items-center justify-center p-2 rounded-xl border border-gray-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Go back to Dashboard"
+            >
+              <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-zinc-400" />
+            </Link>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-500/20 dark:border-cyan-300/20 bg-cyan-500/10 dark:bg-cyan-300/10">
               <HeartPulse className="h-6 w-6 text-cyan-600 dark:text-[#a4e6ff]" />
             </div>
@@ -390,6 +399,7 @@ export default function ECGPrediction() {
                 <div className="ecg-scanline absolute inset-y-0 left-0 z-10 w-1/3" />
                 <ECGWaveChart
                   isProcessing={isProcessing}
+                  isIdle={!result}
                   heartRate={heartRate}
                   rhythmType={rhythmType}
                   waveformPattern={waveformPattern}

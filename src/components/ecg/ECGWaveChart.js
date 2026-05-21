@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-export default function ECGWaveChart({ isProcessing, heartRate = 75, rhythmType = "Normal", waveformPattern = "normal" }) {
+export default function ECGWaveChart({ isProcessing, isIdle, heartRate = 75, rhythmType = "Normal", waveformPattern = "normal" }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -65,7 +65,9 @@ export default function ECGWaveChart({ isProcessing, heartRate = 75, rhythmType 
         let voltage = 0; // Microvolts baseline offset
         const isStDepression = waveformPattern.toLowerCase() === 'stdepression' && !isProcessing;
 
-        if (isProcessing && (!heartRate || heartRate === 0)) {
+        if (isIdle) {
+          voltage = 0;
+        } else if (isProcessing && (!heartRate || heartRate === 0)) {
            // Flatline or processing noise
            voltage = (Math.random() - 0.5) * 5;
         } else {
@@ -109,7 +111,7 @@ export default function ECGWaveChart({ isProcessing, heartRate = 75, rhythmType 
         }
 
         // Add high-frequency muscular micro-vibration & baseline wander for organic realism
-        const baselineWander = Math.sin(timeAcc * 0.02) * 5;
+        const baselineWander = isIdle ? 0 : Math.sin(timeAcc * 0.02) * 5;
         const finalY = (height / 2) - (voltage + baselineWander);
         historyPoints[index] = finalY;
       }
@@ -194,7 +196,7 @@ export default function ECGWaveChart({ isProcessing, heartRate = 75, rhythmType 
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, [isProcessing, heartRate, waveformPattern]);
+  }, [isProcessing, isIdle, heartRate, waveformPattern]);
 
   return (
     <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg p-1 relative">
@@ -206,14 +208,14 @@ export default function ECGWaveChart({ isProcessing, heartRate = 75, rhythmType 
         </svg>
         <div className="flex items-baseline gap-1">
           <span className="text-xl font-black text-white leading-none">
-            {isProcessing ? '--' : (heartRate || '--')}
+            {isProcessing || isIdle ? '--' : (heartRate || '--')}
           </span>
           <span className="text-[10px] font-bold text-slate-400 uppercase">BPM</span>
         </div>
       </div>
 
       {/* Rhythm badge */}
-      {!isProcessing && (
+      {!isProcessing && !isIdle && (
         <div className="absolute bottom-4 left-4 z-10 bg-black/70 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-700/80 flex items-center gap-2">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rhythm:</span>
           <span className={`text-[11px] font-bold uppercase tracking-wide ${
