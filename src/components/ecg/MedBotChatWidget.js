@@ -182,23 +182,26 @@ export default function MedBotChatWidget() {
   return (
     <>
       <style>{`
-        @keyframes mbFloat    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-        @keyframes mbPulse    {
-          0%   { box-shadow: 0 0 0 0 rgba(0,212,255,0.6), 0 0 0 0 rgba(99,102,241,0.4); }
-          70%  { box-shadow: 0 0 0 20px rgba(0,212,255,0), 0 0 0 16px rgba(99,102,241,0); }
-          100% { box-shadow: 0 0 0 0 rgba(0,212,255,0), 0 0 0 0 rgba(99,102,241,0); }
-        }
-        @keyframes mbSlideUp  { from{opacity:0;transform:translateY(24px) scale(0.94)} to{opacity:1;transform:translateY(0) scale(1)} }
         @keyframes mbFadeIn   { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         @keyframes mbBounce1  { 0%,80%,100%{transform:scale(0);opacity:.5} 40%{transform:scale(1);opacity:1} }
         @keyframes mbBounce2  { 0%,80%,100%{transform:scale(0);opacity:.5} 40%{transform:scale(1);opacity:1} }
         @keyframes mbBounce3  { 0%,80%,100%{transform:scale(0);opacity:.5} 40%{transform:scale(1);opacity:1} }
-        @keyframes mbLabelPop { 0%{opacity:0;transform:translateX(8px)} 100%{opacity:1;transform:translateX(0)} }
-        .mb-float     { animation: mbFloat 3.2s ease-in-out infinite; }
-        .mb-pulse     { animation: mbPulse 2s ease-out infinite; }
-        .mb-slide-up  { animation: mbSlideUp 0.32s cubic-bezier(0.34,1.5,0.64,1) forwards; }
-        .mb-msg-in    { animation: mbFadeIn 0.25s ease forwards; }
-        .mb-label-pop { animation: mbLabelPop 0.3s ease forwards; }
+        /* Doctor realistic breathing animation */
+        @keyframes mbBreathe  {
+          0%,100% { transform: scale(1) translateY(0px); }
+          30%     { transform: scale(1.03) translateY(-2px); }
+          60%     { transform: scale(1.015) translateY(-1px); }
+        }
+        /* Subtle head nod */
+        @keyframes mbNod {
+          0%,100% { transform: rotate(0deg) translateY(0); }
+          20%     { transform: rotate(-1.5deg) translateY(-1px); }
+          50%     { transform: rotate(0.8deg) translateY(0); }
+          80%     { transform: rotate(-0.5deg) translateY(-0.5px); }
+        }
+        .mb-breathe  { animation: mbBreathe 4s ease-in-out infinite; transform-origin: bottom center; }
+        .mb-nod      { animation: mbNod 5s ease-in-out infinite; transform-origin: bottom center; }
+        .mb-msg-in   { animation: mbFadeIn 0.25s ease forwards; }
         .mb-dot1 { display:inline-block;width:7px;height:7px;border-radius:50%;background:#6ee7f7;animation:mbBounce1 1.4s infinite ease-in-out both;animation-delay:-0.32s; }
         .mb-dot2 { display:inline-block;width:7px;height:7px;border-radius:50%;background:#6ee7f7;animation:mbBounce2 1.4s infinite ease-in-out both;animation-delay:-0.16s; }
         .mb-dot3 { display:inline-block;width:7px;height:7px;border-radius:50%;background:#6ee7f7;animation:mbBounce3 1.4s infinite ease-in-out both; }
@@ -212,7 +215,7 @@ export default function MedBotChatWidget() {
       {/* ── Chat Panel ───────────────────────────────────────────────────── */}
       {open && (
         <div
-          className="mb-slide-up fixed bottom-[104px] right-5 z-[9998] flex flex-col"
+          className="fixed bottom-[104px] right-5 z-[9998] flex flex-col"
           style={{
             width: 360,
             maxHeight: 560,
@@ -442,33 +445,31 @@ export default function MedBotChatWidget() {
           <button
             onClick={() => setOpen(v => !v)}
             title={open ? 'Close AI Assistant' : 'Chat with AI Health Assistant'}
-            className="relative flex items-center justify-center rounded-full transition-all duration-300 hover:scale-110 active:scale-95"
+            className="relative flex items-center justify-center rounded-full transition-all duration-300 hover:scale-105 active:scale-95"
             style={{
               width: 72,
               height: 72,
-              /* Bright visible gradient — works on both dark and light backgrounds */
-              background: open
-                ? 'linear-gradient(145deg, #7f1d1d, #dc2626)'
-                : 'linear-gradient(145deg, #0369a1, #06b6d4, #6366f1)',
-              border: `3px solid ${open ? 'rgba(252,165,165,0.6)' : 'rgba(255,255,255,0.35)'}`,
-              boxShadow: open
-                ? '0 8px 24px rgba(220,38,38,0.5), 0 0 0 1px rgba(252,165,165,0.2)'
-                : '0 8px 32px rgba(6,182,212,0.55), 0 4px 16px rgba(99,102,241,0.35), 0 0 0 1px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.3)',
+              background: open ? 'linear-gradient(145deg, #7f1d1d, #dc2626)' : 'transparent',
+              border: open ? '3px solid rgba(252,165,165,0.6)' : 'none',
+              boxShadow: open ? '0 8px 24px rgba(220,38,38,0.5)' : 'none',
             }}
           >
-            {/* Inner bright highlight ring */}
-            <div
-              className="absolute inset-0 rounded-full pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.35) 0%, transparent 60%)',
-              }}
-            />
-
             {open ? (
-              <X size={26} className="text-white relative z-10" strokeWidth={2.5} />
+              /* Close X on a red circle */
+              <div style={{
+                width: 52, height: 52,
+                borderRadius: '50%',
+                background: 'linear-gradient(145deg,#7f1d1d,#dc2626)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 16px rgba(220,38,38,0.5)',
+              }}>
+                <X size={24} className="text-white" strokeWidth={2.5} />
+              </div>
             ) : (
-              <div className="mb-float relative z-10" style={{ width: 62, height: 62, marginTop: 2 }}>
-                <MedBotAvatar size={62} />
+              <div className="mb-breathe relative z-10" style={{ width: 72, height: 72 }}>
+                <div className="mb-nod" style={{ width: '100%', height: '100%' }}>
+                  <MedBotAvatar size={72} />
+                </div>
               </div>
             )}
           </button>
