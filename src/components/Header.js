@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Upload, MapPin, MessageCircle, Home, Moon, Sun, BarChart, LogOut, User } from 'lucide-react';
+import { Activity, Upload, MapPin, MessageCircle, Home, Moon, Sun, BarChart, LogOut, User, HeartPulse } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -15,6 +15,7 @@ function Header() {
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
     { path: '/upload', icon: Upload, label: 'Upload Report' },
     { path: '/health-data', icon: BarChart, label: 'Health Data' },
+    { path: '/ecg', icon: HeartPulse, label: 'ECG Prediction' },
     { path: '/facilities', icon: MapPin, label: 'Find Facilities' },
     { path: '/chat', icon: MessageCircle, label: 'AI Assistant' }
   ];

@@ -230,31 +230,57 @@ function ReportUpload() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Health Report Analysis</h1>
+      <div className="relative overflow-hidden bg-white/50 dark:bg-[#0a0a0c]/80 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-3xl shadow-2xl p-8 mb-6">
         
-        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors mb-6">
-          <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-lg font-medium text-gray-900 mb-2">
-            Select your health report image
-          </p>
-          <p className="text-sm text-gray-600 mb-4">
-            Supports JPG, PNG images
-          </p>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            className="hidden"
-            id="file-upload"
-          />
-          <label
-            htmlFor="file-upload"
-            className="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors"
-          >
-            <FileText className="h-5 w-5 mr-2" />
-            Choose File
-          </label>
+        {/* Decorative background gradients */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/10 dark:bg-cyan-500/5 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
+
+        <div className="relative z-10 flex items-center mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mr-4 border border-blue-500/20">
+            <FileText className="h-6 w-6 text-blue-500 dark:text-cyan-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+              Health Report Analysis
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Upload your medical documents for AI-powered extraction</p>
+          </div>
+        </div>
+        
+        {/* Dropzone Area */}
+        <div className="group relative">
+          {/* Animated glow ring behind the dropzone on hover */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500" />
+          
+          <div className="relative border-2 border-dashed border-gray-300 dark:border-zinc-700/80 rounded-2xl p-10 text-center bg-white/50 dark:bg-black/40 hover:bg-white/80 dark:hover:bg-black/60 hover:border-blue-500/50 dark:hover:border-cyan-500/50 transition-all duration-300">
+            
+            <div className="w-20 h-20 mx-auto bg-blue-50 dark:bg-cyan-500/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-100 dark:group-hover:bg-cyan-500/20 transition-all duration-500">
+              <Upload className="h-8 w-8 text-blue-500 dark:text-cyan-400 group-hover:-translate-y-1 transition-transform duration-300" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              Select your health report image
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
+              Drag and drop your files here or click the button below to browse. Supports JPG, PNG, and WebP images.
+            </p>
+            
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="file-upload"
+            />
+            <label
+              htmlFor="file-upload"
+              className="inline-flex items-center justify-center px-8 py-3.5 font-bold text-white rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              <FileText className="h-5 w-5 mr-2" />
+              Browse Files
+            </label>
+          </div>
         </div>
         
         {preview && (
