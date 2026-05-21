@@ -28,6 +28,30 @@ const DUMMY_METRICS = {
     { date: '2025-02', value: 175 },
     { date: '2025-03', value: 190 },
     { date: '2025-04', value: 160 },
+  ],
+  'Weight (kg)': [
+    { date: '2025-01', value: 72 },
+    { date: '2025-02', value: 71.5 },
+    { date: '2025-03', value: 71 },
+    { date: '2025-04', value: 70.2 },
+  ],
+  'Heart Rate (bpm)': [
+    { date: '2025-01', value: 72 },
+    { date: '2025-02', value: 75 },
+    { date: '2025-03', value: 68 },
+    { date: '2025-04', value: 70 },
+  ],
+  'Hemoglobin (g/dL)': [
+    { date: '2025-01', value: 14.2 },
+    { date: '2025-02', value: 14.5 },
+    { date: '2025-03', value: 14.1 },
+    { date: '2025-04', value: 14.8 },
+  ],
+  'Vitamin D (ng/mL)': [
+    { date: '2025-01', value: 22 },
+    { date: '2025-02', value: 28 },
+    { date: '2025-03', value: 35 },
+    { date: '2025-04', value: 42 },
   ]
 };
 
@@ -120,7 +144,10 @@ function HealthDataVisualization() {
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip contentStyle={{ backgroundColor: 'rgba(18, 18, 20, 0.9)', borderRadius: '12px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: 'rgba(18, 18, 20, 0.9)', borderRadius: '12px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} 
+              itemStyle={{ color: '#fff' }}
+            />
           </PieChart>
         </ResponsiveContainer>
       );
@@ -137,7 +164,10 @@ function HealthDataVisualization() {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis dataKey="date" stroke="#9ca3af" />
             <YAxis stroke="#9ca3af" domain={['dataMin - 10', 'dataMax + 10']} />
-            <Tooltip contentStyle={{ backgroundColor: 'rgba(18, 18, 20, 0.9)', borderRadius: '12px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: 'rgba(18, 18, 20, 0.9)', borderRadius: '12px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} 
+              itemStyle={{ color: '#fff' }}
+            />
             <Legend wrapperStyle={{ paddingTop: '20px' }} />
             <Line type="monotone" dataKey="systolic" stroke="#06b6d4" strokeWidth={3} />
             <Line type="monotone" dataKey="diastolic" stroke="#3b82f6" strokeWidth={3} />
@@ -246,9 +276,6 @@ function HealthDataVisualization() {
           {/* Trend Analysis Alert Box */}
           <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/5 border border-cyan-500/20 dark:border-cyan-400/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row sm:items-center gap-4 relative overflow-hidden shadow-sm">
             <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/20 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2" />
-            <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 border border-cyan-500/30">
-              <Sparkles className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-            </div>
             <div className="relative z-10">
               <h2 className="text-sm font-bold text-cyan-800 dark:text-cyan-300 tracking-wide uppercase mb-1">
                 AI Trend Analysis
