@@ -8,10 +8,18 @@ const STAGE_CONFIG = {
   Complete:   { pct: 100, label: 'Analysis complete ✓' },
 };
 
-export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) {
+export default function ECGUploadCard({ onUpload, isProcessing, currentStage, onFileRef }) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+
+  // Expose current file to parent so refresh can re-run analysis on same PDF
+  const setupFile = (file) => {
+    setSelectedFile(file);
+    setPreviewUrl(file.type.startsWith('image/') ? URL.createObjectURL(file) : null);
+    if (onFileRef) onFileRef(file);
+    onUpload(file);
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -28,12 +36,6 @@ export default function ECGUploadCard({ onUpload, isProcessing, currentStage }) 
 
   const handleChange = (e) => {
     if (e.target.files?.[0]) setupFile(e.target.files[0]);
-  };
-
-  const setupFile = (file) => {
-    setSelectedFile(file);
-    setPreviewUrl(file.type.startsWith('image/') ? URL.createObjectURL(file) : null);
-    onUpload(file);
   };
 
   const stageInfo = STAGE_CONFIG[currentStage];

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import {
@@ -68,6 +68,9 @@ export default function ECGPrediction() {
   const [result, setResult]                 = useState(null);
   const [flaskStatus, setFlaskStatus]       = useState('checking');
   const [waveformIntervals, setWaveformIntervals] = useState(null);
+
+  // Keep a ref to the last uploaded file so Refresh re-analyzes the same PDF
+  const lastUploadedFileRef = useRef(null);
 
   const [patientInfo, setPatientInfo] = useState({
     name: '', gender: '', dob: '', height: '', weight: '',
@@ -141,26 +144,41 @@ export default function ECGPrediction() {
     return { info, bg };
   };
 
-  // ── Reset handler ────────────────────────────────────────────────────────
+  // ── Reset handler — clears analysis but KEEPS the uploaded PDF ──────────
   const handleReset = () => {
-    setIsProcessing(false);
-    setCurrentStage('');
-    setResult(null);
-    setWaveformIntervals(null);
-    setPatientInfo({
-      name: '', gender: '', dob: '', height: '', weight: '',
-      heartRate: '', bloodPressure: ''
-    });
-    setBackgroundFeatures({
-      cp: '', chol: '', fbs: '', restecg: '',
-      exang: '', oldpeak: '', slope: '', ca: '', thal: ''
-    });
-    setSummary('');
-    setRecommendations([]);
-    setWaveformPattern('normal');
-    setRhythmType('Normal Sinus Rhythm');
-    setHeartRate(0);
-    setShowEmergency(false);
+    // If there is a previously uploaded file, re-run the analysis on it
+    if (lastUploadedFileRef.current) {
+      setResult(null);
+      setWaveformIntervals(null);
+      setSummary('');
+      setRecommendations([]);
+      setWaveformPattern('normal');
+      setRhythmType('Normal Sinus Rhythm');
+      setHeartRate(0);
+      setShowEmergency(false);
+      // Re-trigger full analysis pipeline on the same file
+      handleECGUpload(lastUploadedFileRef.current);
+    } else {
+      // No file yet — full reset
+      setIsProcessing(false);
+      setCurrentStage('');
+      setResult(null);
+      setWaveformIntervals(null);
+      setPatientInfo({
+        name: '', gender: '', dob: '', height: '', weight: '',
+        heartRate: '', bloodPressure: ''
+      });
+      setBackgroundFeatures({
+        cp: '', chol: '', fbs: '', restecg: '',
+        exang: '', oldpeak: '', slope: '', ca: '', thal: ''
+      });
+      setSummary('');
+      setRecommendations([]);
+      setWaveformPattern('normal');
+      setRhythmType('Normal Sinus Rhythm');
+      setHeartRate(0);
+      setShowEmergency(false);
+    }
   };
 
   // ── File upload handler ──────────────────────────────────────────────────
@@ -393,6 +411,7 @@ export default function ECGPrediction() {
               onUpload={handleECGUpload}
               isProcessing={isProcessing}
               currentStage={currentStage}
+              onFileRef={(file) => { lastUploadedFileRef.current = file; }}
             />
 
             {result ? (
@@ -407,7 +426,7 @@ export default function ECGPrediction() {
               <EmptyPredictionCard />
             )}
 
-            <MedicalHistory backgroundFeatures={backgroundFeatures} />
+            <CardioRiskFactors backgroundFeatures={backgroundFeatures} patientInfo={patientInfo} />
           </aside>
 
           {/* Main content */}
@@ -493,43 +512,43 @@ function EmptyPredictionCard() {
   );
 }
 
-// ── Medical history card ────────────────────────────────────────────────────
-function MedicalHistory({ backgroundFeatures }) {
-  const hasData = backgroundFeatures && backgroundFeatures.cp !== '';
+// ── Cardiovascular Risk Factors ────────────────────────────────────────────────────
+function CardioRiskFactors({ backgroundFeatures, patientInfo }) {
+  const hasData = (backgroundFeatures && backgroundFeatures.chol !== '') || (patientInfo && patientInfo.bloodPressure !== '');
 
-  let rows = [
-    { label: 'Last Visit', value: '12 Jan 2026', badge: 'Stable',       tone: 'green' },
-    { label: 'Prior ECG',  value: '05 Nov 2025', badge: 'Sinus Rhythm', tone: 'neutral' },
-    { label: 'Admission',  value: '02 Oct 2025', badge: 'Chest Pain',   tone: 'red' },
-  ];
+  let rows = [];
 
   if (hasData) {
-    const cpMap = { 0: 'Asymptomatic', 1: 'Atypical Angina', 2: 'Non-anginal Pain', 3: 'Typical Angina' };
-    const ecgMap = { 0: 'Sinus Rhythm', 1: 'ST-T Abnormality', 2: 'LV Hypertrophy' };
-    
-    const cpVal = parseInt(backgroundFeatures.cp, 10);
-    const ecgVal = parseInt(backgroundFeatures.restecg, 10);
-    const exangVal = parseInt(backgroundFeatures.exang, 10);
+    const cholVal = parseFloat(backgroundFeatures.chol);
+    const fbsVal = parseInt(backgroundFeatures.fbs, 10);
+    const bpVal = parseFloat(patientInfo.bloodPressure);
+    const hrVal = parseFloat(patientInfo.heartRate);
 
     rows = [
       { 
-        label: 'Chest Pain History', 
-        value: 'Reported Symptoms', 
-        badge: !isNaN(cpVal) ? cpMap[cpVal] : 'Unknown', 
-        tone: cpVal === 0 ? 'green' : 'red' 
+        label: 'Cholesterol', 
+        value: !isNaN(cholVal) ? `${cholVal} mg/dl` : 'Unknown', 
+        badge: !isNaN(cholVal) ? (cholVal > 200 ? 'High' : 'Normal') : '--', 
+        tone: !isNaN(cholVal) ? (cholVal > 200 ? 'red' : 'green') : 'neutral' 
       },
       { 
-        label: 'Resting ECG',  
-        value: 'Baseline Reading', 
-        badge: !isNaN(ecgVal) ? ecgMap[ecgVal] : 'Unknown', 
-        tone: ecgVal === 0 ? 'green' : 'red' 
+        label: 'Fasting Blood Sugar',  
+        value: !isNaN(fbsVal) ? (fbsVal === 1 ? '> 120 mg/dl' : '< 120 mg/dl') : 'Unknown', 
+        badge: !isNaN(fbsVal) ? (fbsVal === 1 ? 'Elevated' : 'Normal') : '--', 
+        tone: !isNaN(fbsVal) ? (fbsVal === 1 ? 'red' : 'green') : 'neutral' 
       },
       { 
-        label: 'Exercise Angina',  
-        value: 'Stress Test Result', 
-        badge: exangVal === 1 ? 'Positive' : 'Negative',   
-        tone: exangVal === 1 ? 'red' : 'green' 
+        label: 'Resting Blood Pressure',  
+        value: !isNaN(bpVal) ? `${bpVal} mmHg` : 'Unknown', 
+        badge: !isNaN(bpVal) ? (bpVal > 130 ? 'High' : 'Normal') : '--',   
+        tone: !isNaN(bpVal) ? (bpVal > 130 ? 'red' : 'green') : 'neutral' 
       },
+      { 
+        label: 'Max Heart Rate',  
+        value: !isNaN(hrVal) ? `${hrVal} bpm` : 'Unknown', 
+        badge: !isNaN(hrVal) ? (hrVal > 100 ? 'Elevated' : 'Normal') : '--',   
+        tone: !isNaN(hrVal) ? (hrVal > 100 ? 'red' : 'green') : 'neutral' 
+      }
     ];
   }
 
@@ -537,32 +556,40 @@ function MedicalHistory({ backgroundFeatures }) {
     <div className="ecg-glass p-6">
       <div className="mb-6 flex items-center gap-3">
         <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-500/20">
-          <History className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+          <Activity className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
         </div>
-        <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-100 tracking-tight">Medical History</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-100 tracking-tight">Cardiovascular Risk</h3>
       </div>
-      <div className="space-y-3">
-        {rows.map((row) => (
-          <div
-            key={row.label}
-            className="flex items-center justify-between rounded-xl border border-gray-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 p-4 transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-cyan-500/30 dark:hover:border-cyan-500/30"
-          >
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-zinc-500">{row.label}</p>
-              <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-zinc-200">{row.value}</p>
+      
+      {rows.length > 0 ? (
+        <div className="space-y-3">
+          {rows.map((row) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between rounded-xl border border-gray-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 p-4 transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-cyan-500/30 dark:hover:border-cyan-500/30"
+            >
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-zinc-500">{row.label}</p>
+                <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-zinc-200">{row.value}</p>
+              </div>
+              <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                row.tone === 'green'
+                  ? 'bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400'
+                  : row.tone === 'red'
+                    ? 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
+                    : 'bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400'
+              }`}>
+                {row.badge}
+              </span>
             </div>
-            <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
-              row.tone === 'green'
-                ? 'bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400'
-                : row.tone === 'red'
-                  ? 'bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400'
-                  : 'bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400'
-            }`}>
-              {row.badge}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="py-8 text-center rounded-xl border border-dashed border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/20">
+          <p className="text-sm font-semibold text-gray-500 dark:text-zinc-400">No Risk Data Available</p>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1 px-4">Upload a clinical report to automatically extract cardiovascular risk factors.</p>
+        </div>
+      )}
     </div>
   );
 }
