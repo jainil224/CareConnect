@@ -260,15 +260,15 @@ function ReportUpload() {
             </div>
             
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Select your health report image
+              Select your health report
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
-              Drag and drop your files here or click the button below to browse. Supports JPG, PNG, and WebP images.
+              Drag and drop your files here or click the button below to browse. Supports PDF, JPG, PNG, and WebP.
             </p>
             
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,.pdf,application/pdf"
               onChange={handleFileSelect}
               className="hidden"
               id="file-upload"
