@@ -17,6 +17,7 @@ import Signup from './pages/Signup';
 import ProtectedRoute from './routes/ProtectedRoute';
 import ECGPrediction from './pages/ECGPrediction';
 import LandingPage from './pages/LandingPage';
+import MedBotChatWidget from './components/ecg/MedBotChatWidget';
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
                 />
               </Routes>
             </div>
+            <MedBotChatWidget />
           </Router>
         </AuthProvider>
       </HealthProvider>
