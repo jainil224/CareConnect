@@ -4,7 +4,7 @@ services:
   # ── Flask ML Prediction Server ────────────────────────────────────────────
   flask-ml:
     build:
-      context: ./ML-model/ECG
+      context: ./Backend/ML-model/ECG
       dockerfile: Dockerfile
     container_name: careconnect-flask-ml
     ports:
@@ -26,7 +26,7 @@ services:
     container_name: careconnect-frontend
     working_dir: /app
     volumes:
-      - .:/app
+      - ./Frontend:/app
       - /app/node_modules
     ports:
       - "3076:3076"
