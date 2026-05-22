@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity } from 'lucide-react';
 import ECGAnimation from './ECGAnimation';
 
 export default function HeroSection() {
@@ -13,13 +12,11 @@ export default function HeroSection() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative z-10"
       >
-        <div className="flex items-center space-x-3 mb-8">
-          <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center border border-blue-400/50 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-            <Activity className="text-cyan-400 w-7 h-7 animate-pulse" />
-          </div>
-          <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 tracking-tight">
+        <div className="flex items-center space-x-2 mb-8">
+          <span className="text-3xl font-bold text-white tracking-tight">
             CareConnect
           </span>
+          <div className="w-5 h-5 bg-emerald-400"></div>
         </div>
 
         <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6">

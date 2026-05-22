@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Upload, MapPin, MessageCircle, Home, Moon, Sun, BarChart, LogOut, User, HeartPulse } from 'lucide-react';
+import { Upload, MapPin, MessageCircle, Home, Moon, Sun, BarChart, LogOut, User, HeartPulse } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -34,13 +34,11 @@ function Header() {
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         
         {/* Logo Section */}
-        <Link to="/" className="flex items-center space-x-3 group">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_15px_rgba(6,182,212,0.4)] group-hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] transition-all duration-300">
-            <Activity className="h-5 w-5 text-white animate-pulse" />
-          </div>
-          <h1 className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-zinc-400 group-hover:from-cyan-400 group-hover:to-blue-500 transition-all duration-300">
+        <Link to="/" className="flex items-center space-x-2 group">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white transition-all duration-300">
             CareConnect
           </h1>
+          <div className="w-4 h-4 bg-emerald-400"></div>
         </Link>
         
         {/* Navigation Links */}

@@ -72,12 +72,8 @@ export default function LandingPage() {
       <nav className="relative z-50 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 group">
-          <span className="text-xl font-bold tracking-tight">CareConnect</span>
-          <motion.div 
-            className="w-2.5 h-2.5 bg-[#39FF88] shadow-[0_0_15px_#39FF88]"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          />
+          <span className="text-2xl font-bold tracking-tight text-white">CareConnect</span>
+          <div className="w-4 h-4 bg-emerald-400"></div>
         </Link>
         
         {/* Menu Links */}
