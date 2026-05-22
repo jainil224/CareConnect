@@ -47,6 +47,11 @@ export function AuthProvider({ children }) {
         }, { merge: true }).catch(error => {
           console.error("Failed to store user login:", error);
         });
+      } else {
+        // User logged out or no session: Clear sensitive analysis data from session storage!
+        sessionStorage.removeItem('currentUploadProcessed');
+        sessionStorage.removeItem('currentUploadAnalysis');
+        sessionStorage.removeItem('currentUploadText');
       }
       setCurrentUser(user);
       setLoading(false);
