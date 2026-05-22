@@ -26,12 +26,23 @@ function healthReducer(state, action) {
       return { ...state, user: action.payload };
     case 'ADD_REPORT':
       return { ...state, reports: [...state.reports, action.payload] };
-    case 'UPDATE_HEALTH_METRICS':
+    case 'UPDATE_HEALTH_METRICS': {
+      const updatedMetrics = { ...state.healthMetrics };
+      if (action.payload) {
+        Object.keys(action.payload).forEach(key => {
+          if (updatedMetrics[key] && Array.isArray(updatedMetrics[key])) {
+            updatedMetrics[key] = [...updatedMetrics[key], ...action.payload[key]];
+          } else {
+            updatedMetrics[key] = [...action.payload[key]];
+          }
+        });
+      }
       return { 
         ...state, 
-        healthMetrics: { ...state.healthMetrics, ...action.payload },
+        healthMetrics: updatedMetrics,
         healthScore: action.healthScore || state.healthScore
       };
+    }
     case 'SET_RECOMMENDATIONS':
       return { ...state, recommendations: action.payload };
     case 'ADD_APPOINTMENT':

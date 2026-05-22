@@ -9,7 +9,13 @@ import { TrendingUp, Activity, Heart, Droplet, PieChart as PieChartIcon, Sparkle
 
 const COLORS = ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
 
-// DUMMY DATA FOR FALLBACK
+const createHistoricalData = (baseVal, variance) => [
+  { date: '2025-01', value: +(baseVal - variance).toFixed(1) },
+  { date: '2025-02', value: +(baseVal + variance * 0.5).toFixed(1) },
+  { date: '2025-03', value: +(baseVal - variance * 0.2).toFixed(1) },
+  { date: '2025-04', value: +(baseVal).toFixed(1) },
+];
+
 const DUMMY_METRICS = {
   'Blood Pressure': [
     { date: '2025-01', systolic: 120, diastolic: 80 },
@@ -17,42 +23,44 @@ const DUMMY_METRICS = {
     { date: '2025-03', systolic: 122, diastolic: 82 },
     { date: '2025-04', systolic: 125, diastolic: 85 },
   ],
-  'Glucose': [
-    { date: '2025-01', value: 95 },
-    { date: '2025-02', value: 98 },
-    { date: '2025-03', value: 102 },
-    { date: '2025-04', value: 97 },
-  ],
-  'Cholesterol': [
-    { date: '2025-01', value: 180 },
-    { date: '2025-02', value: 175 },
-    { date: '2025-03', value: 190 },
-    { date: '2025-04', value: 160 },
-  ],
-  'Weight (kg)': [
-    { date: '2025-01', value: 72 },
-    { date: '2025-02', value: 71.5 },
-    { date: '2025-03', value: 71 },
-    { date: '2025-04', value: 70.2 },
-  ],
-  'Heart Rate (bpm)': [
-    { date: '2025-01', value: 72 },
-    { date: '2025-02', value: 75 },
-    { date: '2025-03', value: 68 },
-    { date: '2025-04', value: 70 },
-  ],
-  'Hemoglobin (g/dL)': [
-    { date: '2025-01', value: 14.2 },
-    { date: '2025-02', value: 14.5 },
-    { date: '2025-03', value: 14.1 },
-    { date: '2025-04', value: 14.8 },
-  ],
-  'Vitamin D (ng/mL)': [
-    { date: '2025-01', value: 22 },
-    { date: '2025-02', value: 28 },
-    { date: '2025-03', value: 35 },
-    { date: '2025-04', value: 42 },
-  ]
+  'Heart Rate': createHistoricalData(72, 5),
+  'Respiratory Rate': createHistoricalData(16, 2),
+  'Body Temperature': createHistoricalData(98.6, 0.4),
+  'SpO2': createHistoricalData(98, 1),
+  'BMI': createHistoricalData(24.5, 0.5),
+  'Hemoglobin': createHistoricalData(14.5, 0.8),
+  'RBC Count': createHistoricalData(4.8, 0.3),
+  'WBC Count': createHistoricalData(7500, 500),
+  'Platelet Count': createHistoricalData(250000, 20000),
+  'Hematocrit': createHistoricalData(42, 2),
+  'MCV': createHistoricalData(90, 3),
+  'Fasting Blood Sugar': createHistoricalData(95, 8),
+  'Post Meal Sugar': createHistoricalData(120, 15),
+  'HbA1c': createHistoricalData(5.4, 0.2),
+  'Total Cholesterol': createHistoricalData(180, 10),
+  'HDL': createHistoricalData(55, 5),
+  'LDL': createHistoricalData(100, 8),
+  'Triglycerides': createHistoricalData(110, 15),
+  'Bilirubin Total': createHistoricalData(0.8, 0.2),
+  'SGPT (ALT)': createHistoricalData(25, 5),
+  'SGOT (AST)': createHistoricalData(22, 4),
+  'Albumin': createHistoricalData(4.2, 0.3),
+  'Creatinine': createHistoricalData(0.9, 0.1),
+  'Urea': createHistoricalData(15, 3),
+  'Uric Acid': createHistoricalData(5.0, 0.5),
+  'T3': createHistoricalData(120, 10),
+  'T4': createHistoricalData(8.0, 0.5),
+  'TSH': createHistoricalData(2.0, 0.4),
+  'Vitamin D': createHistoricalData(35, 5),
+  'Vitamin B12': createHistoricalData(400, 50),
+  'Calcium': createHistoricalData(9.5, 0.3),
+  'Iron': createHistoricalData(80, 10),
+  'pH': createHistoricalData(6.0, 0.2),
+  'ANTI CCP (ACCP)': createHistoricalData(10, 2),
+  'RHEUMATOID FACTOR (RF)': createHistoricalData(12, 3),
+  'C-REACTIVE PROTEIN (CRP)': createHistoricalData(2.5, 1),
+  'ANTI NUCLEAR ANTIBODIES (ANA)': createHistoricalData(0.5, 0.1),
+  'ERYTHROCYTE SEDIMENTATION RATE (ESR)': createHistoricalData(15, 5),
 };
 
 function HealthDataVisualization() {
@@ -61,21 +69,31 @@ function HealthDataVisualization() {
   
   const hasRealData = state.reports && state.reports.length > 0;
 
-  // Extract all valid dynamic metrics from state.healthMetrics
-  const dynamicMetrics = useMemo(() => {
-    const valid = {};
+  // Merge dynamic metrics with DUMMY_METRICS to form displayMetrics
+  const displayMetrics = useMemo(() => {
+    // Start with a deep copy of expanded dummy metrics to act as historical baseline
+    const merged = JSON.parse(JSON.stringify(DUMMY_METRICS));
+    
+    // If we have real dynamic metrics, merge them in
     if (state.healthMetrics) {
       Object.entries(state.healthMetrics).forEach(([key, dataArray]) => {
         if (Array.isArray(dataArray) && dataArray.length > 0) {
-          // Sort by date
-          valid[key] = [...dataArray].sort((a, b) => new Date(a.date) - new Date(b.date));
+          // Try to find a matching category in dummy metrics (case-insensitive)
+          const existingKey = Object.keys(merged).find(k => k.toLowerCase() === key.toLowerCase()) || key;
+          
+          if (!merged[existingKey]) {
+            merged[existingKey] = [];
+          }
+          // Sort real data
+          const sortedRealData = [...dataArray].sort((a, b) => new Date(a.date) - new Date(b.date));
+          
+          // Append real data to historical dummy data to show trend
+          merged[existingKey] = [...merged[existingKey], ...sortedRealData];
         }
       });
     }
-    return valid;
+    return merged;
   }, [state.healthMetrics]);
-
-  const displayMetrics = hasRealData && Object.keys(dynamicMetrics).length > 0 ? dynamicMetrics : DUMMY_METRICS;
   const metricKeys = Object.keys(displayMetrics);
   
   // Set default active tab safely
