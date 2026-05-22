@@ -45,6 +45,21 @@ function ReportUpload() {
     sessionStorage.setItem('currentUploadProcessed', reportProcessed);
   }, [analysis, extractedText, reportProcessed]);
 
+  // Clear data instantly when user logs out to prevent data leaks between sessions
+  React.useEffect(() => {
+    if (!currentUser) {
+      setFile(null);
+      setPreview(null);
+      setReportProcessed(false);
+      setAnalysis(null);
+      setExtractedText('');
+      setRecommendedFacilities([]);
+      sessionStorage.removeItem('currentUploadProcessed');
+      sessionStorage.removeItem('currentUploadAnalysis');
+      sessionStorage.removeItem('currentUploadText');
+    }
+  }, [currentUser]);
+
   const handleFileSelect = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
