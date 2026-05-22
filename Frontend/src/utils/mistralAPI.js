@@ -1,102 +1,37 @@
-const MISTRAL_API_KEY = process.env.REACT_APP_MISTRAL_API_KEY || "NPeyLIrnHPQSGZlkaSHUsUKgbDF4RWFF";
-const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export async function getMistralResponse(prompt, systemPrompt = "", maxRetries = 3) {
-  const messages = [];
-  
-  if (systemPrompt) {
-    messages.push({
-      role: "system",
-      content: systemPrompt
-    });
-  }
-  
-  messages.push({
-    role: "user",
-    content: prompt
-  });
-  
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await fetch(MISTRAL_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${MISTRAL_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "mistral-small-latest",
-          messages: messages,
-          temperature: 0.1,
-          max_tokens: 16000,
-          response_format: { type: "json_object" }
-        })
-      });
-      
-      if (response.status === 429) {
-        // Rate limit hit. Wait exponentially: 2s, 4s, 8s
-        const delay = Math.pow(2, attempt) * 2000;
-        console.warn(`Mistral 429 Rate Limit. Retrying in ${delay}ms... (Attempt ${attempt + 1} of ${maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue; // Try again
-      }
-      
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data.choices[0].message.content;
-      
-    } catch (error) {
-      if (attempt === maxRetries - 1) {
-        console.error("Error calling Mistral API after max retries:", error);
-        throw error;
-      }
-      // If it's a network error, we also retry
-      const delay = Math.pow(2, attempt) * 2000;
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-  
-  throw new Error("API request failed: Max retries exceeded");
-}
+const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || "AIzaSyCfyDOrHyCvsFKJkhjQCOf5Wba-p-IaVuk";
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export async function extractTextFromDocument(base64Data, mediaType, maxRetries = 3) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const response = await fetch("https://api.mistral.ai/v1/ocr", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${MISTRAL_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "mistral-ocr-latest",
-          document: {
-            type: "document_url",
-            document_url: `data:${mediaType};base64,${base64Data}`
+      // Ensure the base64 string doesn't have the data URL prefix
+      let cleanBase64 = base64Data;
+      if (cleanBase64.includes('base64,')) {
+        cleanBase64 = cleanBase64.split('base64,')[1];
+      }
+
+      // We use Gemini 1.5 Flash for blazing fast OCR
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      
+      const prompt = "Please carefully read this medical document and extract ALL text, numbers, and tables from it exactly as they appear. Do not summarize yet, just transcribe it completely.";
+      
+      const imageParts = [
+        {
+          inlineData: {
+            data: cleanBase64,
+            mimeType: mediaType
           }
-        })
-      });
-      
-      if (response.status === 429) {
-        const delay = Math.pow(2, attempt) * 2000;
-        console.warn(`OCR 429 Rate Limit. Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue;
-      }
-      
-      if (!response.ok) {
-        throw new Error(`OCR API request failed with status ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data.pages.map(page => page.markdown).join('\n\n');
+        }
+      ];
+
+      const result = await model.generateContent([prompt, ...imageParts]);
+      return result.response.text();
       
     } catch (error) {
       if (attempt === maxRetries - 1) {
-        console.error("Error calling Mistral OCR API after max retries:", error);
+        console.error("Error calling Gemini OCR API after max retries:", error);
         throw error;
       }
       const delay = Math.pow(2, attempt) * 2000;
@@ -192,13 +127,20 @@ IMPORTANT REMINDERS BEFORE YOU RESPOND:
 Here is the extracted text from the medical report:
 ${reportText}`;
 
-  const response = await getMistralResponse(userPrompt, systemPrompt);
+  // We use Gemini 1.5 Pro for the deep medical analysis
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-1.5-pro",
+    systemInstruction: systemPrompt
+  });
+
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+    generationConfig: {
+      responseMimeType: "application/json",
+      temperature: 0.1
+    }
+  });
   
-  // Extract JSON block even if AI includes conversational text before/after
-  const jsonMatch = response.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error("No JSON object found in response");
-  }
-  
-  return JSON.parse(jsonMatch[0]);
+  const responseText = result.response.text();
+  return JSON.parse(responseText);
 }
