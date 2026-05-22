@@ -411,62 +411,86 @@ function ReportUpload() {
       )}
       
       {recommendedFacilities.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">🏥 Recommended Healthcare Facilities</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">Based on your medical report analysis, we recommend these facilities:</p>
+        <div className="relative overflow-hidden bg-white/50 dark:bg-[#0a0a0c]/80 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-3xl shadow-2xl p-8 mt-8">
+          {/* Ambient Glow */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center gap-4 mb-8 relative z-10">
+            <div className="p-3.5 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl border border-cyan-500/20 shadow-inner">
+              <span className="text-2xl">🏥</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
+                Recommended Healthcare Facilities
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Based on your medical report analysis</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10">
             {recommendedFacilities.map((facility) => (
-              <div key={facility.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{facility.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{facility.type}</p>
-                  </div>
-                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium">
-                    {facility.reason}
-                  </span>
-                </div>
+              <div key={facility.id} className="group relative border border-gray-200 dark:border-white/5 bg-white/60 dark:bg-white/[0.02] rounded-2xl p-6 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 hover:border-cyan-500/30 overflow-hidden backdrop-blur-sm">
+                {/* Glow effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-blue-500/0 group-hover:from-cyan-500/5 group-hover:to-blue-500/5 transition-all duration-500" />
                 
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    {facility.address}
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-5">
+                    <div className="pr-2">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">{facility.name}</h3>
+                      <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">{facility.type}</p>
+                    </div>
+                    <span className="px-3 py-1.5 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 text-cyan-700 dark:text-cyan-400 rounded-full text-xs font-bold shadow-sm whitespace-nowrap ml-2">
+                      {facility.reason}
+                    </span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                    <Star className="h-4 w-4 mr-2 text-yellow-500" />
-                    {facility.rating} rating • {facility.distance} km away
+                  
+                  <div className="space-y-3.5 mb-6">
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 font-medium">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mr-3 shadow-inner">
+                        <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      </div>
+                      {facility.address}
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 font-medium">
+                      <div className="w-8 h-8 rounded-full bg-yellow-50 dark:bg-yellow-500/10 flex items-center justify-center mr-3 shadow-inner">
+                        <Star className="h-4 w-4 text-yellow-500" />
+                      </div>
+                      <span className="font-bold text-gray-900 dark:text-white mr-1">{facility.rating}</span> rating <span className="mx-1.5 text-gray-300 dark:text-gray-600">•</span> {facility.distance} km away
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 font-medium">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mr-3 shadow-inner">
+                        <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      </div>
+                      {facility.phone}
+                    </div>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                    <Phone className="h-4 w-4 mr-2" />
-                    {facility.phone}
+                  
+                  <div className="flex space-x-3 pt-4 border-t border-gray-100 dark:border-white/5">
+                    <button
+                      onClick={() => bookAppointment(facility)}
+                      className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] transform hover:-translate-y-0.5 transition-all text-sm flex items-center justify-center"
+                    >
+                      Book Appointment
+                    </button>
+                    <button
+                      onClick={() => navigate('/facilities', { state: { searchQuery: facility.name } })}
+                      className="px-5 py-2.5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-colors text-sm"
+                    >
+                      View Details
+                    </button>
                   </div>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => bookAppointment(facility)}
-                    className="flex-1 bg-blue-500 text-white py-2 px-3 rounded-md hover:bg-blue-600 transition-colors text-sm"
-                  >
-                    Book Appointment
-                  </button>
-                  <button
-                    onClick={() => navigate('/facilities', { state: { searchQuery: facility.name } })}
-                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
-                  >
-                    View Details
-                  </button>
                 </div>
               </div>
             ))}
           </div>
           
-          <div className="mt-4 text-center">
+          <div className="mt-8 text-center relative z-10">
             <button
               onClick={() => navigate('/facilities')}
-              className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+              className="inline-flex items-center px-5 py-2.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-cyan-600 dark:text-cyan-400 hover:bg-gray-50 dark:hover:bg-white/10 font-bold shadow-sm transition-all text-sm group"
             >
-              View All Healthcare Facilities →
+              View All Healthcare Facilities 
+              <span className="ml-2 transform group-hover:translate-x-1.5 transition-transform text-lg leading-none">→</span>
             </button>
           </div>
         </div>
