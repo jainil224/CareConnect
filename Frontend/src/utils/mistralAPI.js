@@ -1,78 +1,109 @@
 const MISTRAL_API_KEY = process.env.REACT_APP_MISTRAL_API_KEY || "NPeyLIrnHPQSGZlkaSHUsUKgbDF4RWFF";
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
 
-export async function getMistralResponse(prompt, systemPrompt = "") {
-  try {
-    const messages = [];
-    
-    if (systemPrompt) {
-      messages.push({
-        role: "system",
-        content: systemPrompt
-      });
-    }
-    
+export async function getMistralResponse(prompt, systemPrompt = "", maxRetries = 3) {
+  const messages = [];
+  
+  if (systemPrompt) {
     messages.push({
-      role: "user",
-      content: prompt
+      role: "system",
+      content: systemPrompt
     });
-    
-    const response = await fetch(MISTRAL_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${MISTRAL_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "mistral-small-latest", // Use small model for much faster response times while keeping high context limits
-        messages: messages,
-        temperature: 0.1,
-        max_tokens: 16000,
-        response_format: { type: "json_object" }
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error("Error calling Mistral API:", error);
-    throw error;
   }
+  
+  messages.push({
+    role: "user",
+    content: prompt
+  });
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(MISTRAL_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${MISTRAL_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "mistral-small-latest",
+          messages: messages,
+          temperature: 0.1,
+          max_tokens: 16000,
+          response_format: { type: "json_object" }
+        })
+      });
+      
+      if (response.status === 429) {
+        // Rate limit hit. Wait exponentially: 2s, 4s, 8s
+        const delay = Math.pow(2, attempt) * 2000;
+        console.warn(`Mistral 429 Rate Limit. Retrying in ${delay}ms... (Attempt ${attempt + 1} of ${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue; // Try again
+      }
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.choices[0].message.content;
+      
+    } catch (error) {
+      if (attempt === maxRetries - 1) {
+        console.error("Error calling Mistral API after max retries:", error);
+        throw error;
+      }
+      // If it's a network error, we also retry
+      const delay = Math.pow(2, attempt) * 2000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw new Error("API request failed: Max retries exceeded");
 }
 
-export async function extractTextFromDocument(base64Data, mediaType) {
-  try {
-    const response = await fetch("https://api.mistral.ai/v1/ocr", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${MISTRAL_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "mistral-ocr-latest",
-        document: {
-          type: "document_url",
-          document_url: `data:${mediaType};base64,${base64Data}`
-        }
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`OCR API request failed with status ${response.status}`);
+export async function extractTextFromDocument(base64Data, mediaType, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch("https://api.mistral.ai/v1/ocr", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${MISTRAL_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "mistral-ocr-latest",
+          document: {
+            type: "document_url",
+            document_url: `data:${mediaType};base64,${base64Data}`
+          }
+        })
+      });
+      
+      if (response.status === 429) {
+        const delay = Math.pow(2, attempt) * 2000;
+        console.warn(`OCR 429 Rate Limit. Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`OCR API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.pages.map(page => page.markdown).join('\n\n');
+      
+    } catch (error) {
+      if (attempt === maxRetries - 1) {
+        console.error("Error calling Mistral OCR API after max retries:", error);
+        throw error;
+      }
+      const delay = Math.pow(2, attempt) * 2000;
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
-    
-    const data = await response.json();
-    // Mistral OCR returns pages, we concatenate the markdown from all pages
-    const text = data.pages.map(page => page.markdown).join('\n\n');
-    return text;
-  } catch (error) {
-    console.error("Error calling Mistral OCR API:", error);
-    throw error;
   }
+  throw new Error("OCR API request failed: Max retries exceeded");
 }
 
 export async function analyzeMedicalReport(reportText) {
