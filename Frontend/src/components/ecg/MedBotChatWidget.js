@@ -151,7 +151,7 @@ export default function MedBotChatWidget() {
     if (open) setTimeout(() => inputRef.current?.focus(), 300);
   }, [open]);
 
-  if (location.pathname === '/login') {
+  if (location.pathname === '/login' || location.pathname === '/signup') {
     return null;
   }
 

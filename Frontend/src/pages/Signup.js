@@ -117,23 +117,23 @@ export default function Signup() {
       {/* RIGHT COLUMN: FORM */}
       <div className="flex-1 flex flex-col items-center justify-center py-12 lg:py-6 px-4 sm:px-12 lg:px-16 xl:px-24 overflow-y-auto lg:overflow-hidden bg-black relative">
         
-        {/* Back Button */}
-        <Link 
-          to="/" 
-          className="absolute top-6 left-6 sm:top-8 sm:left-8 flex items-center space-x-2 text-white/60 hover:text-white transition-colors z-20"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-medium">Back to Home</span>
-        </Link>
-
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="w-full max-w-xl space-y-8 lg:space-y-6 sm:space-y-10"
+          className="w-full max-w-xl space-y-8 lg:space-y-6 sm:space-y-10 py-8"
         >
+          {/* Back Button */}
+          <Link 
+            to="/" 
+            className="flex items-center space-x-2 text-white/60 hover:text-white transition-colors self-start mb-4"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back to Home</span>
+          </Link>
+
           <div>
-            <h2 className="text-3xl font-medium tracking-tight text-white">Create Account</h2>
+            <h2 className="text-3xl font-medium tracking-tight text-white mt-2">Create Account</h2>
             <p className="text-white/40 text-sm mt-2">Sign up to access your intelligent medical dashboard.</p>
           </div>
 
