@@ -3,6 +3,28 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || "AIzaSyCfyDOrHyCvsFKJkhjQCOf5Wba-p-IaVuk";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+// We keep the name "getMistralResponse" so we don't break the imports in AIAssistant and MedBotChatWidget,
+// but it is now fully powered by Gemini!
+export async function getMistralResponse(prompt, systemPrompt = "", maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: systemPrompt || undefined
+      });
+      
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (error) {
+      if (attempt === maxRetries - 1) {
+        console.error("Error calling Gemini AI in chat:", error);
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
+}
+
 export async function extractTextFromDocument(base64Data, mediaType, maxRetries = 3) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
