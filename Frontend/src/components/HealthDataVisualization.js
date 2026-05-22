@@ -17,30 +17,18 @@ function HealthDataVisualization() {
   
   const hasRealData = state.reports && state.reports.length > 0;
 
-  // Merge dynamic metrics with DUMMY_METRICS to form displayMetrics
+  // Extract all valid dynamic metrics from state.healthMetrics
   const displayMetrics = useMemo(() => {
-    // Start with a deep copy of expanded dummy metrics to act as historical baseline
-    const merged = JSON.parse(JSON.stringify(DUMMY_METRICS));
-    
-    // If we have real dynamic metrics, merge them in
+    const valid = {};
     if (state.healthMetrics) {
       Object.entries(state.healthMetrics).forEach(([key, dataArray]) => {
         if (Array.isArray(dataArray) && dataArray.length > 0) {
-          // Try to find a matching category in dummy metrics (case-insensitive)
-          const existingKey = Object.keys(merged).find(k => k.toLowerCase() === key.toLowerCase()) || key;
-          
-          if (!merged[existingKey]) {
-            merged[existingKey] = [];
-          }
-          // Sort real data
-          const sortedRealData = [...dataArray].sort((a, b) => new Date(a.date) - new Date(b.date));
-          
-          // Append real data to historical dummy data to show trend
-          merged[existingKey] = [...merged[existingKey], ...sortedRealData];
+          // Sort by date
+          valid[key] = [...dataArray].sort((a, b) => new Date(a.date) - new Date(b.date));
         }
       });
     }
-    return merged;
+    return valid;
   }, [state.healthMetrics]);
   const metricKeys = Object.keys(displayMetrics);
   
