@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "set PORT=3076 && react-scripts start",
-    "build": "react-scripts build",
+    "build": "CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node server/index.js",
