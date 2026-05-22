@@ -36,19 +36,17 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        try {
-          // Store user login record in Firestore
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email,
-            displayName: user.displayName || 'CareConnect User',
-            lastLogin: new Date().toISOString(),
-            accountCreated: user.metadata.creationTime || new Date().toISOString()
-          }, { merge: true });
-        } catch (error) {
+        // Store user login record in Firestore asynchronously without blocking Auth state
+        setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          displayName: user.displayName || 'CareConnect User',
+          lastLogin: new Date().toISOString(),
+          accountCreated: user.metadata.creationTime || new Date().toISOString()
+        }, { merge: true }).catch(error => {
           console.error("Failed to store user login:", error);
-        }
+        });
       }
       setCurrentUser(user);
       setLoading(false);

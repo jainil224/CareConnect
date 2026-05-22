@@ -137,7 +137,7 @@ What health concerns would you like to discuss today?`,
               AI Health Assistant
             </h1>
             <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-              Powered by Mistral Intelligence
+              Powered by CareConnect AI
             </p>
           </div>
         </div>
