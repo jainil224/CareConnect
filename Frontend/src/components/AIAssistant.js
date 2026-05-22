@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useHealth } from '../context/HealthContext';
 import { Send, Bot, User, MessageCircle, Sparkles, PlusCircle } from 'lucide-react';
-import { getGeminiResponse } from '../utils/geminiAPI';
+import { getMistralResponse } from '../utils/mistralAPI';
 
 function AIAssistant() {
   const { state, dispatch } = useHealth();
@@ -42,7 +42,7 @@ What health concerns would you like to discuss today?`,
       CRITICAL INSTRUCTION: If the user reports severe, acute, or potentially life-threatening symptoms (such as "chest pain", "shortness of breath", "severe injury", etc.), you MUST explicitly advise them to seek immediate emergency medical care and highly recommend they use the "Find Facilities" tab in this application to quickly locate the nearest hospitals or urgent care centers.
       Be empathetic and informative. Keep responses concise and focused on the user's health question.`;
       
-      return await getGeminiResponse(userMessage, systemPrompt);
+      return await getMistralResponse(userMessage, systemPrompt);
     } catch (error) {
       console.error('Error getting AI response:', error);
       return "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again later or consult a healthcare professional for medical advice.";
