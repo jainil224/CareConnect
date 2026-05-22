@@ -55,9 +55,8 @@ function OfflineBanner() {
       <div className="flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/8 px-4 py-3 text-sm text-amber-300">
         <WifiOff className="h-4 w-4 shrink-0 text-amber-400" />
         <span>
-          <strong>Running in local estimation mode</strong> — Flask ML server not detected on{' '}
-          <code className="text-xs bg-amber-500/10 px-1 py-0.5 rounded">localhost:5000</code>.
-          Start it with <code className="text-xs bg-amber-500/10 px-1 py-0.5 rounded">npm run flask</code> for full scikit-learn predictions.
+          <strong>Running in local estimation mode</strong> — Flask ML server not detected.{' '}
+          Ensure your backend is running or deployed correctly for full scikit-learn predictions.
         </span>
       </div>
     </div>
