@@ -11,7 +11,8 @@ const FLASK_URL = process.env.REACT_APP_FLASK_URL || 'http://127.0.0.1:5000';
  */
 export const checkFlaskHealth = async () => {
   try {
-    await axios.get(`${FLASK_URL}/health`, { timeout: 3000 });
+    // Render free instances take 50+ seconds to wake up from sleep
+    await axios.get(`${FLASK_URL}/health`, { timeout: 60000 });
     return 'online';
   } catch {
     return 'offline';
@@ -406,7 +407,7 @@ export const predictECGLocal = async (features) => {
   });
 
   try {
-    const response = await axios.post(`${FLASK_URL}/predict`, sanitized, { timeout: 5000 });
+    const response = await axios.post(`${FLASK_URL}/predict`, sanitized, { timeout: 60000 });
     // Server returns prediction, risk_probability, confidence, raw_prediction
     return { ...response.data, isFallback: false };
   } catch (err) {
