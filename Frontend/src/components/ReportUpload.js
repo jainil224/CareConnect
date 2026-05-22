@@ -105,6 +105,9 @@ function ReportUpload() {
       const text = extractedOCRText || "No text could be extracted from the file.";
       setExtractedText(text);
       
+      // Add a 1.5 second delay to prevent hitting Mistral's strict 1-request-per-second rate limit
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       // Analyze with Mistral AI
       const aiAnalysis = await analyzeMedicalReport(text);
       setAnalysis(aiAnalysis);
