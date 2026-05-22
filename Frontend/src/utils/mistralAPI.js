@@ -28,8 +28,7 @@ export async function getMistralResponse(prompt, systemPrompt = "", maxRetries =
           model: "mistral-small-latest",
           messages: messages,
           temperature: 0.1,
-          max_tokens: 16000,
-          response_format: { type: "json_object" }
+          max_tokens: 16000
         })
       });
       
