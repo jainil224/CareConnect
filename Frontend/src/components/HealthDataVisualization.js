@@ -3,7 +3,7 @@ import { useHealth } from '../context/HealthContext';
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, 
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
-  ResponsiveContainer, Cell, AreaChart, Area
+  ResponsiveContainer, Cell, AreaChart, Area, LabelList
 } from 'recharts';
 import { TrendingUp, Activity, Heart, Droplet, PieChart as PieChartIcon, Sparkles } from 'lucide-react';
 
@@ -187,8 +187,12 @@ function HealthDataVisualization() {
               itemStyle={{ color: '#fff' }}
             />
             <Legend wrapperStyle={{ paddingTop: '20px' }} />
-            <Line type="monotone" dataKey="systolic" stroke="#06b6d4" strokeWidth={3} />
-            <Line type="monotone" dataKey="diastolic" stroke="#3b82f6" strokeWidth={3} />
+            <Line type="monotone" dataKey="systolic" stroke="#06b6d4" strokeWidth={3}>
+              <LabelList dataKey="systolic" position="top" fill="#06b6d4" fontSize={12} fontWeight="bold" />
+            </Line>
+            <Line type="monotone" dataKey="diastolic" stroke="#3b82f6" strokeWidth={3}>
+              <LabelList dataKey="diastolic" position="bottom" fill="#3b82f6" fontSize={12} fontWeight="bold" />
+            </Line>
           </LineChart>
         </ResponsiveContainer>
       );
@@ -230,7 +234,9 @@ function HealthDataVisualization() {
           <YAxis stroke="#9ca3af" domain={[Math.floor(minVal - padding), Math.ceil(maxVal + padding)]} />
           <Tooltip content={<CustomTooltip />} />
           <Legend wrapperStyle={{ paddingTop: '20px' }} />
-          <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+          <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)">
+            <LabelList dataKey="value" position="top" fill="#e4e4e7" fontSize={12} fontWeight="bold" />
+          </Area>
         </AreaChart>
       </ResponsiveContainer>
     );
@@ -273,55 +279,66 @@ function HealthDataVisualization() {
         {/* Main Glassmorphic Container */}
         <div className="bg-white/60 dark:bg-[#121214]/60 backdrop-blur-2xl rounded-3xl border border-zinc-200/50 dark:border-white/5 shadow-2xl p-6 sm:p-8 flex flex-col">
           
-          {/* Tabs */}
-          <div className="flex flex-wrap gap-3 mb-8 pb-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveMetric(tab.id)}
-                className={`shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-bold tracking-wide transition-all duration-300 ${
-                  activeMetric === tab.id
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.35)] border border-transparent'
-                    : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-300 border border-zinc-200/50 dark:border-white/10 hover:bg-zinc-200 dark:hover:bg-white/10 hover:text-cyan-600 dark:hover:text-cyan-400'
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          
-          {/* Trend Analysis Alert Box */}
-          <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/5 border border-cyan-500/20 dark:border-cyan-400/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row sm:items-center gap-4 relative overflow-hidden shadow-sm">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/20 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2" />
-            <div className="relative z-10">
-              <h2 className="text-sm font-bold text-cyan-800 dark:text-cyan-300 tracking-wide uppercase mb-1">
-                AI Trend Analysis
-              </h2>
-              <p className="text-sm text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
-                {getMetricInsight()}
+          {hasRealData ? (
+            <>
+              {/* Tabs */}
+              <div className="flex flex-wrap gap-3 mb-8 pb-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveMetric(tab.id)}
+                    className={`shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-bold tracking-wide transition-all duration-300 ${
+                      activeMetric === tab.id
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.35)] border border-transparent'
+                        : 'bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-300 border border-zinc-200/50 dark:border-white/10 hover:bg-zinc-200 dark:hover:bg-white/10 hover:text-cyan-600 dark:hover:text-cyan-400'
+                    }`}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Trend Analysis Alert Box */}
+              <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/5 border border-cyan-500/20 dark:border-cyan-400/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row sm:items-center gap-4 relative overflow-hidden shadow-sm">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-400/20 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2" />
+                <div className="relative z-10">
+                  <h2 className="text-sm font-bold text-cyan-800 dark:text-cyan-300 tracking-wide uppercase mb-1">
+                    AI Trend Analysis
+                  </h2>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
+                    {getMetricInsight()}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Chart Area */}
+              <div className="w-full bg-white/40 dark:bg-black/20 border border-zinc-100 dark:border-white/5 rounded-2xl p-4 sm:p-6 mb-6">
+                {renderActiveChart()}
+              </div>
+              
+              {/* Footer Info */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2 px-2">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">
+                  Data sourced strictly from AI Analysis
+                </p>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold tracking-wide text-emerald-600 dark:text-emerald-400">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {state.reports.length} report{state.reports.length > 1 ? 's' : ''} dynamically visualized
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mb-6 border border-zinc-200 dark:border-white/5 shadow-inner">
+                <Activity className="h-10 w-10 text-zinc-400 dark:text-zinc-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight">No Health Data Available</h2>
+              <p className="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto text-base leading-relaxed">
+                Upload your medical reports in the <strong>Report Upload</strong> section. Our AI will automatically extract your clinical metrics and visualize your long-term health trends here.
               </p>
             </div>
-          </div>
-          
-          {/* Chart Area */}
-          <div className="w-full bg-white/40 dark:bg-black/20 border border-zinc-100 dark:border-white/5 rounded-2xl p-4 sm:p-6 mb-6">
-            {renderActiveChart()}
-          </div>
-          
-          {/* Footer Info */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2 px-2">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">
-              {hasRealData ? "Data sourced strictly from AI Analysis" : "Data scope: Demo Placeholder"}
-            </p>
-            {hasRealData && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold tracking-wide text-emerald-600 dark:text-emerald-400">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                {state.reports.length} report{state.reports.length > 1 ? 's' : ''} dynamically visualized
-              </div>
-            )}
-          </div>
-
+          )}
         </div>
       </div>
     </div>

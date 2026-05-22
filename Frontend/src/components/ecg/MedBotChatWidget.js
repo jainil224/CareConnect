@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Send, X, PlusCircle, Sparkles, Bot, User } from 'lucide-react';
 import { getMistralResponse } from '../../utils/mistralAPI';
 
@@ -132,6 +133,7 @@ function RenderText({ text }) {
 
 // ── Main Widget ───────────────────────────────────────────────────────────────
 export default function MedBotChatWidget() {
+  const location                = useLocation();
   const [open, setOpen]         = useState(false);
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [inputVal, setInputVal] = useState('');
@@ -148,6 +150,10 @@ export default function MedBotChatWidget() {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 300);
   }, [open]);
+
+  if (location.pathname === '/login') {
+    return null;
+  }
 
   const clearChat = () => setMessages([INITIAL_MESSAGE]);
 
