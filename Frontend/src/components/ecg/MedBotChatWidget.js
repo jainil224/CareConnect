@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Send, X, PlusCircle, Sparkles, Bot, User } from 'lucide-react';
-import { getMistralResponse } from '../../utils/mistralAPI';
+import { getGeminiResponse } from '../../utils/geminiAPI';
 
 // ── 3D Doctor Robot SVG ─────────────────────────────────────────────────────
 function MedBotAvatar({ size = 80 }) {
@@ -192,7 +192,7 @@ export default function MedBotChatWidget() {
     setIsTyping(true);
 
     try {
-      const response = await getMistralResponse(msg, SYSTEM_PROMPT);
+      const response = await getGeminiResponse(msg, SYSTEM_PROMPT);
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         type: 'bot',

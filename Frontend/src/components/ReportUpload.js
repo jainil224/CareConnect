@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHealth } from '../context/HealthContext';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Upload, Download, AlertCircle, CheckCircle, Loader, Brain, MapPin, Star, Phone } from 'lucide-react';
-import { analyzeMedicalReport, extractTextFromDocument } from '../utils/mistralAPI';
+import { analyzeMedicalReport, extractTextFromDocument } from '../utils/geminiAPI';
 import { fileToBase64 } from '../utils/fileToBase64';
 import { HealthReportResults } from './HealthReport/HealthReportResults';
 import { facilities } from '../data/facilities';
@@ -97,7 +97,7 @@ function ReportUpload() {
     setError(null);
     
     try {
-      // 1. Extract text from the PDF or image using Mistral OCR
+      // 1. Extract text from the PDF or image using Gemini OCR
       const base64 = await fileToBase64(file);
       const mediaType = file.type || 'application/octet-stream';
       const extractedOCRText = await extractTextFromDocument(base64, mediaType);
@@ -105,10 +105,10 @@ function ReportUpload() {
       const text = extractedOCRText || "No text could be extracted from the file.";
       setExtractedText(text);
       
-      // Add a 1.5 second delay to prevent hitting Mistral's strict 1-request-per-second rate limit
+      // Add a 1.5 second delay to ensure clean API state between Gemini calls
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Analyze with Mistral AI
+      // Analyze with Gemini AI
       const aiAnalysis = await analyzeMedicalReport(text);
       setAnalysis(aiAnalysis);
       
