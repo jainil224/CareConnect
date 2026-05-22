@@ -195,6 +195,25 @@ export default function LandingPage() {
 
       {/* How It Works Section */}
       <HowItWorks />
+
+      {/* FOOTER */}
+      <footer className="relative z-20 border-t border-white/5 bg-[#000000] py-12 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center">
+          {/* Links */}
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 mb-8 text-[15px] font-medium text-gray-400">
+            <a href="#about" className="hover:text-white transition-colors duration-300">About</a>
+            <a href="#features" onClick={scrollToFeatures} className="hover:text-white transition-colors duration-300">Features</a>
+            <a href="#pricing" className="hover:text-white transition-colors duration-300">Pricing</a>
+            <a href="#privacy" className="hover:text-white transition-colors duration-300">Privacy</a>
+            <a href="#terms" className="hover:text-white transition-colors duration-300">Terms</a>
+          </div>
+          
+          {/* Copyright */}
+          <p className="text-gray-500 text-sm text-center">
+            © 2026 CareConnect. All rights reserved. Built with <span className="text-pink-500 text-base">❤️</span> for patients everywhere.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
