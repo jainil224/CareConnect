@@ -56,6 +56,8 @@ function healthReducer(state, action) {
       return { ...state, chatHistory: [...state.chatHistory, action.payload] };
     case 'CLEAR_CHAT_HISTORY':
       return { ...state, chatHistory: [] };
+    case 'RESET_STATE':
+      return initialState;
     default:
       return state;
   }
@@ -180,6 +182,9 @@ export function HealthProvider({ children }) {
       if (state.reports.length === 0) {
         fetchReports();
       }
+    } else {
+      // User logged out: clear all health data from global context!
+      enhancedDispatch({ type: 'RESET_STATE' });
     }
   }, [currentUser]); // Note: omitted state.reports.length from dependency to avoid re-triggering
 
