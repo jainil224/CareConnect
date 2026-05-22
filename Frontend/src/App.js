@@ -18,12 +18,13 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import ECGPrediction from './pages/ECGPrediction';
 import LandingPage from './pages/LandingPage';
 import MedBotChatWidget from './components/ecg/MedBotChatWidget';
+import ReportHistory from './pages/ReportHistory';
 
 function App() {
   return (
     <ThemeProvider>
-      <HealthProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <HealthProvider>
           <Router>
             <Toaster 
               position="top-right" 
@@ -65,6 +66,7 @@ function App() {
                             <Route path="/facilities" element={<FacilitySearchDark />} />
                             <Route path="/drug-checker" element={<DrugInteractionChecker />} />
                             <Route path="/appointment-confirmation" element={<AppointmentConfirmation />} />
+                            <Route path="/history" element={<ReportHistory />} />
                             
                             {/* Fallback to dashboard if a logged-in user hits a non-existent protected route */}
                             <Route path="*" element={<Dashboard />} />
@@ -78,8 +80,8 @@ function App() {
             </div>
             <MedBotChatWidget />
           </Router>
-        </AuthProvider>
-      </HealthProvider>
+        </HealthProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

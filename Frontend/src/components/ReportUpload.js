@@ -9,18 +9,41 @@ import { facilities } from '../data/facilities';
 import { detectReportType } from '../utils/ReportTypeDetector';
 import toast from 'react-hot-toast';
 import html2pdf from 'html2pdf.js';
+import { useAuth } from '../context/AuthContext';
+import { storage, db } from '../firebase/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, addDoc } from 'firebase/firestore';
 
 function ReportUpload() {
   const { dispatch } = useHealth();
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [reportProcessed, setReportProcessed] = useState(false);
-  const [analysis, setAnalysis] = useState(null);
+  const [reportProcessed, setReportProcessed] = useState(() => {
+    return sessionStorage.getItem('currentUploadProcessed') === 'true';
+  });
+  const [analysis, setAnalysis] = useState(() => {
+    const saved = sessionStorage.getItem('currentUploadAnalysis');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [extractedText, setExtractedText] = useState('');
+  const [extractedText, setExtractedText] = useState(() => {
+    return sessionStorage.getItem('currentUploadText') || '';
+  });
   const [recommendedFacilities, setRecommendedFacilities] = useState([]);
+
+  // Save to sessionStorage whenever state changes
+  React.useEffect(() => {
+    if (analysis) sessionStorage.setItem('currentUploadAnalysis', JSON.stringify(analysis));
+    else sessionStorage.removeItem('currentUploadAnalysis');
+    
+    if (extractedText) sessionStorage.setItem('currentUploadText', extractedText);
+    else sessionStorage.removeItem('currentUploadText');
+    
+    sessionStorage.setItem('currentUploadProcessed', reportProcessed);
+  }, [analysis, extractedText, reportProcessed]);
 
   const handleFileSelect = (event) => {
     const selectedFile = event.target.files[0];
@@ -71,16 +94,38 @@ function ReportUpload() {
       const aiAnalysis = await analyzeMedicalReport(text);
       setAnalysis(aiAnalysis);
       
+      let storageUrl = null;
+      let firebaseDocId = null;
+
+      if (currentUser) {
+        try {
+          const docRef = await addDoc(collection(db, `users/${currentUser.uid}/reports`), {
+            filename: file.name,
+            uploadDate: new Date().toISOString(),
+            reportType: aiAnalysis.reportType || 'General Health Report',
+            storageUrl: null, // Skipping file storage
+            summary: aiAnalysis.summary,
+            aiAnalysis: aiAnalysis
+          });
+          firebaseDocId = docRef.id;
+          toast.success("Report saved to history successfully!");
+        } catch (fbError) {
+          console.error("Firebase upload error:", fbError);
+          toast.error("Analysis complete, but failed to save to history.");
+        }
+      }
+
       // Save to context
       dispatch({
         type: 'ADD_REPORT',
         payload: {
-          id: Date.now(),
+          id: firebaseDocId || Date.now(),
           filename: file.name,
           uploadDate: new Date().toISOString(),
           extractedText: text,
           analysis: aiAnalysis,
           summary: aiAnalysis.summary,
+          storageUrl: storageUrl,
           metadata: {
             reportDate: new Date().toISOString().split('T')[0],
             doctorName: aiAnalysis.detectedDoctor || '',
@@ -314,7 +359,7 @@ function ReportUpload() {
             ) : (
               <>
                 <Brain className="h-5 w-5 mr-2" />
-                Analyze with Mistral AI
+                Analyze Report
               </>
             )}
           </button>

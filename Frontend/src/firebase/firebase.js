@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
+import { getStorage } from "firebase/storage";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -18,6 +20,8 @@ export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : nul
 
 // Export authentication instances
 export const auth = getAuth(app);
+export const storage = getStorage(app);
+export const db = getFirestore(app);
 
 // Explicitly enforce local persistence so users stay logged in indefinitely until they hit logout
 setPersistence(auth, browserLocalPersistence).catch((error) => {

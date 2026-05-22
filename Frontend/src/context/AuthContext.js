@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth, googleProvider } from "../firebase/firebase";
+import { auth, googleProvider, db } from "../firebase/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -35,7 +36,20 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          // Store user login record in Firestore
+          await setDoc(doc(db, 'users', user.uid), {
+            email: user.email,
+            displayName: user.displayName || 'CareConnect User',
+            lastLogin: new Date().toISOString(),
+            accountCreated: user.metadata.creationTime || new Date().toISOString()
+          }, { merge: true });
+        } catch (error) {
+          console.error("Failed to store user login:", error);
+        }
+      }
       setCurrentUser(user);
       setLoading(false);
     });

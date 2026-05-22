@@ -6,5 +6,8 @@
     "dev": "cd Frontend && npm run dev",
     "start": "cd Frontend && npm start",
     "install:all": "cd Frontend && npm install"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.10.0"
   }
 }

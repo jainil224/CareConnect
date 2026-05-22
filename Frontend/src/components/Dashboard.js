@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useHealth } from '../context/HealthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Activity, Heart, Brain, TrendingUp, Users, Calendar, MessageSquare, Upload, Search, Info, AlertTriangle, CheckCircle, ArrowUpRight, Bell } from 'lucide-react';
+import { Activity, Heart, Brain, TrendingUp, Users, Calendar, MessageSquare, Upload, Search, Info, AlertTriangle, CheckCircle, ArrowUpRight, Bell, History } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import EmergencyButton from './EmergencyButton';
@@ -697,11 +697,12 @@ function Dashboard() {
 
 
       {/* 7. QUICK ACTION MODULES */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
         {[
           { path: '/ecg', icon: Heart, title: 'ECG Prediction', subtitle: 'AI Heart Analysis', accent: 'bg-cyan-500', hoverBg: 'group-hover:bg-cyan-500/10 dark:group-hover:bg-cyan-500/20' },
           { path: '/chat', icon: MessageSquare, title: 'AI Assistant', subtitle: 'Medical Guidance', accent: 'bg-blue-500', hoverBg: 'group-hover:bg-blue-500/10 dark:group-hover:bg-blue-500/20' },
           { path: '/upload', icon: Upload, title: 'Upload Reports', subtitle: 'Analyze Vitals', accent: 'bg-green-500', hoverBg: 'group-hover:bg-green-500/10 dark:group-hover:bg-green-500/20' },
+          { path: '/history', icon: History, title: 'Report History', subtitle: 'View Past Records', accent: 'bg-indigo-500', hoverBg: 'group-hover:bg-indigo-500/10 dark:group-hover:bg-indigo-500/20' },
           { path: '/health-data', icon: TrendingUp, title: 'Health Data', subtitle: 'Track Metrics', accent: 'bg-amber-500', hoverBg: 'group-hover:bg-amber-500/10 dark:group-hover:bg-amber-500/20' },
           { path: '/facilities', icon: Search, title: 'Find Healthcare', subtitle: 'Search Hospitals', accent: 'bg-purple-500', hoverBg: 'group-hover:bg-purple-500/10 dark:group-hover:bg-purple-500/20' },
         ].map((action, idx) => {

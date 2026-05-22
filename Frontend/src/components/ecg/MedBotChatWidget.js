@@ -67,15 +67,40 @@ function MedBotAvatar({ size = 80 }) {
       {/* Neck */}
       <rect x="88" y="133" width="24" height="16" rx="6" fill="#c8dde8" />
       {/* Body */}
-      <path d="M30 220 Q28 165 50 152 L72 145 L100 155 L128 145 L150 152 Q172 165 170 220 Z" fill="url(#mbCoatGrad)" />
-      <path d="M30 220 Q28 165 50 152 L72 145 L100 155 L128 145 L150 152 Q172 165 170 220 Z" fill="url(#mbBodySheen)" />
-      {/* Shirt & Tie */}
-      <path d="M82 145 L100 155 L118 145 L110 148 L100 162 L90 148 Z" fill="#7bbfda" />
-      <path d="M97 148 L103 148 L106 175 L100 180 L94 175 Z" fill="#1a2d5a" />
-      <path d="M95 148 L105 148 L103 155 L100 158 L97 155 Z" fill="#243672" />
-      {/* Lapels */}
-      <path d="M50 152 L72 145 L90 148 L82 168 Q60 165 50 152 Z" fill="#f0f6fa" stroke="#dde8ef" strokeWidth="0.5" />
-      <path d="M150 152 L128 145 L110 148 L118 168 Q140 165 150 152 Z" fill="#f0f6fa" stroke="#dde8ef" strokeWidth="0.5" />
+      {/* Body / Coat Base */}
+      <path d="M30 220 Q28 165 50 152 L72 145 L100 160 L128 145 L150 152 Q172 165 170 220 Z" fill="url(#mbCoatGrad)" />
+      
+      {/* Dress Shirt (Inner V shape - Scrub Blue) */}
+      <path d="M85 145 L100 165 L115 145 L100 220 Z" fill="#0ea5e9" />
+      
+      {/* Shirt Collar */}
+      <path d="M85 145 L100 160 L98 145 Z" fill="#0284c7" stroke="#0369a1" strokeWidth="0.5" />
+      <path d="M115 145 L100 160 L102 145 Z" fill="#0284c7" stroke="#0369a1" strokeWidth="0.5" />
+
+      {/* Tie */}
+      <path d="M96 155 L104 155 L107 195 L100 205 L93 195 Z" fill="#0f172a" />
+      <path d="M95 149 L105 149 L103 157 L97 157 Z" fill="#020617" />
+
+      {/* Coat Left Front Panel & Lapel */}
+      <path d="M72 145 L85 145 L100 185 L100 220 L30 220 Q28 165 50 152 Z" fill="#ffffff" opacity="0.4" />
+      <path d="M50 152 L72 145 L85 145 L95 185 L80 165 Q60 160 50 152 Z" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+      
+      {/* Coat Right Front Panel & Lapel */}
+      <path d="M128 145 L115 145 L100 185 L100 220 L170 220 Q172 165 150 152 Z" fill="#ffffff" opacity="0.4" />
+      <path d="M150 152 L128 145 L115 145 L105 185 L120 165 Q140 160 150 152 Z" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+      
+      {/* Coat Details: Pockets & Buttons */}
+      {/* Pocket Left */}
+      <rect x="55" y="180" width="22" height="26" rx="2" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+      <path d="M55 180 L77 180 L77 185 L55 185 Z" fill="#f1f5f9" />
+      {/* Pocket Right */}
+      <rect x="123" y="180" width="22" height="26" rx="2" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+      <path d="M123 180 L145 180 L145 185 L123 185 Z" fill="#f1f5f9" />
+      
+      <circle cx="104" cy="190" r="2.5" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="0.5" />
+      <circle cx="104" cy="205" r="2.5" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="0.5" />
+      
+      <path d="M100 185 L100 220" stroke="#cbd5e1" strokeWidth="1" />
       {/* Arms */}
       <path d="M30 220 Q22 198 30 178 Q38 162 60 160 L72 165 L62 188 Q48 195 42 215 Z" fill="url(#mbCoatGrad)" stroke="#ccdde8" strokeWidth="0.5" />
       <path d="M170 220 Q178 198 170 178 Q162 162 140 160 L128 165 L138 188 Q152 195 158 215 Z" fill="url(#mbCoatGrad)" stroke="#ccdde8" strokeWidth="0.5" />
@@ -251,7 +276,7 @@ export default function MedBotChatWidget() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                 </span>
-                <span className="text-[11px] font-semibold text-emerald-400">Secure · Powered by Mistral AI</span>
+                <span className="text-[11px] font-semibold text-emerald-400">Secure</span>
               </div>
             </div>
 
@@ -480,19 +505,12 @@ export default function MedBotChatWidget() {
             )}
           </button>
 
-          {/* AI badge pill */}
+          {/* AI Online Indicator */}
           {!open && (
-            <div
-              className="absolute -top-1.5 -right-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg,#6366f1,#06b6d4)',
-                border: '2px solid white',
-                boxShadow: '0 2px 8px rgba(99,102,241,0.5)',
-              }}
-            >
-              <Sparkles size={8} className="text-white" />
-              <span style={{ fontSize: 9, fontWeight: 900, color: 'white', letterSpacing: '0.06em' }}>AI</span>
-            </div>
+            <span className="absolute top-1 right-1 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-cyan-500 border-2 border-black"></span>
+            </span>
           )}
         </div>
       </div>

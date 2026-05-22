@@ -27,6 +27,9 @@ import {
   parsePDFFileContent,
   predictECGLocal,
 } from '../services/ecgApi';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 // ── Flask status indicator component ────────────────────────────────────────
 function FlaskStatusBadge({ status }) {
@@ -63,6 +66,7 @@ function OfflineBanner() {
 
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function ECGPrediction() {
+  const { currentUser } = useAuth();
   const [isProcessing, setIsProcessing]     = useState(false);
   const [currentStage, setCurrentStage]     = useState('');
   const [result, setResult]                 = useState(null);
@@ -222,7 +226,7 @@ export default function ECGPrediction() {
       }
 
       const { info, bg } = mapExtractedToStates(parseResult.features);
-      await executeOfflinePrediction(info, bg, parseResult.waveformIntervals);
+      await executeOfflinePrediction(info, bg, parseResult.waveformIntervals, file);
     } catch (error) {
       console.error('[ECG Upload] Error:', error);
       toast.error('Format unrecognised. Please upload a clear CSV, image, or PDF.');
@@ -233,7 +237,7 @@ export default function ECGPrediction() {
   };
 
   // ── ML prediction orchestrator ───────────────────────────────────────────
-  const executeOfflinePrediction = async (info, bg, intervals = null) => {
+  const executeOfflinePrediction = async (info, bg, intervals = null, file = null) => {
     setIsProcessing(true);
     setCurrentStage('Analyzing');
     await new Promise(r => setTimeout(r, 600));
@@ -291,6 +295,22 @@ export default function ECGPrediction() {
         setTimeout(() => setShowEmergency(true), 2000);
       } else {
         toast.success('Diagnostic profile successfully analysed!');
+      }
+
+      // Save to Firebase
+      if (file && currentUser) {
+        try {
+          await addDoc(collection(db, `users/${currentUser.uid}/reports`), {
+            filename: file.name,
+            uploadDate: new Date().toISOString(),
+            reportType: 'ECG Prediction',
+            storageUrl: null, // Skipping file storage
+            summary: cardiologyReport.summary,
+            aiAnalysis: mlResponse
+          });
+        } catch (fbError) {
+          console.error("Firebase upload error:", fbError);
+        }
       }
     } catch (err) {
       console.error('[ECG Prediction] Error:', err);

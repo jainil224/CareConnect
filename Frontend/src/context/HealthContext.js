@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { db } from '../firebase/firebase';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 
 const HealthContext = createContext();
 
@@ -59,8 +62,10 @@ function healthReducer(state, action) {
 }
 
 export function HealthProvider({ children }) {
+  const { currentUser } = useAuth();
   const [state, dispatch] = useReducer(healthReducer, initialState);
 
+  // Define enhancedDispatch BEFORE useEffect so we can use it
   const enhancedDispatch = (action) => {
     if (action.type === 'ADD_REPORT' && action.payload.analysis) {
       const reportDate = action.payload.analysis.meta?.reportDate || new Date().toISOString().split('T')[0];
@@ -133,6 +138,50 @@ export function HealthProvider({ children }) {
       dispatch(action);
     }
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      const fetchReports = async () => {
+        try {
+          const q = query(
+            collection(db, `users/${currentUser.uid}/reports`),
+            orderBy('uploadDate', 'asc') // Ascending so metrics build chronologically
+          );
+          const snapshot = await getDocs(q);
+          
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.aiAnalysis) {
+              // Avoid duplicating if we somehow already have it
+              // (e.g. strict mode or re-mounts)
+              enhancedDispatch({
+                type: 'ADD_REPORT',
+                payload: {
+                  id: doc.id,
+                  filename: data.filename,
+                  uploadDate: data.uploadDate,
+                  analysis: data.aiAnalysis,
+                  summary: data.summary,
+                  storageUrl: data.storageUrl,
+                  reportType: data.reportType,
+                  metadata: {
+                    reportDate: data.uploadDate.split('T')[0]
+                  }
+                }
+              });
+            }
+          });
+        } catch (err) {
+          console.error("Error fetching context reports:", err);
+        }
+      };
+      
+      // We only fetch if state.reports is empty to prevent infinite loops or duplication
+      if (state.reports.length === 0) {
+        fetchReports();
+      }
+    }
+  }, [currentUser]); // Note: omitted state.reports.length from dependency to avoid re-triggering
 
   return (
     <HealthContext.Provider value={{ state, dispatch: enhancedDispatch }}>
